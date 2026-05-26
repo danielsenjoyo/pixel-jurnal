@@ -105,6 +105,6 @@ const logoLinkClass = css({
 
 /** Icon-only navbar buttons share `--spacing-2xs` (6px) square padding (Figma spec). */
 const iconBtnClass = css({
-  padding: "var(--mp-spacing-1\.5)"
+  padding: "var(--mp-spacing-1\\.5)"
 });
 </script>
