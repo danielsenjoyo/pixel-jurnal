@@ -78,7 +78,7 @@ const parentClass = computed(() =>
     py: "2xs",
     rounded: "md",
     cursor: "pointer",
-    transition: "width var(--motion-duration-slow) var(--motion-ease-in-out)",
+    transition: "width var(--mp-durations-fast) var(--motion-ease-in-out)",
     // Active row gets the Blue/$blue-100 fill (Jurnal selected-nav recipe).
     backgroundColor: isActive.value ? "blue.50" : "transparent"
   })
@@ -108,7 +108,7 @@ const labelClass = css({
   opacity: 100,
   overflow: "hidden",
   transition:
-    "opacity var(--motion-duration-slow) var(--motion-ease-in-out), max-width var(--motion-duration-slow) var(--motion-ease-in-out)",
+    "opacity var(--mp-durations-fast) var(--motion-ease-in-out), max-width var(--mp-durations-fast) var(--motion-ease-in-out)",
   "&[data-hide-label=true]": {
     opacity: 0,
     maxWidth: "0",
@@ -121,7 +121,7 @@ const arrowClass = css({
   opacity: 100,
   overflow: "hidden",
   transition:
-    "opacity var(--motion-duration-slow) var(--motion-ease-in-out), max-width var(--motion-duration-slow) var(--motion-ease-in-out)",
+    "opacity var(--mp-durations-fast) var(--motion-ease-in-out), max-width var(--mp-durations-fast) var(--motion-ease-in-out)",
   "&[data-hide-arrow=true]": {
     opacity: 0,
     maxWidth: "0",

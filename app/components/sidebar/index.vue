@@ -1,10 +1,5 @@
 <template>
-  <aside
-    ref="sidebarNode"
-    data-pixel-component="TheSidebar"
-    data-slot="root"
-    :class="rootClass"
-  >
+  <aside ref="sidebarNode" data-pixel-component="TheSidebar" data-slot="root" :class="rootClass">
     <div data-slot="rootChild" :class="rootChildClass">
       <div data-slot="menu" :class="menuClass">
         <ul class="sidebar-content" :class="mainMenuClass">
@@ -40,7 +35,7 @@
                   css({
                     p: 2,
                     rounded: 'sm',
-                    transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
+                    transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
                     cursor: 'pointer',
                     _hover: {
                       backgroundColor: 'gray.50',
@@ -87,13 +82,8 @@ const props = defineProps({
   hasChild: { type: Boolean, default: false }
 });
 
-const {
-  accountInformation,
-  isSidebarCollapsed,
-  isSidebarChildCollapsed,
-  useSidebar,
-  sidebarNode
-} = usePixelLayout();
+const { accountInformation, isSidebarCollapsed, isSidebarChildCollapsed, useSidebar, sidebarNode } =
+  usePixelLayout();
 
 const { menuGroups, isRouteActive, getFirstChildRoute } = useAppMenu();
 
@@ -104,8 +94,8 @@ const isHideLabel = () => isSidebarCollapsed.value;
 const rootClass = computed(() =>
   css({
     flex: "none",
-    transition: "all var(--motion-duration-slow) var(--motion-ease-in-out)",
-    zIndex: "var(--z-sidebar)",
+    transition: "all var(--mp-durations-fast) var(--motion-ease-in-out)",
+    zIndex: "var(--mp-z-index-docked)",
     display: { base: "none", md: "block" },
     width: isSidebarCollapsed.value
       ? "var(--layout-sidebar-collapsed-width)"
@@ -118,7 +108,7 @@ const rootChildClass = css({
   position: "fixed",
   display: "flex",
   marginRight: "var(--layout-sidebar-collapsed-width)",
-  transition: "all var(--motion-duration-slow) var(--motion-ease-in-out)"
+  transition: "all var(--mp-durations-fast) var(--motion-ease-in-out)"
 });
 
 const menuClass = computed(() =>
@@ -129,7 +119,7 @@ const menuClass = computed(() =>
       ? "var(--layout-sidebar-collapsed-width)"
       : "var(--layout-sidebar-width)",
     transitionProperty: "width",
-    transitionDuration: "var(--motion-duration-slow)",
+    transitionDuration: "var(--mp-durations-fast)",
     transitionTimingFunction: "var(--motion-ease-in-out)",
     position: "relative",
     background: "gray.25"
@@ -143,7 +133,7 @@ const mainMenuClass = css({
   // Reserve room for the sticky bottom action row (uses the same vertical
   // padding tokens as the row itself). 100vh - navbar = available height.
   height: "calc(100vh - var(--layout-header-height))",
-  paddingBottom: "var(--spacing-4xl)",
+  paddingBottom: "var(--mp-spacing-16)",
   overflowY: "auto",
   overflowX: "hidden"
 });
@@ -154,7 +144,7 @@ const bottomActionClass = css({
   left: "0",
   px: 2,
   py: 3,
-  borderTopWidth: "var(--border-width-default)",
+  borderTopWidth: "var(--mp-borders-sm)",
   borderColor: "gray.100",
   background: "inherit",
   w: "full"
@@ -167,13 +157,13 @@ const bottomActionClass = css({
 }
 .sidebar-content::-webkit-scrollbar-thumb {
   background: transparent;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--mp-radii-sm);
 }
 .sidebar-content:hover::-webkit-scrollbar {
   width: 0;
   position: absolute;
 }
 .sidebar-content:hover::-webkit-scrollbar-thumb {
-  background: var(--color-gray-400);
+  background: var(--mp-colors-gray-400);
 }
 </style>

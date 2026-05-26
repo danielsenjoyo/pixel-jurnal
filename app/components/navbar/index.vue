@@ -6,13 +6,13 @@
     :class="
       css({
         position: 'fixed',
-        zIndex: 'var(--z-header)',
+        zIndex: 'var(--mp-z-index-sticky)',
         width: 'full',
         bg: 'white',
         px: '6',
         display: 'flex',
         alignItems: 'center',
-        borderBottomWidth: 'var(--border-width-default)',
+        borderBottomWidth: 'var(--mp-borders-sm)',
         borderColor: 'gray.100',
         height: 'var(--layout-header-height)'
       })
@@ -105,6 +105,6 @@ const logoLinkClass = css({
 
 /** Icon-only navbar buttons share `--spacing-2xs` (6px) square padding (Figma spec). */
 const iconBtnClass = css({
-  padding: "var(--spacing-2xs)"
+  padding: "var(--mp-spacing-1\.5)"
 });
 </script>

@@ -1,169 +1,18 @@
-/* Project-local tokens layered on top of Pixel 3.
-   The Pixel base CSS (token surface, scrollbar reset, etc.) is auto-injected
-   by `@mekari/pixel3-nuxt` — this file only defines Jurnal-specific tokens
-   not provided by Pixel: the local primary action color family, sidebar
-   nav-state tokens, layout primitives, and a small palette tail
-   (Blue/$blue-100, Gray/$gray-25) referenced by our custom components.
-
-   See docs/tokens.md for the full rationale, naming, and usage. */
+/* Project-local token layer on top of Pixel 3 v2.1.
+ *
+ * The Pixel base CSS (`--mp-*` tokens — colors, spacing, radii, shadows,
+ * font sizes/weights/line-heights, letter-spacings, sizes, durations,
+ * z-index tiers) is auto-injected by `@mekari/pixel3-nuxt`. Consume those
+ * directly in components — see docs/tokens.md.
+ *
+ * This file only defines the small surface that Pixel doesn't ship:
+ *   1. App-shell layout primitives (header / sidebar / submenu / etc.)
+ *   2. A stadium-pill radius (Pixel's `--mp-radii-full: 50%` makes
+ *      ellipses, not pills — we need the 9999px trick for badges)
+ *   3. Motion easings (Pixel ships durations but no cubic-bezier tokens)
+ */
 
 :root {
-  /* ── Brand ─────────────────────────────────────────────────────────────── */
-  --color-brand-jurnal: #40c3ff;
-  --color-brand-jurnal-50: #e3f5ff;
-  --color-brand-jurnal-100: #c6ebff;
-  --color-brand-jurnal-500: #40c3ff;
-  --color-brand-jurnal-600: #1aa7e6;
-  --color-brand-jurnal-700: #008cbe;
-  --color-brand-university: #448aff;
-  --color-brand-university-700: #3576dc;
-
-  /* ── Accent ─────────────────────────────────────────────────────────────
-     Used in submenu heading labels and selected/focused submenu state. */
-  --color-accent-blue-400: #4b61dd;
-
-  /* ── Primary action (Pixel 3 v2.1) ─────────────────────────────────────
-     Per the production Jurnal UI, the primary button uses Blue/$blue-400
-     (#4B61DD) — the purple-blue accent, NOT the deeper Blue/$blue-500.
-     Hover/active step down the scale; secondary buttons reuse the same
-     blue-400 for their text. */
-  --color-primary: #4b61dd;
-  --color-primary-hover: #3b52c7;
-  --color-primary-active: #2c42b0;
-
-  /* ── Neutral / Gray scale ──────────────────────────────────────────────── */
-  --color-white: #ffffff;
-  --color-gray-25: #f8f9fb; /* Gray/$gray-25 — popover headers, inset cards */
-  --color-gray-50: #edf0f2;
-  --color-gray-100: #d0d6dd;
-  --color-gray-200: #b0b8c1;
-  --color-gray-300: #8b95a5;
-  --color-gray-400: #8b95a5; /* Alias of gray-300 — strong popover borders */
-  --color-gray-500: #626b79;
-  --color-gray-600: #626b79;
-  --color-gray-700: #404a5c;
-  --color-gray-800: #2d3340;
-  --color-gray-900: #232933;
-  --color-dark: #232933;
-
-  /* ── Blue scale (Pixel 3 v2.1) ──────────────────────────────────────────
-     Blue/$blue-100 is the soft tint used for selected-nav background and
-     focus-ring colors. Blue/$blue-400 and -500 live in the accent + primary
-     sections below; aliased here for completeness of the scale. */
-  --color-blue-100: #e5eafe;
-
-  /* ── Surface / Background ──────────────────────────────────────────────── */
-  --color-bg-page: #f1f5f9;
-  --color-bg-surface: #ffffff;
-  --color-bg-muted: #edf0f2;
-  --color-bg-sidebar: #f1f5f9;
-  --color-bg-sidebar-collapsed: #e7edf5;
-
-  /* ── Text ──────────────────────────────────────────────────────────────── */
-  --color-text-default: #232933;
-  --color-text-subtle: #626b79;
-  --color-text-placeholder: #8b95a5;
-  --color-text-inverse: #ffffff;
-
-  /* ── Border ────────────────────────────────────────────────────────────── */
-  --color-border-default: #d0d6dd;
-  --color-border-strong: #8b95a5;
-
-  /* ── Status / Chart ────────────────────────────────────────────────────── */
-  --color-status-danger: #ef4444;
-  --color-status-success: #10b981;
-  --color-status-warning: #f59e0b;
-  --color-status-info: #448aff;
-
-  /* ── Semantic interactive states (Pixel 3 v2.1) ──────────────────────────
-     Sidebar nav uses Pixel's "blue text + blue icon, no fill" pattern for
-     hover and active (Figma node 1029:3771). Icon-button surfaces (header
-     actions, user chip) keep the gray-50 hover fill. */
-  --color-nav-text-default: var(--color-text-default);
-  --color-nav-text-active: #1c44d5; /* Blue/$blue-500 in Pixel 3 v2.1 */
-  --color-nav-icon-default: var(--color-gray-500);
-  --color-nav-icon-active: #1c44d5;
-
-  --color-icon-default: var(--color-gray-500);
-  --color-icon-hover: var(--color-gray-700);
-  --color-icon-active: #1c44d5;
-
-  --color-bg-interactive-hover: var(--color-gray-50);
-  --color-bg-interactive-active: var(--color-brand-jurnal-50);
-
-  --color-text-interactive-active: #1c44d5;
-
-  /* ── Spacing scale (Pixel 3 v2.1) ──────────────────────────────────────── */
-  --spacing-4xs: 2px;
-  --spacing-3xs: 4px;
-  --spacing-2xs: 6px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 40px;
-  --spacing-3xl: 48px;
-  --spacing-4xl: 64px;
-
-  /* ── Border radius ─────────────────────────────────────────────────────── */
-  --border-radius-xs: 2px;
-  --border-radius-sm: 4px;
-  --border-radius-md: 6px;
-  --border-radius-lg: 8px;
-  --border-radius-xl: 12px;
-  --border-radius-full: 999px;
-
-  /* ── Border width ──────────────────────────────────────────────────────── */
-  --border-width-default: 1px;
-  --border-width-strong: 2px;
-
-  /* ── Typography ─────────────────────────────────────────────────────────
-     H1: 24/32 SemiBold, tracking -2
-     Label / Label small / Body / Body small / Overline */
-  --font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-
-  --font-size-h1: 24px;
-  --font-size-h2: 20px;
-  --font-size-h3: 18px;
-  --font-size-body: 14px;
-  --font-size-body-sm: 12px;
-  --font-size-label: 14px;
-  --font-size-label-sm: 12px;
-  --font-size-overline: 10px;
-
-  --line-height-h1: 32px;
-  --line-height-h2: 28px;
-  --line-height-h3: 24px;
-  --line-height-body: 24px;
-  --line-height-body-sm: 20px;
-  --line-height-label: 20px;
-  --line-height-label-sm: 16px;
-  --line-height-overline: 12px;
-
-  --letter-spacing-h1: -0.48px;
-
-  /* Only regular (400) and semibold (600) are part of Jurnal's v2.1 surface.
-     Medium (500) and bold (700) are intentionally NOT exposed as tokens. */
-  --font-weight-regular: 400;
-  --font-weight-semibold: 600;
-
-  /* ── Motion (Pixel 3 v2.1) ─────────────────────────────────────────────
-     Pixel design system motion tokens. Use these for transitions and
-     keyframe-based animation. Compose duration + easing — don't hard-code
-     timing values in components. */
-  --motion-duration-fast: 120ms;
-  --motion-duration-base: 200ms;
-  --motion-duration-slow: 320ms;
-  --motion-ease-out: cubic-bezier(0.2, 0, 0, 1);
-  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* ── Elevation / Shadow ────────────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(35, 41, 51, 0.06);
-  --shadow-md: 0 4px 8px rgba(35, 41, 51, 0.08);
-  --shadow-lg: 0 12px 24px rgba(35, 41, 51, 0.1);
-
   /* ── Layout primitives ─────────────────────────────────────────────────── */
   --layout-header-height: 56px;
   --layout-sidebar-width: 216px;
@@ -172,10 +21,11 @@
   --layout-page-title-height: 72px;
   --layout-sidebar-item-height: 36px;
 
-  /* ── Z-index ──────────────────────────────────────────────────────────── */
-  --z-sidebar: 10;
-  --z-header: 20;
-  --z-popover: 30;
-  --z-modal: 40;
-  --z-toast: 50;
+  /* ── Stadium-pill radius ───────────────────────────────────────────────── */
+  --border-radius-full: 9999px;
+
+  /* ── Motion easings (Pixel ships --mp-durations-* but no easings) ─────── */
+  --motion-ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }

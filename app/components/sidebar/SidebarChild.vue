@@ -8,18 +8,14 @@
         flex: 'none',
         background: 'gray.25',
         transitionProperty: 'width, background, margin',
-        transitionDuration: 'var(--motion-duration-slow)',
+        transitionDuration: 'var(--mp-durations-fast)',
         transitionTimingFunction: 'var(--motion-ease-in-out)',
-        zIndex: 'var(--z-sidebar)',
-        borderLeftWidth: 'var(--border-width-default)',
+        zIndex: 'var(--mp-z-index-docked)',
+        borderLeftWidth: 'var(--mp-borders-sm)',
         borderColor: 'gray.100',
         display: { base: 'none', md: 'block' },
-        width: isSidebarChildCollapsed
-          ? 'var(--spacing-md)'
-          : 'var(--layout-submenu-width)',
-        marginRight: isSidebarChildCollapsed
-          ? 'var(--spacing-md)'
-          : 'var(--border-width-default)',
+        width: isSidebarChildCollapsed ? 'var(--mp-spacing-4)' : 'var(--layout-submenu-width)',
+        marginRight: isSidebarChildCollapsed ? 'var(--mp-spacing-4)' : 'var(--mp-borders-sm)',
         cursor: isSidebarChildCollapsed ? 'pointer' : 'default'
       })
     "
@@ -35,16 +31,16 @@
         :class="
           css({
             position: 'absolute',
-            bottom: 'var(--spacing-xs)',
-            left: 'calc(var(--spacing-md) * -1 - var(--border-width-default))',
+            bottom: 'var(--mp-spacing-2)',
+            left: 'calc(var(--mp-spacing-4) * -1 - var(--mp-borders-sm))',
             transitionProperty: 'all',
-            transitionDuration: 'var(--motion-duration-slow)',
-            transitionDelay: isSidebarChildCollapsed ? 'var(--motion-duration-slow)' : '0ms',
+            transitionDuration: 'var(--mp-durations-fast)',
+            transitionDelay: isSidebarChildCollapsed ? 'var(--mp-durations-fast)' : '0ms',
             transitionTimingFunction: 'var(--motion-ease-in-out)',
             opacity: isSidebarChildCollapsed ? '1' : '0',
             transform: isSidebarChildCollapsed
-              ? 'translateX(var(--spacing-xl))'
-              : 'translateX(calc(var(--spacing-md) * -1))'
+              ? 'translateX(var(--mp-spacing-8))'
+              : 'translateX(calc(var(--mp-spacing-4) * -1))'
           })
         "
       >
@@ -53,10 +49,10 @@
             :class="
               css({
                 display: 'flex',
-                width: 'var(--spacing-lg)',
-                height: 'var(--spacing-2xl)',
+                width: 'var(--mp-spacing-6)',
+                height: 'var(--mp-sizes-10)',
                 bg: 'white',
-                borderWidth: 'var(--border-width-default)',
+                borderWidth: 'var(--mp-borders-sm)',
                 borderColor: 'gray.100',
                 borderRightRadius: 'var(--border-radius-full)',
                 alignItems: 'center',
@@ -64,8 +60,8 @@
                 pr: '1',
                 pl: '1',
                 shadow: 'md',
-                transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
-                _hover: { width: 'var(--spacing-2xl)', cursor: 'pointer' }
+                transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+                _hover: { width: 'var(--mp-sizes-10)', cursor: 'pointer' }
               })
             "
           >
@@ -81,7 +77,7 @@
         css({
           position: 'fixed',
           display: 'flex',
-          transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)'
+          transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)'
         })
       "
     >
@@ -93,12 +89,10 @@
             height: '100vh',
             paddingTop: 'var(--pixel-navbar-height)',
             transitionProperty: 'width, background',
-            transitionDuration: 'var(--motion-duration-slow)',
+            transitionDuration: 'var(--mp-durations-fast)',
             transitionTimingFunction: 'var(--motion-ease-in-out)',
-            width: isSidebarChildCollapsed
-              ? 'var(--spacing-md)'
-              : 'var(--layout-submenu-width)',
-            borderRightWidth: 'var(--border-width-default)',
+            width: isSidebarChildCollapsed ? 'var(--mp-spacing-4)' : 'var(--layout-submenu-width)',
+            borderRightWidth: 'var(--mp-borders-sm)',
             borderRightColor: isSidebarChildCollapsed ? 'gray.100' : 'transparent',
             background: 'gray.25'
           })
@@ -111,10 +105,10 @@
               pt: 4,
               px: 2,
               width: 'full',
-              height: 'calc(100vh - var(--pixel-navbar-height) - var(--spacing-4xl))',
+              height: 'calc(100vh - var(--pixel-navbar-height) - var(--mp-spacing-16))',
               overflowY: 'auto',
               overflowX: 'hidden',
-              transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
+              transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
               opacity: isSidebarChildCollapsed ? '0' : '100',
               pointerEvents: isSidebarChildCollapsed ? 'none' : 'auto'
             })
@@ -129,7 +123,7 @@
           :class="
             css({
               display: 'flex',
-              transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
+              transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
               gap: '2',
               backgroundColor: 'transparent',
               flexDirection: 'row',
@@ -153,7 +147,7 @@
                   css({
                     display: 'flex',
                     borderRadius: 'sm',
-                    transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
+                    transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
                     padding: '2',
                     outline: 'none',
                     _hover: {

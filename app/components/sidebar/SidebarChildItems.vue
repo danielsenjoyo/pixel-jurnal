@@ -1,6 +1,6 @@
 <template>
   <!-- Section title -->
-  <MpFlex justify="space-between" alignItems="center" height="var(--spacing-2xl)">
+  <MpFlex justify="space-between" alignItems="center" height="var(--mp-sizes-10)">
     <MpText
       :class="css({ letterSpacing: '2px', p: 2, textTransform: 'uppercase' })"
       size="label-small"

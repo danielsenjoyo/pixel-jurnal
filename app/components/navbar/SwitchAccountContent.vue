@@ -117,7 +117,7 @@ const headerClass = css({
   gap: 2,
   p: 4,
   bg: "gray.25",
-  borderBottomWidth: "var(--border-width-default)",
+  borderBottomWidth: "var(--mp-borders-sm)",
   borderColor: "gray.100"
 });
 
@@ -138,8 +138,8 @@ const sectionClass = css({
 
 /* Popover avatar: 48×48 override via `--spacing-3xl` (Pixel `lg`=36, `xl`=80). */
 const avatarClass = css({
-  width: "var(--spacing-3xl) !important",
-  height: "var(--spacing-3xl) !important"
+  width: "var(--mp-spacing-12) !important",
+  height: "var(--mp-spacing-12) !important"
 });
 
 const rowClass = css({
@@ -161,7 +161,7 @@ const companiesWrapperClass = css({ px: 3, py: 2 });
 
 const companiesCardClass = css({
   bg: "gray.25",
-  borderWidth: "var(--border-width-default)",
+  borderWidth: "var(--mp-borders-sm)",
   borderColor: "gray.50",
   rounded: "md"
 });
@@ -207,7 +207,7 @@ const footerClass = css({
   gap: 1,
   px: 3,
   py: 4,
-  borderTopWidth: "var(--border-width-default)",
+  borderTopWidth: "var(--mp-borders-sm)",
   borderColor: "gray.50"
 });
 

@@ -84,8 +84,8 @@ const actionsClass = css({
 
 const stageClass = css({
   bg: "white",
-  borderTopWidth: "var(--border-width-default)",
-  borderLeftWidth: "var(--border-width-default)",
+  borderTopWidth: "var(--mp-borders-sm)",
+  borderLeftWidth: "var(--mp-borders-sm)",
   borderColor: "gray.100",
   roundedTopLeft: "md",
   p: 6,

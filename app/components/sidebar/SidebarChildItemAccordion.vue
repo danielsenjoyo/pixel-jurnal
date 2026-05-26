@@ -9,7 +9,7 @@
         minHeight: 'var(--layout-sidebar-item-height)',
         px: '2',
         py: '2xs',
-        transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
+        transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
         background: props.isActive ? 'blue.50' : 'transparent',
         color: props.isActive ? 'blue.500' : 'dark',
         fontWeight: props.isActive ? 'semiBold' : 'regular',
