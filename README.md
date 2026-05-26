@@ -29,15 +29,15 @@ Opens at `http://localhost:3000`.
 
 ## Scripts
 
-| Command            | Description                      |
-| ------------------ | -------------------------------- |
-| `pnpm dev`         | Start dev server                 |
-| `pnpm build`       | Build for production             |
-| `pnpm preview`     | Preview production build locally |
-| `pnpm lint`        | Lint with ESLint                 |
-| `pnpm lint:fix`    | Auto-fix lint issues             |
-| `pnpm format`      | Format with Prettier             |
-| `pnpm format:check`| Check formatting                 |
+| Command             | Description                      |
+| ------------------- | -------------------------------- |
+| `pnpm dev`          | Start dev server                 |
+| `pnpm build`        | Build for production             |
+| `pnpm preview`      | Preview production build locally |
+| `pnpm lint`         | Lint with ESLint                 |
+| `pnpm lint:fix`     | Auto-fix lint issues             |
+| `pnpm format`       | Format with Prettier             |
+| `pnpm format:check` | Check formatting                 |
 
 ## Token mode
 

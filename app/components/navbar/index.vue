@@ -30,7 +30,10 @@
       </NuxtLink>
     </div>
 
-    <div data-slot="rightContent" :class="css({ display: 'flex', gap: '1', alignItems: 'center', marginLeft: 'auto' })">
+    <div
+      data-slot="rightContent"
+      :class="css({ display: 'flex', gap: '1', alignItems: 'center', marginLeft: 'auto' })"
+    >
       <QuickAction :icon-class="iconBtnClass" />
 
       <MpTooltip placement="bottom" use-portal label="Live chat">
@@ -52,7 +55,13 @@
       </MpTooltip>
 
       <MpTooltip placement="bottom" use-portal label="Activity log">
-        <MpButton variant="ghost" size="md" icon-only aria-label="Activity log" :class="iconBtnClass">
+        <MpButton
+          variant="ghost"
+          size="md"
+          icon-only
+          aria-label="Activity log"
+          :class="iconBtnClass"
+        >
           <MpIcon name="time" size="md" />
         </MpButton>
       </MpTooltip>

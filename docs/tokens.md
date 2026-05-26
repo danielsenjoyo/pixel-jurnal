@@ -41,91 +41,91 @@ coordinated migration is planned.
 
 ### Brand
 
-| Token                              | Value     | Used for                                            |
-| ---------------------------------- | --------- | --------------------------------------------------- |
-| `--color-brand-jurnal`             | `#40C3FF` | Jurnal mark; primary product accent (alias of 500)  |
-| `--color-brand-jurnal-50`          | `#E3F5FF` | Active sidebar/submenu background tint              |
-| `--color-brand-jurnal-100`         | `#C6EBFF` | (reserved — emphasis surfaces)                      |
-| `--color-brand-jurnal-500`         | `#40C3FF` | Brand base                                          |
-| `--color-brand-jurnal-600`         | `#1AA7E6` | Hover on brand-filled buttons (when used)           |
-| `--color-brand-jurnal-700`         | `#008CBE` | Active text/icon on jurnal-50 backgrounds (accessibility) |
-| `--color-brand-university`         | `#448AFF` | Cross-product Mekari University accent              |
-| `--color-brand-university-700`     | `#3576DC` | Hover on `MpButton variant="primary"`               |
+| Token                          | Value     | Used for                                                  |
+| ------------------------------ | --------- | --------------------------------------------------------- |
+| `--color-brand-jurnal`         | `#40C3FF` | Jurnal mark; primary product accent (alias of 500)        |
+| `--color-brand-jurnal-50`      | `#E3F5FF` | Active sidebar/submenu background tint                    |
+| `--color-brand-jurnal-100`     | `#C6EBFF` | (reserved — emphasis surfaces)                            |
+| `--color-brand-jurnal-500`     | `#40C3FF` | Brand base                                                |
+| `--color-brand-jurnal-600`     | `#1AA7E6` | Hover on brand-filled buttons (when used)                 |
+| `--color-brand-jurnal-700`     | `#008CBE` | Active text/icon on jurnal-50 backgrounds (accessibility) |
+| `--color-brand-university`     | `#448AFF` | Cross-product Mekari University accent                    |
+| `--color-brand-university-700` | `#3576DC` | Hover on `MpButton variant="primary"`                     |
 
 ### Blue scale (Pixel 3 v2.1)
 
-| Token                          | Value     | Used for                                            |
-| ------------------------------ | --------- | --------------------------------------------------- |
-| `--color-blue-100`             | `#E5EAFE` | Active-nav background; button focus ring            |
-| `--color-blue-400`             | `#4B61DD` | Alias of `--color-accent-blue-400`                  |
-| `--color-blue-500`             | `#1C44D5` | Alias of `--color-primary` (Pixel primary button)   |
+| Token              | Value     | Used for                                          |
+| ------------------ | --------- | ------------------------------------------------- |
+| `--color-blue-100` | `#E5EAFE` | Active-nav background; button focus ring          |
+| `--color-blue-400` | `#4B61DD` | Alias of `--color-accent-blue-400`                |
+| `--color-blue-500` | `#1C44D5` | Alias of `--color-primary` (Pixel primary button) |
 
 ### Accent
 
-| Token                          | Value     | Used for                                            |
-| ------------------------------ | --------- | --------------------------------------------------- |
-| `--color-accent-blue-400`      | `#4B61DD` | Submenu heading label, "View all companies" link    |
+| Token                     | Value     | Used for                                         |
+| ------------------------- | --------- | ------------------------------------------------ |
+| `--color-accent-blue-400` | `#4B61DD` | Submenu heading label, "View all companies" link |
 
 ### Primary action
 
-| Token                          | Value     | Used for                                            |
-| ------------------------------ | --------- | --------------------------------------------------- |
-| `--color-primary`              | `#1C44D5` | `MpButton variant="primary"` fill — Blue/$blue-500  |
-| `--color-primary-hover`        | `#163DBA` | Primary button hover                                |
-| `--color-primary-active`       | `#11339A` | Primary button pressed                              |
+| Token                    | Value     | Used for                                           |
+| ------------------------ | --------- | -------------------------------------------------- |
+| `--color-primary`        | `#1C44D5` | `MpButton variant="primary"` fill — Blue/$blue-500 |
+| `--color-primary-hover`  | `#163DBA` | Primary button hover                               |
+| `--color-primary-active` | `#11339A` | Primary button pressed                             |
 
 ### Neutral / Gray scale
 
-| Token                | Value     | Notes                                       |
-| -------------------- | --------- | ------------------------------------------- |
-| `--color-white`      | `#FFFFFF` | Page card, modal backgrounds                |
-| `--color-gray-25`    | `#F8F9FB` | Popover headers, inset cards (user popover) |
-| `--color-gray-50`    | `#EDF0F2` | Muted chip background (`⌘K` badge, hover)   |
-| `--color-gray-100`   | `#D0D6DD` | Default border, divider                     |
-| `--color-gray-200`   | `#B0B8C1` | (reserved — disabled controls)              |
-| `--color-gray-300`   | `#8B95A5` | Placeholder text, subtle icons              |
-| `--color-gray-400`   | `#8B95A5` | Alias of 300 in v2.1                        |
-| `--color-gray-500`   | `#626B79` | Secondary text                              |
-| `--color-gray-600`   | `#626B79` | Alias of 500 in v2.1                        |
-| `--color-gray-700`   | `#404A5C` | (reserved)                                  |
-| `--color-gray-800`   | `#2D3340` | (reserved)                                  |
-| `--color-gray-900`   | `#232933` | Primary text                                |
-| `--color-dark`       | `#232933` | Alias for `gray-900`                        |
+| Token              | Value     | Notes                                       |
+| ------------------ | --------- | ------------------------------------------- |
+| `--color-white`    | `#FFFFFF` | Page card, modal backgrounds                |
+| `--color-gray-25`  | `#F8F9FB` | Popover headers, inset cards (user popover) |
+| `--color-gray-50`  | `#EDF0F2` | Muted chip background (`⌘K` badge, hover)   |
+| `--color-gray-100` | `#D0D6DD` | Default border, divider                     |
+| `--color-gray-200` | `#B0B8C1` | (reserved — disabled controls)              |
+| `--color-gray-300` | `#8B95A5` | Placeholder text, subtle icons              |
+| `--color-gray-400` | `#8B95A5` | Alias of 300 in v2.1                        |
+| `--color-gray-500` | `#626B79` | Secondary text                              |
+| `--color-gray-600` | `#626B79` | Alias of 500 in v2.1                        |
+| `--color-gray-700` | `#404A5C` | (reserved)                                  |
+| `--color-gray-800` | `#2D3340` | (reserved)                                  |
+| `--color-gray-900` | `#232933` | Primary text                                |
+| `--color-dark`     | `#232933` | Alias for `gray-900`                        |
 
 ### Surface / Background
 
-| Token                  | Value     | Used for                                  |
-| ---------------------- | --------- | ----------------------------------------- |
-| `--color-bg-page`      | `#F1F5F9` | App shell background (under stage card)   |
-| `--color-bg-surface`   | `#FFFFFF` | PageStage, AppHeader, cards               |
-| `--color-bg-muted`     | `#EDF0F2` | Search shortcut badge, chip backgrounds   |
-| `--color-bg-sidebar`   | `#F1F5F9` | AppSidebar — expanded (default)            |
+| Token                          | Value     | Used for                                                |
+| ------------------------------ | --------- | ------------------------------------------------------- |
+| `--color-bg-page`              | `#F1F5F9` | App shell background (under stage card)                 |
+| `--color-bg-surface`           | `#FFFFFF` | PageStage, AppHeader, cards                             |
+| `--color-bg-muted`             | `#EDF0F2` | Search shortcut badge, chip backgrounds                 |
+| `--color-bg-sidebar`           | `#F1F5F9` | AppSidebar — expanded (default)                         |
 | `--color-bg-sidebar-collapsed` | `#E7EDF5` | AppSidebar — collapsed or with-submenu (Extra/$ash-100) |
 
 ### Text
 
-| Token                          | Value     | Used for                          |
-| ------------------------------ | --------- | --------------------------------- |
-| `--color-text-default`         | `#232933` | Headings, body text, active state |
-| `--color-text-subtle`          | `#626B79` | Secondary, helper, captions       |
-| `--color-text-placeholder`     | `#8B95A5` | Input placeholders                |
-| `--color-text-inverse`         | `#FFFFFF` | Text on dark / colored fills      |
+| Token                      | Value     | Used for                          |
+| -------------------------- | --------- | --------------------------------- |
+| `--color-text-default`     | `#232933` | Headings, body text, active state |
+| `--color-text-subtle`      | `#626B79` | Secondary, helper, captions       |
+| `--color-text-placeholder` | `#8B95A5` | Input placeholders                |
+| `--color-text-inverse`     | `#FFFFFF` | Text on dark / colored fills      |
 
 ### Border
 
-| Token                       | Value     | Used for                       |
-| --------------------------- | --------- | ------------------------------ |
-| `--color-border-default`    | `#D0D6DD` | All hairlines, dividers        |
-| `--color-border-strong`     | `#8B95A5` | Emphasized borders (reserved)  |
+| Token                    | Value     | Used for                      |
+| ------------------------ | --------- | ----------------------------- |
+| `--color-border-default` | `#D0D6DD` | All hairlines, dividers       |
+| `--color-border-strong`  | `#8B95A5` | Emphasized borders (reserved) |
 
 ### Status / Chart
 
-| Token                       | Value     | Used for                       |
-| --------------------------- | --------- | ------------------------------ |
-| `--color-status-danger`     | `#EF4444` | Notification badge, errors     |
-| `--color-status-success`    | `#10B981` | Positive delta, success toast  |
-| `--color-status-warning`    | `#F59E0B` | Warnings                       |
-| `--color-status-info`       | `#448AFF` | Informational, links           |
+| Token                    | Value     | Used for                      |
+| ------------------------ | --------- | ----------------------------- |
+| `--color-status-danger`  | `#EF4444` | Notification badge, errors    |
+| `--color-status-success` | `#10B981` | Positive delta, success toast |
+| `--color-status-warning` | `#F59E0B` | Warnings                      |
+| `--color-status-info`    | `#448AFF` | Informational, links          |
 
 ### Semantic interactive states
 
@@ -140,18 +140,18 @@ Two parallel token families:
 
 **Reference these in component styles, not the raw tokens.**
 
-| Token                                  | Resolves to                | Used for                                  |
-| -------------------------------------- | -------------------------- | ----------------------------------------- |
-| `--color-nav-text-default`             | `--color-text-default`     | Sidebar item text — default state         |
-| `--color-nav-text-active`              | `#1C44D5` (Blue/$blue-500) | Sidebar item text — hover & active        |
-| `--color-nav-icon-default`             | `--color-gray-500`         | Sidebar icon — default state              |
-| `--color-nav-icon-active`              | `#1C44D5`                  | Sidebar icon — hover & active             |
-| `--color-icon-default`                 | `--color-gray-500`         | Default icon stroke (icon-buttons)        |
-| `--color-icon-hover`                   | `--color-gray-700`         | Icon stroke on icon-button hover/focus    |
-| `--color-icon-active`                  | `#1C44D5`                  | Icon stroke on selected icon-button       |
-| `--color-bg-interactive-hover`         | `--color-gray-50`          | Hover background for icon-buttons         |
-| `--color-bg-interactive-active`        | `--color-brand-jurnal-50`  | (Reserved) selected icon-button fill      |
-| `--color-text-interactive-active`      | `#1C44D5`                  | Text on icon-button selected state        |
+| Token                             | Resolves to                | Used for                               |
+| --------------------------------- | -------------------------- | -------------------------------------- |
+| `--color-nav-text-default`        | `--color-text-default`     | Sidebar item text — default state      |
+| `--color-nav-text-active`         | `#1C44D5` (Blue/$blue-500) | Sidebar item text — hover & active     |
+| `--color-nav-icon-default`        | `--color-gray-500`         | Sidebar icon — default state           |
+| `--color-nav-icon-active`         | `#1C44D5`                  | Sidebar icon — hover & active          |
+| `--color-icon-default`            | `--color-gray-500`         | Default icon stroke (icon-buttons)     |
+| `--color-icon-hover`              | `--color-gray-700`         | Icon stroke on icon-button hover/focus |
+| `--color-icon-active`             | `#1C44D5`                  | Icon stroke on selected icon-button    |
+| `--color-bg-interactive-hover`    | `--color-gray-50`          | Hover background for icon-buttons      |
+| `--color-bg-interactive-active`   | `--color-brand-jurnal-50`  | (Reserved) selected icon-button fill   |
+| `--color-text-interactive-active` | `#1C44D5`                  | Text on icon-button selected state     |
 
 ---
 
@@ -159,41 +159,41 @@ Two parallel token families:
 
 Pixel 3 v2.1 uses a t-shirt scale. **Always use the token** — never a literal `px`.
 
-| Token              | Value | Typical use                                  |
-| ------------------ | ----- | -------------------------------------------- |
-| `--spacing-4xs`    | 2px   | Badge dot inset, hairline gaps               |
-| `--spacing-3xs`    | 4px   | Inline icon-to-text gap, tight stacks        |
-| `--spacing-2xs`    | 6px   | Sidebar item vertical padding, small chips   |
-| `--spacing-xs`     | 8px   | Default gap between adjacent controls        |
-| `--spacing-sm`     | 12px  | Form field internal gap, user-chip gap       |
-| `--spacing-md`     | 16px  | Card padding, sidebar group vertical padding |
-| `--spacing-lg`     | 24px  | Page padding, primary card padding           |
-| `--spacing-xl`     | 32px  | Section spacing                              |
-| `--spacing-2xl`    | 40px  | Header inner gap (logo → search)             |
-| `--spacing-3xl`    | 48px  | Hero / empty-state vertical padding          |
-| `--spacing-4xl`    | 64px  | Page-level large gaps                        |
+| Token           | Value | Typical use                                  |
+| --------------- | ----- | -------------------------------------------- |
+| `--spacing-4xs` | 2px   | Badge dot inset, hairline gaps               |
+| `--spacing-3xs` | 4px   | Inline icon-to-text gap, tight stacks        |
+| `--spacing-2xs` | 6px   | Sidebar item vertical padding, small chips   |
+| `--spacing-xs`  | 8px   | Default gap between adjacent controls        |
+| `--spacing-sm`  | 12px  | Form field internal gap, user-chip gap       |
+| `--spacing-md`  | 16px  | Card padding, sidebar group vertical padding |
+| `--spacing-lg`  | 24px  | Page padding, primary card padding           |
+| `--spacing-xl`  | 32px  | Section spacing                              |
+| `--spacing-2xl` | 40px  | Header inner gap (logo → search)             |
+| `--spacing-3xl` | 48px  | Hero / empty-state vertical padding          |
+| `--spacing-4xl` | 64px  | Page-level large gaps                        |
 
 ---
 
 ## 4. Border radius
 
-| Token                       | Value | Use                                  |
-| --------------------------- | ----- | ------------------------------------ |
-| `--border-radius-xs`        | 2px   | Tag chips                            |
-| `--border-radius-sm`        | 4px   | Inline pills, tiny badges            |
-| `--border-radius-md`        | 6px   | Buttons, sidebar items, PageStage TL corner |
-| `--border-radius-lg`        | 8px   | Cards, stat tiles                    |
-| `--border-radius-xl`        | 12px  | Modals, large cards                  |
-| `--border-radius-full`      | 999px | Avatars, search input, badges        |
+| Token                  | Value | Use                                         |
+| ---------------------- | ----- | ------------------------------------------- |
+| `--border-radius-xs`   | 2px   | Tag chips                                   |
+| `--border-radius-sm`   | 4px   | Inline pills, tiny badges                   |
+| `--border-radius-md`   | 6px   | Buttons, sidebar items, PageStage TL corner |
+| `--border-radius-lg`   | 8px   | Cards, stat tiles                           |
+| `--border-radius-xl`   | 12px  | Modals, large cards                         |
+| `--border-radius-full` | 999px | Avatars, search input, badges               |
 
 ---
 
 ## 5. Border width
 
-| Token                         | Value | Use                                  |
-| ----------------------------- | ----- | ------------------------------------ |
-| `--border-width-default`      | 1px   | All hairlines, dividers              |
-| `--border-width-strong`       | 2px   | Notification badge ring, focus rings |
+| Token                    | Value | Use                                  |
+| ------------------------ | ----- | ------------------------------------ |
+| `--border-width-default` | 1px   | All hairlines, dividers              |
+| `--border-width-strong`  | 2px   | Notification badge ring, focus rings |
 
 ---
 
@@ -205,36 +205,36 @@ All Inter usage enables tabular figures via `font-feature-settings: 'lnum' 1, 't
 
 ### Type styles
 
-| Style              | Size | LineH | Weight     | LetterSpacing | Tokens                                                              |
-| ------------------ | ---- | ----- | ---------- | ------------- | ------------------------------------------------------------------- |
-| H1                 | 24   | 32    | 600        | -0.48px       | `--font-size-h1`, `--line-height-h1`, `--letter-spacing-h1`         |
-| H2                 | 20   | 28    | 600        | 0             | `--font-size-h2`, `--line-height-h2`                                |
-| H3                 | 18   | 24    | 600        | 0             | `--font-size-h3`, `--line-height-h3`                                |
-| Body / Regular     | 14   | 24    | 400        | 0             | `--font-size-body`, `--line-height-body`                            |
-| Body small         | 12   | 20    | 400        | 0             | `--font-size-body-sm`, `--line-height-body-sm`                      |
-| Label / Regular    | 14   | 20    | 400        | 0             | `--font-size-label`, `--line-height-label`                          |
-| Label / Semibold   | 14   | 20    | 600        | 0             | `--font-size-label`, `--line-height-label`, `--font-weight-semibold`|
-| Label small        | 12   | 16    | 400        | 0             | `--font-size-label-sm`, `--line-height-label-sm`                    |
-| Overline / Semibold| 10   | 12    | 600        | 0             | `--font-size-overline`, `--line-height-overline`                    |
+| Style               | Size | LineH | Weight | LetterSpacing | Tokens                                                               |
+| ------------------- | ---- | ----- | ------ | ------------- | -------------------------------------------------------------------- |
+| H1                  | 24   | 32    | 600    | -0.48px       | `--font-size-h1`, `--line-height-h1`, `--letter-spacing-h1`          |
+| H2                  | 20   | 28    | 600    | 0             | `--font-size-h2`, `--line-height-h2`                                 |
+| H3                  | 18   | 24    | 600    | 0             | `--font-size-h3`, `--line-height-h3`                                 |
+| Body / Regular      | 14   | 24    | 400    | 0             | `--font-size-body`, `--line-height-body`                             |
+| Body small          | 12   | 20    | 400    | 0             | `--font-size-body-sm`, `--line-height-body-sm`                       |
+| Label / Regular     | 14   | 20    | 400    | 0             | `--font-size-label`, `--line-height-label`                           |
+| Label / Semibold    | 14   | 20    | 600    | 0             | `--font-size-label`, `--line-height-label`, `--font-weight-semibold` |
+| Label small         | 12   | 16    | 400    | 0             | `--font-size-label-sm`, `--line-height-label-sm`                     |
+| Overline / Semibold | 10   | 12    | 600    | 0             | `--font-size-overline`, `--line-height-overline`                     |
 
 ### Weights
 
-| Token                          | Value |
-| ------------------------------ | ----- |
-| `--font-weight-regular`        | 400   |
-| `--font-weight-medium`         | 500   |
-| `--font-weight-semibold`       | 600   |
-| `--font-weight-bold`           | 700   |
+| Token                    | Value |
+| ------------------------ | ----- |
+| `--font-weight-regular`  | 400   |
+| `--font-weight-medium`   | 500   |
+| `--font-weight-semibold` | 600   |
+| `--font-weight-bold`     | 700   |
 
 ---
 
 ## 7. Elevation / Shadow
 
-| Token            | Value                                       | Use                                         |
-| ---------------- | ------------------------------------------- | ------------------------------------------- |
-| `--shadow-sm`    | `0 1px 2px rgba(35,41,51,0.06)`             | Active sidebar item, raised chips           |
-| `--shadow-md`    | `0 4px 8px rgba(35,41,51,0.08)`             | Floating cards, popovers                    |
-| `--shadow-lg`    | `0 12px 24px rgba(35,41,51,0.10)`           | Modals, drawers                             |
+| Token         | Value                             | Use                               |
+| ------------- | --------------------------------- | --------------------------------- |
+| `--shadow-sm` | `0 1px 2px rgba(35,41,51,0.06)`   | Active sidebar item, raised chips |
+| `--shadow-md` | `0 4px 8px rgba(35,41,51,0.08)`   | Floating cards, popovers          |
+| `--shadow-lg` | `0 12px 24px rgba(35,41,51,0.10)` | Modals, drawers                   |
 
 ---
 
@@ -244,25 +244,25 @@ These are project-level (not part of `@mekari/pixel-tokens`) and live in
 [`assets/css/tokens.css`](../assets/css/tokens.css). Update both here and
 there together.
 
-| Token                                | Value | Use                              |
-| ------------------------------------ | ----- | -------------------------------- |
-| `--layout-header-height`             | 56px  | AppHeader fixed height           |
-| `--layout-sidebar-width`             | 216px | AppSidebar — expanded width      |
-| `--layout-sidebar-collapsed-width`   | 56px  | AppSidebar — collapsed or with-submenu width |
-| `--layout-submenu-width`             | 208px | Sidebar submenu panel width      |
-| `--layout-page-title-height`         | 72px  | PageTitle fixed height           |
+| Token                              | Value | Use                                          |
+| ---------------------------------- | ----- | -------------------------------------------- |
+| `--layout-header-height`           | 56px  | AppHeader fixed height                       |
+| `--layout-sidebar-width`           | 216px | AppSidebar — expanded width                  |
+| `--layout-sidebar-collapsed-width` | 56px  | AppSidebar — collapsed or with-submenu width |
+| `--layout-submenu-width`           | 208px | Sidebar submenu panel width                  |
+| `--layout-page-title-height`       | 72px  | PageTitle fixed height                       |
 
 ---
 
 ## 9. Z-index scale
 
-| Token            | Value | Use                          |
-| ---------------- | ----- | ---------------------------- |
-| `--z-sidebar`    | 10    | AppSidebar                   |
-| `--z-header`     | 20    | AppHeader (sticky)           |
-| `--z-popover`    | 30    | Popovers, dropdowns          |
-| `--z-modal`      | 40    | Modals, drawers              |
-| `--z-toast`      | 50    | Toasts, notifications        |
+| Token         | Value | Use                   |
+| ------------- | ----- | --------------------- |
+| `--z-sidebar` | 10    | AppSidebar            |
+| `--z-header`  | 20    | AppHeader (sticky)    |
+| `--z-popover` | 30    | Popovers, dropdowns   |
+| `--z-modal`   | 40    | Modals, drawers       |
+| `--z-toast`   | 50    | Toasts, notifications |
 
 ---
 

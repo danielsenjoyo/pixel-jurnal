@@ -13,9 +13,7 @@ function getFirstChildRoute(item: AppMenuItem | AppMenuChild): string {
     return getFirstChildRoute(item.submenu.items[0]);
   }
   if ("children" in item && (item as AppMenuChild & { children?: AppMenuChild[] }).children?.[0]) {
-    return getFirstChildRoute(
-      (item as AppMenuChild & { children: AppMenuChild[] }).children[0]
-    );
+    return getFirstChildRoute((item as AppMenuChild & { children: AppMenuChild[] }).children[0]);
   }
   return item.route;
 }

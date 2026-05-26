@@ -3,12 +3,7 @@
     <MpText :class="css({ color: 'inherit', fontWeight: 'inherit', minWidth: '0' })">
       <slot />
     </MpText>
-    <MpText
-      v-if="counter"
-      as="span"
-      color="gray.600"
-      :class="css({ marginLeft: '2' })"
-    >
+    <MpText v-if="counter" as="span" color="gray.600" :class="css({ marginLeft: '2' })">
       {{ counter }}
     </MpText>
   </div>

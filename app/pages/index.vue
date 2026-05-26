@@ -11,9 +11,9 @@
     <div :class="emptyClass">
       <MpText :class="hintClass" color="gray.600">
         This is the <strong>master template</strong> — duplicate
-        <code :class="codeClass">app/pages/index.vue</code> as the starting point for new
-        Jurnal screens. The navbar, sidebar, and stage already follow the Pixel 3
-        specification (Design Tokens v2.1).
+        <code :class="codeClass">app/pages/index.vue</code> as the starting point for new Jurnal
+        screens. The navbar, sidebar, and stage already follow the Pixel 3 specification (Design
+        Tokens v2.1).
       </MpText>
     </div>
   </DefaultPageContent>

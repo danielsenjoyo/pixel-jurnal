@@ -25,12 +25,12 @@ The Jurnal master template is composed of three regions:
 └──────────────┴──────────────────────────────────────────────────────────┘
 ```
 
-| Region             | Component         | Size                            | Tokens               |
-| ------------------ | ----------------- | ------------------------------- | -------------------- |
-| Top bar            | `AppHeader`       | `--layout-header-height` (56px) | `--color-bg-surface`, `--color-border-default` (bottom) |
-| Left navigation    | `AppSidebar`      | `--layout-sidebar-width` (216px) | `--color-bg-sidebar` — **no right border** (the visual seam comes from PageStage's left border + top-left radius) |
-| Page heading       | `PageTitle`       | `--layout-page-title-height` (72px) | `--color-bg-page` (transparent over shell) |
-| Body card          | `PageStage`       | flex `1 1 auto`                  | `--color-bg-surface`, `--border-radius-md` top-left, `--color-border-default` top + left |
+| Region          | Component    | Size                                | Tokens                                                                                                            |
+| --------------- | ------------ | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Top bar         | `AppHeader`  | `--layout-header-height` (56px)     | `--color-bg-surface`, `--color-border-default` (bottom)                                                           |
+| Left navigation | `AppSidebar` | `--layout-sidebar-width` (216px)    | `--color-bg-sidebar` — **no right border** (the visual seam comes from PageStage's left border + top-left radius) |
+| Page heading    | `PageTitle`  | `--layout-page-title-height` (72px) | `--color-bg-page` (transparent over shell)                                                                        |
+| Body card       | `PageStage`  | flex `1 1 auto`                     | `--color-bg-surface`, `--border-radius-md` top-left, `--color-border-default` top + left                          |
 
 **Rule — page composition.** Every Nuxt page renders **exactly one**
 `<PageTitle />` followed by **exactly one** `<PageStage />`. The default
@@ -41,12 +41,12 @@ render those themselves.
 
 ## 2. AppHeader
 
-| Slot       | Component             | Spec                                                |
-| ---------- | --------------------- | --------------------------------------------------- |
-| Logo       | `AppLogo`             | 114×40 lockup, mark uses `--color-brand-jurnal`     |
-| Search     | `MpInput`             | 480px wide, `rounded="full"`, **`#prefix` slot** with `MpIcon search`, **`#suffix` slot** with a plain `.app-header__search-shortcut` chip (`⌘K`). Do NOT use the `prefix-icon` prop — it conflicts with the suffix slot in v2.1. |
-| Actions    | `MpButton` icon-only  | `quick-access`, `live-chat`, `gift`, `help`, `time`, `notification`, `shortcut` |
-| User       | `MpAvatar` + label    | 32px avatar, two-line label (Semibold name + Regular company) |
+| Slot    | Component            | Spec                                                                                                                                                                                                                              |
+| ------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Logo    | `AppLogo`            | 114×40 lockup, mark uses `--color-brand-jurnal`                                                                                                                                                                                   |
+| Search  | `MpInput`            | 480px wide, `rounded="full"`, **`#prefix` slot** with `MpIcon search`, **`#suffix` slot** with a plain `.app-header__search-shortcut` chip (`⌘K`). Do NOT use the `prefix-icon` prop — it conflicts with the suffix slot in v2.1. |
+| Actions | `MpButton` icon-only | `quick-access`, `live-chat`, `gift`, `help`, `time`, `notification`, `shortcut`                                                                                                                                                   |
+| User    | `MpAvatar` + label   | 32px avatar, two-line label (Semibold name + Regular company)                                                                                                                                                                     |
 
 **Rules**
 
@@ -62,11 +62,11 @@ render those themselves.
 
 The sidebar has **three states** (per Figma node `1029:3771`):
 
-| State                    | Rail width                             | Rail background                       | Submenu? |
-| ------------------------ | -------------------------------------- | ------------------------------------- | -------- |
-| Default (expanded)       | `--layout-sidebar-width` (216px)       | `--color-bg-sidebar` (`#F1F5F9`)      | —        |
-| User-collapsed           | `--layout-sidebar-collapsed-width` (56px) | `--color-bg-sidebar-collapsed` (`#E7EDF5`) | —        |
-| Submenu open (auto-collapse) | 56px (forced)                      | `#E7EDF5` (forced)                    | 208px panel attaches to the right |
+| State                        | Rail width                                | Rail background                            | Submenu?                          |
+| ---------------------------- | ----------------------------------------- | ------------------------------------------ | --------------------------------- |
+| Default (expanded)           | `--layout-sidebar-width` (216px)          | `--color-bg-sidebar` (`#F1F5F9`)           | —                                 |
+| User-collapsed               | `--layout-sidebar-collapsed-width` (56px) | `--color-bg-sidebar-collapsed` (`#E7EDF5`) | —                                 |
+| Submenu open (auto-collapse) | 56px (forced)                             | `#E7EDF5` (forced)                         | 208px panel attaches to the right |
 
 - Items are grouped. Groups are separated by `border-bottom: 1px solid var(--color-border-default)`. The last group has no separator.
 - Item padding: `var(--spacing-2xs) var(--spacing-xs) var(--spacing-2xs) 10px` (left = 10px to align icons under the logo).
@@ -80,12 +80,12 @@ and active share the same visual treatment; the only difference is intent
 (transient hover vs. persistent selection). Font weight does **not** change
 across states.
 
-| State    | Background                       | Text                                  | Icon style                                              | Font weight              |
-| -------- | -------------------------------- | ------------------------------------- | ------------------------------------------------------- | ------------------------ |
-| Default  | transparent                      | `--color-nav-text-default` (gray-900) | Outline, `--color-nav-icon-default` (gray-500)          | `--font-weight-regular`  |
-| Hover    | transparent                      | `--color-nav-text-active` (`#1C44D5`) | Outline, `--color-nav-icon-active` (`#1C44D5`)          | `--font-weight-regular`  |
-| Active   | `--color-blue-100` (`#E5EAFE`)   | `--color-nav-text-active` (`#1C44D5`) | **Filled**, `--color-nav-icon-active` (`#1C44D5`)       | `--font-weight-semibold` |
-| Disabled | transparent (60% opacity)        | inherits                              | inherits                                                | `--font-weight-regular`  |
+| State    | Background                     | Text                                  | Icon style                                        | Font weight              |
+| -------- | ------------------------------ | ------------------------------------- | ------------------------------------------------- | ------------------------ |
+| Default  | transparent                    | `--color-nav-text-default` (gray-900) | Outline, `--color-nav-icon-default` (gray-500)    | `--font-weight-regular`  |
+| Hover    | transparent                    | `--color-nav-text-active` (`#1C44D5`) | Outline, `--color-nav-icon-active` (`#1C44D5`)    | `--font-weight-regular`  |
+| Active   | `--color-blue-100` (`#E5EAFE`) | `--color-nav-text-active` (`#1C44D5`) | **Filled**, `--color-nav-icon-active` (`#1C44D5`) | `--font-weight-semibold` |
+| Disabled | transparent (60% opacity)      | inherits                              | inherits                                          | `--font-weight-regular`  |
 
 Hover keeps the no-fill blue-text shift; the active state stacks **three**
 visual signals: Blue/$blue-100 background, SemiBold blue text, and a
@@ -138,8 +138,8 @@ The nav region (`.app-sidebar__scroll`) is **scrollable but has no visible scrol
 ```css
 .app-sidebar__scroll {
   overflow-y: auto;
-  scrollbar-width: none;      /* Firefox */
-  -ms-overflow-style: none;   /* IE/Edge legacy */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
 }
 .app-sidebar__scroll::-webkit-scrollbar {
   width: 0;
@@ -184,17 +184,17 @@ The grouping is owned by `composables/useNavigation.ts`. Update there, not in th
 A sidebar item with a `submenu` field doesn't navigate on click — it opens a
 submenu panel and **forces the main rail into collapsed mode**. Spec:
 
-| Element            | Value                                                              |
-| ------------------ | ------------------------------------------------------------------ |
-| Panel width        | `--layout-submenu-width` (208px)                                   |
-| Panel background   | `--color-bg-sidebar` (`#F1F5F9`, Extra/$background) — **not white** |
-| Panel borders      | `border-left`: `1px solid var(--color-border-default)` only (no right border) |
-| Panel padding      | `var(--spacing-md) var(--spacing-xs)` (16/8)                       |
-| Heading            | Inter SemiBold 12/16, color `--color-accent-blue-400` (`#4B61DD`), letter-spacing **2.88px**, uppercase. Padding: `var(--spacing-2xs) var(--spacing-sm)` |
-| Submenu item       | Inter Regular 14/20, color `--color-text-default`. Padding `var(--spacing-xs) var(--spacing-sm)`. Radius `--border-radius-md` |
-| Item hover         | Background `--color-gray-50`                                        |
-| Item active        | Background `--color-gray-50`, font-weight SemiBold                  |
-| Submenu footer     | 68px tall, right-aligned chevron-left button to close the submenu  |
+| Element          | Value                                                                                                                                                    |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Panel width      | `--layout-submenu-width` (208px)                                                                                                                         |
+| Panel background | `--color-bg-sidebar` (`#F1F5F9`, Extra/$background) — **not white**                                                                                      |
+| Panel borders    | `border-left`: `1px solid var(--color-border-default)` only (no right border)                                                                            |
+| Panel padding    | `var(--spacing-md) var(--spacing-xs)` (16/8)                                                                                                             |
+| Heading          | Inter SemiBold 12/16, color `--color-accent-blue-400` (`#4B61DD`), letter-spacing **2.88px**, uppercase. Padding: `var(--spacing-2xs) var(--spacing-sm)` |
+| Submenu item     | Inter Regular 14/20, color `--color-text-default`. Padding `var(--spacing-xs) var(--spacing-sm)`. Radius `--border-radius-md`                            |
+| Item hover       | Background `--color-gray-50`                                                                                                                             |
+| Item active      | Background `--color-gray-50`, font-weight SemiBold                                                                                                       |
+| Submenu footer   | 68px tall, right-aligned chevron-left button to close the submenu                                                                                        |
 
 **Rules**
 
@@ -241,12 +241,13 @@ The master-template page header carries a **3-button row**:
 
 Button color tokens (Pixel 3 v2.1):
 
-| Variant   | Background fill            | Border                    | Text                       |
-| --------- | -------------------------- | ------------------------- | -------------------------- |
-| Primary   | `--color-primary` (`#1C44D5`, Blue/$blue-500) — **not** `--color-brand-university` which is the lighter Mekari University accent | same as fill | `--color-text-inverse` (white) |
-| Secondary | `--color-white`            | `--color-border-default` (gray-100) → `--color-gray-300` on hover | `--color-text-default` (gray-900) |
+| Variant   | Background fill                                                                                                                  | Border                                                            | Text                              |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------- |
+| Primary   | `--color-primary` (`#1C44D5`, Blue/$blue-500) — **not** `--color-brand-university` which is the lighter Mekari University accent | same as fill                                                      | `--color-text-inverse` (white)    |
+| Secondary | `--color-white`                                                                                                                  | `--color-border-default` (gray-100) → `--color-gray-300` on hover | `--color-text-default` (gray-900) |
 
 Pixel md-button geometry:
+
 - Height: `36px`.
 - Horizontal padding: **`var(--spacing-md)` (16px)** — `--spacing-sm` (12px) is the small-size padding.
 - Gap between icon and label: `var(--spacing-xs)` (8px).
@@ -278,39 +279,39 @@ The white card content sits on. Visual rules:
 - Always verify icon name with `get-icon-name` from the Pixel MCP before using a new icon. Don't guess names.
 - Icon-only buttons must carry an `aria-label`.
 
-| Concept            | Icon name           |
-| ------------------ | ------------------- |
-| Quick access       | `add`               |
-| Live chat          | `live-chat`         |
-| Referral           | `gift`              |
-| Help               | `help`              |
-| Activity log       | `time`              |
-| Notification       | `notification`      |
-| App switcher       | `shortcut`          |
-| Home               | `home`              |
-| Reports            | `reports`           |
-| Budget / Finance   | `finance`           |
-| Bank               | `bank`              |
-| Sales              | `sales`             |
-| Purchase           | `cart`              |
-| Expense            | `expense`           |
-| Job order / Tax    | `task-check`        |
-| Mekari Pay         | `mekari-pay`        |
-| Contacts           | `contact`           |
-| Product            | `product`           |
-| Production         | `fulfillment`       |
-| Fulfillment        | `truck`             |
-| Assets             | `assets`            |
-| Chart of accounts  | `chart-of-account`  |
-| Marketplace        | `application`       |
-| Other lists        | `doc`               |
-| Integrations       | `add-ons`           |
-| Settings           | `settings`          |
-| Chevron right      | `chevron-right`     |
-| Chevron down/up    | `chevron-down` / `chevron-up`         |
-| Sidebar collapse   | `sidebar-collapse` / `sidebar-expand` |
-| External link      | `external-link`     |
-| Check (selected)   | `check`             |
+| Concept           | Icon name                             |
+| ----------------- | ------------------------------------- |
+| Quick access      | `add`                                 |
+| Live chat         | `live-chat`                           |
+| Referral          | `gift`                                |
+| Help              | `help`                                |
+| Activity log      | `time`                                |
+| Notification      | `notification`                        |
+| App switcher      | `shortcut`                            |
+| Home              | `home`                                |
+| Reports           | `reports`                             |
+| Budget / Finance  | `finance`                             |
+| Bank              | `bank`                                |
+| Sales             | `sales`                               |
+| Purchase          | `cart`                                |
+| Expense           | `expense`                             |
+| Job order / Tax   | `task-check`                          |
+| Mekari Pay        | `mekari-pay`                          |
+| Contacts          | `contact`                             |
+| Product           | `product`                             |
+| Production        | `fulfillment`                         |
+| Fulfillment       | `truck`                               |
+| Assets            | `assets`                              |
+| Chart of accounts | `chart-of-account`                    |
+| Marketplace       | `application`                         |
+| Other lists       | `doc`                                 |
+| Integrations      | `add-ons`                             |
+| Settings          | `settings`                            |
+| Chevron right     | `chevron-right`                       |
+| Chevron down/up   | `chevron-down` / `chevron-up`         |
+| Sidebar collapse  | `sidebar-collapse` / `sidebar-expand` |
+| External link     | `external-link`                       |
+| Check (selected)  | `check`                               |
 
 ---
 

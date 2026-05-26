@@ -33,12 +33,12 @@
 
   /* ── Neutral / Gray scale ──────────────────────────────────────────────── */
   --color-white: #ffffff;
-  --color-gray-25: #f8f9fb;   /* Gray/$gray-25 — popover headers, inset cards */
+  --color-gray-25: #f8f9fb; /* Gray/$gray-25 — popover headers, inset cards */
   --color-gray-50: #edf0f2;
   --color-gray-100: #d0d6dd;
   --color-gray-200: #b0b8c1;
   --color-gray-300: #8b95a5;
-  --color-gray-400: #8b95a5;  /* Alias of gray-300 — strong popover borders */
+  --color-gray-400: #8b95a5; /* Alias of gray-300 — strong popover borders */
   --color-gray-500: #626b79;
   --color-gray-600: #626b79;
   --color-gray-700: #404a5c;
@@ -80,7 +80,7 @@
      hover and active (Figma node 1029:3771). Icon-button surfaces (header
      actions, user chip) keep the gray-50 hover fill. */
   --color-nav-text-default: var(--color-text-default);
-  --color-nav-text-active: #1c44d5;            /* Blue/$blue-500 in Pixel 3 v2.1 */
+  --color-nav-text-active: #1c44d5; /* Blue/$blue-500 in Pixel 3 v2.1 */
   --color-nav-icon-default: var(--color-gray-500);
   --color-nav-icon-active: #1c44d5;
 
@@ -121,7 +121,7 @@
   /* ── Typography ─────────────────────────────────────────────────────────
      H1: 24/32 SemiBold, tracking -2
      Label / Label small / Body / Body small / Overline */
-  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --font-size-h1: 24px;
   --font-size-h2: 20px;
@@ -162,7 +162,7 @@
   /* ── Elevation / Shadow ────────────────────────────────────────────────── */
   --shadow-sm: 0 1px 2px rgba(35, 41, 51, 0.06);
   --shadow-md: 0 4px 8px rgba(35, 41, 51, 0.08);
-  --shadow-lg: 0 12px 24px rgba(35, 41, 51, 0.10);
+  --shadow-lg: 0 12px 24px rgba(35, 41, 51, 0.1);
 
   /* ── Layout primitives ─────────────────────────────────────────────────── */
   --layout-header-height: 56px;

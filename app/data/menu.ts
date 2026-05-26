@@ -72,9 +72,22 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
       }
     },
     { id: "assets", label: "Assets", icon: "assets", route: "/assets" },
-    { id: "chart-of-accounts", label: "Chart of accounts", icon: "chart-of-account", route: "/chart-of-accounts" }
+    {
+      id: "chart-of-accounts",
+      label: "Chart of accounts",
+      icon: "chart-of-account",
+      route: "/chart-of-accounts"
+    }
   ],
-  [{ id: "applications", label: "Applications", icon: "application", route: "/applications", isExternal: true }],
+  [
+    {
+      id: "applications",
+      label: "Applications",
+      icon: "application",
+      route: "/applications",
+      isExternal: true
+    }
+  ],
   [
     { id: "other-lists", label: "Other lists", icon: "doc", route: "/other-lists" },
     { id: "integrations", label: "Integrations", icon: "add-ons", route: "/integrations" },
@@ -114,15 +127,31 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
             route: "/settings/templates",
             children: [
               { id: "section-email", label: "EMAIL TEMPLATES", route: "", isSection: true },
-              { id: "invoice-email", label: "Sales invoice", route: "/settings/templates/invoice-email" },
+              {
+                id: "invoice-email",
+                label: "Sales invoice",
+                route: "/settings/templates/invoice-email"
+              },
               { id: "quote-email", label: "Sales quote", route: "/settings/templates/quote-email" },
               { id: "order-email", label: "Sales order", route: "/settings/templates/order-email" },
               { id: "section-pdf", label: "PDF TEMPLATES", route: "", isSection: true },
-              { id: "pdf-general", label: "General settings", route: "/settings/templates/pdf-general" },
+              {
+                id: "pdf-general",
+                label: "General settings",
+                route: "/settings/templates/pdf-general"
+              },
               { id: "pdf-customize", label: "Customize PDF", route: "/settings/templates/pdf" },
               { id: "section-wa", label: "WHATSAPP", route: "", isSection: true },
-              { id: "wa-sales", label: "Sales message template", route: "/settings/templates/wa-sales" },
-              { id: "wa-order", label: "Order message template", route: "/settings/templates/wa-order" }
+              {
+                id: "wa-sales",
+                label: "Sales message template",
+                route: "/settings/templates/wa-sales"
+              },
+              {
+                id: "wa-order",
+                label: "Order message template",
+                route: "/settings/templates/wa-order"
+              }
             ]
           },
           { id: "custom-fields", label: "Custom fields", route: "/settings/custom-fields" },

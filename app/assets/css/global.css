@@ -27,12 +27,19 @@
   }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
     font-size: var(--font-size-label, 14px);
     line-height: var(--line-height-label, 20px);
     color: var(--color-text-default, #232933);
     background-color: var(--color-bg-page, #f1f5f9);
-    font-feature-settings: 'lnum' 1, 'tnum' 1;
+    font-feature-settings:
+      "lnum" 1,
+      "tnum" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

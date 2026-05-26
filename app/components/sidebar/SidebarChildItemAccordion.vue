@@ -29,10 +29,7 @@
       <slot name="header" />
     </MpText>
 
-    <MpIcon
-      :name="isOpen ? 'caret-down' : 'caret-right'"
-      size="sm"
-    />
+    <MpIcon :name="isOpen ? 'caret-down' : 'caret-right'" size="sm" />
   </div>
 
   <MpCollapse :is-open="isOpen">

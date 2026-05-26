@@ -1,13 +1,7 @@
 <template>
   <div :class="wrapperClass">
     <MpTooltip placement="bottom" use-portal label="Notifications">
-      <MpButton
-        variant="ghost"
-        size="md"
-        icon-only
-        aria-label="Notifications"
-        :class="iconClass"
-      >
+      <MpButton variant="ghost" size="md" icon-only aria-label="Notifications" :class="iconClass">
         <MpIcon name="notification" size="md" />
       </MpButton>
     </MpTooltip>
@@ -36,8 +30,8 @@ const wrapperClass = css({ position: "relative", display: "inline-flex" });
   height: 18px;
   padding: 0 6px;
   border-radius: 9999px;
-  background-color: var(--mp-colors-red-400, #DC2626);
-  color: var(--mp-colors-white, #FFFFFF);
+  background-color: var(--mp-colors-red-400, #dc2626);
+  color: var(--mp-colors-white, #ffffff);
   font-size: 11px;
   font-weight: 600;
   line-height: 18px;

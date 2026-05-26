@@ -6,13 +6,22 @@
       real DOM element; if MpTooltip is the direct child its rootAttrs are
       merged into the tooltip wrapper and never reach the rendered button.
     -->
-    <MpPopoverTrigger><div :class="triggerWrapperClass"><MpTooltip placement="bottom" use-portal label="Quick access"><MpButton variant="ghost" size="md" icon-only aria-label="Quick access" :class="iconClass"><MpIcon name="add" size="md" /></MpButton></MpTooltip></div></MpPopoverTrigger>
+    <MpPopoverTrigger
+      ><div :class="triggerWrapperClass">
+        <MpTooltip placement="bottom" use-portal label="Quick access"
+          ><MpButton
+            variant="ghost"
+            size="md"
+            icon-only
+            aria-label="Quick access"
+            :class="iconClass"
+            ><MpIcon name="add" size="md" /></MpButton
+        ></MpTooltip></div
+    ></MpPopoverTrigger>
 
     <MpPopoverContent>
       <div :class="panelClass">
-        <MpText :class="headingClass" size="overline">
-          BUAT/TAMBAH
-        </MpText>
+        <MpText :class="headingClass" size="overline"> BUAT/TAMBAH </MpText>
         <NuxtLink
           v-for="item in QUICK_ACCESS_ITEMS"
           :key="item.id"
