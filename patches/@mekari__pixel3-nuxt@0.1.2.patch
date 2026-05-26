@@ -1,0 +1,19 @@
+diff --git a/dist/module.mjs b/dist/module.mjs
+index 65cacec8881a2e810e374601c448687e1c0ab485..ab455a7a9fa12138107972f72c57915354db9604 100644
+--- a/dist/module.mjs
++++ b/dist/module.mjs
+@@ -227,13 +227,7 @@ const module = defineNuxtModule({
+       });
+     }
+     if (options.css !== false) {
+-      const pixelCssContent = readFileSync(resolve("./runtime/pixel.css"), "utf-8");
+-      const { dst } = addTemplate({
+-        filename: "pixel.css",
+-        write: true,
+-        getContents: () => pixelCssContent
+-      });
+-      nuxt.options.css.push(dst);
++      nuxt.options.css.push(resolve("./runtime/pixel.css"));
+       nuxt.options.css.push("@mekari/pixel3/scrollbar.css");
+     }
+     nuxt.options.postcss.plugins = {

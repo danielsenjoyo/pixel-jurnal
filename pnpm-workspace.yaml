@@ -1,0 +1,6 @@
+packages:
+  - "."
+
+patchedDependencies:
+  "@mekari/pixel3-nuxt@0.1.2": patches/@mekari__pixel3-nuxt@0.1.2.patch
+  "@mekari/pixel3-postcss@1.0.12": patches/@mekari__pixel3-postcss@1.0.12.patch

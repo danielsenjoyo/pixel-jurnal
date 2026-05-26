@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 74cc9571bda8711e3ebe710699042efd4dd1c6d1..0a03a7f65d6b19f4f22ea8e1344e52697054e366 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -128,6 +128,8 @@ var shouldSkip = (fileName) => {
+     return true;
+   if (fileName.includes("@pandacss/astro/base.css"))
+     return false;
++  if (fileName.includes("@mekari/pixel3-nuxt"))
++    return false;
+   return nodeModulesRegex.test(fileName);
+ };
+ var pixelcss = (options = {}) => {

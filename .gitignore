@@ -1,0 +1,30 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Personal Claude Code settings (keep launch.json for collaborators)
+.claude/settings.local.json
+
+# Local design reference screenshots
+Screenshot*.png

@@ -1,0 +1,53 @@
+/* Global reset & base typography.
+   All non-component styling lives here. Component styles use scoped <style> blocks.
+   No inline styles are permitted anywhere in the codebase.
+
+   Wrapped in `@layer base` so Pixel's atomic utility classes (which live
+   in `@layer pixel_utilities`) cascade ABOVE these rules. Without this,
+   unlayered rules like `a { color: inherit }` always beat any layered
+   utility — meaning `mp-c_white` on a NuxtLink would never apply. The
+   layer order declaration here pins it: base < pixel_* < pixel_utilities. */
+
+@layer base, pixel_reset, pixel_base, pixel_tokens, pixel_recipes, pixel_utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #__nuxt,
+  #__layout {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: var(--font-size-label, 14px);
+    line-height: var(--line-height-label, 20px);
+    color: var(--color-text-default, #232933);
+    background-color: var(--color-bg-page, #f1f5f9);
+    font-feature-settings: 'lnum' 1, 'tnum' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  img {
+    max-width: 100%;
+    display: block;
+  }
+}

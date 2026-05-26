@@ -1,0 +1,38 @@
+{
+  "name": "mekari-jurnal-prototype",
+  "type": "module",
+  "private": true,
+  "description": "UI prototype for Mekari Jurnal built with Nuxt 4 and Pixel 3 design system",
+  "scripts": {
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@mekari/pixel3": "1.0.12",
+    "@mekari/pixel3-nuxt": "0.1.2",
+    "@mekari/pixel3-postcss": "1.0.12",
+    "nuxt": "^4.4.4",
+    "vue": "^3.5.33",
+    "vue-router": "^5.0.6"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.15.2",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  }
+}
