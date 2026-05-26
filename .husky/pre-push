@@ -1,1 +1,11 @@
+#!/usr/bin/env sh
+
+# Husky runs hooks in a stripped environment that doesn't inherit your
+# shell profile (.zshrc / .bash_profile), so user-local Node/pnpm install
+# paths aren't on PATH by default. Prepend the common locations so
+# `pnpm` resolves whether it was installed via the standalone installer
+# (~/.local/bin), Homebrew (/opt/homebrew/bin on Apple Silicon,
+# /usr/local/bin on Intel), or corepack.
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 pnpm lint && pnpm lint:fix && pnpm format
