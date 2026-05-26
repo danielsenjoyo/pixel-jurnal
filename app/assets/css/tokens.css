@@ -143,10 +143,10 @@
 
   --letter-spacing-h1: -0.48px;
 
+  /* Only regular (400) and semibold (600) are part of Jurnal's v2.1 surface.
+     Medium (500) and bold (700) are intentionally NOT exposed as tokens. */
   --font-weight-regular: 400;
-  --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --font-weight-bold: 700;
 
   /* ── Motion (Pixel 3 v2.1) ─────────────────────────────────────────────
      Pixel design system motion tokens. Use these for transitions and
@@ -170,6 +170,7 @@
   --layout-sidebar-collapsed-width: 56px;
   --layout-submenu-width: 208px;
   --layout-page-title-height: 72px;
+  --layout-sidebar-item-height: 36px;
 
   /* ── Z-index ──────────────────────────────────────────────────────────── */
   --z-sidebar: 10;

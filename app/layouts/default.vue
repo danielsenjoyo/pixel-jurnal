@@ -28,10 +28,13 @@ const { activeSubmenu } = useAppMenu();
  *  and force the main rail to collapse. */
 const hasSidebarChild = computed(() => Boolean(activeSubmenu.value));
 
+// One-way: a page with a submenu forces the rail to collapse. Pages without
+// a submenu DO NOT auto-expand — once collapsed (auto or manual), the rail
+// stays collapsed across navigation until the user clicks the toggle.
 watch(
   hasSidebarChild,
   (value) => {
-    useSidebar.setCollapse(value);
+    if (value) useSidebar.setCollapse(true);
   },
   { immediate: true }
 );

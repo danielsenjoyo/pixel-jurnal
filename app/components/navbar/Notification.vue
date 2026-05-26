@@ -24,19 +24,19 @@ const wrapperClass = css({ position: "relative", display: "inline-flex" });
 <style scoped>
 .jurnal-notification-indicator {
   position: absolute;
-  top: -6px;
-  right: -10px;
-  min-width: 28px;
-  height: 18px;
-  padding: 0 6px;
-  border-radius: 9999px;
-  background-color: var(--mp-colors-red-400, #dc2626);
-  color: var(--mp-colors-white, #ffffff);
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 18px;
+  top: calc(var(--spacing-2xs) * -1);
+  right: calc(var(--spacing-sm) * -1);
+  min-width: var(--spacing-lg);
+  height: var(--spacing-md);
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-status-danger);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-label-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-label-sm);
   text-align: center;
   pointer-events: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-sm);
 }
 </style>

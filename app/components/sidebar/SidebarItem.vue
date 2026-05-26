@@ -13,7 +13,7 @@
         <MpIcon
           :name="props.icon || 'empty'"
           :variant="isActive ? 'fill' : 'outline'"
-          size="sm"
+          size="md"
           :class="iconClass"
           :color="isActive ? 'blue.500' : 'gray.600'"
         />
@@ -71,37 +71,61 @@ const isActive = computed(
 const parentClass = computed(() =>
   css({
     display: "flex",
-    p: 2,
+    alignItems: "center",
+    minHeight: "var(--layout-sidebar-item-height)",
+    // py:'2xs' (6px) + 24px icon = 36px row. px:'2' (8px) keeps click target.
+    px: 2,
+    py: "2xs",
     rounded: "md",
     cursor: "pointer",
-    transition: "width 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s",
+    transition: "width var(--motion-duration-slow) var(--motion-ease-in-out)",
     // Active row gets the Blue/$blue-100 fill (Jurnal selected-nav recipe).
     backgroundColor: isActive.value ? "blue.50" : "transparent"
   })
 );
 
-const wrapperClass = css({
-  display: "flex",
-  width: "full",
-  alignItems: "center",
-  justifyContent: "space-between"
-});
+// When the rail is collapsed (no submenu present and not hovered), the row
+// shows only its 24px icon, centered in the 56px rail. Otherwise the icon
+// + label sit at the leading edge and the optional arrow at the trailing.
+const wrapperClass = computed(() =>
+  css({
+    display: "flex",
+    width: "full",
+    alignItems: "center",
+    justifyContent: props.isHideLabel ? "center" : "space-between"
+  })
+);
 
 const rootClass = css({ display: "flex", alignItems: "center", gap: 2 });
 
 const iconClass = css({ _groupHover: { color: "blue.500" } });
 
+// Label / trailing arrow: collapse to zero width (and fade) when hidden so
+// they don't reserve layout space — that lets the icon snap to centre on
+// the 56px collapsed rail.
 const labelClass = css({
   whiteSpace: "nowrap",
   opacity: 100,
-  transition: "opacity 300ms",
-  "&[data-hide-label=true]": { opacity: 0 },
+  overflow: "hidden",
+  transition:
+    "opacity var(--motion-duration-slow) var(--motion-ease-in-out), max-width var(--motion-duration-slow) var(--motion-ease-in-out)",
+  "&[data-hide-label=true]": {
+    opacity: 0,
+    maxWidth: "0",
+    visibility: "hidden"
+  },
   _groupHover: { color: "blue.500" }
 });
 
 const arrowClass = css({
   opacity: 100,
-  transition: "opacity 300ms",
-  "&[data-hide-arrow=true]": { opacity: 0 }
+  overflow: "hidden",
+  transition:
+    "opacity var(--motion-duration-slow) var(--motion-ease-in-out), max-width var(--motion-duration-slow) var(--motion-ease-in-out)",
+  "&[data-hide-arrow=true]": {
+    opacity: 0,
+    maxWidth: "0",
+    visibility: "hidden"
+  }
 });
 </script>

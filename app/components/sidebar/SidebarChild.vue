@@ -8,14 +8,18 @@
         flex: 'none',
         background: 'gray.25',
         transitionProperty: 'width, background, margin',
-        transitionDuration: '600ms',
-        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        zIndex: '99',
-        borderLeftWidth: '1px',
+        transitionDuration: 'var(--motion-duration-slow)',
+        transitionTimingFunction: 'var(--motion-ease-in-out)',
+        zIndex: 'var(--z-sidebar)',
+        borderLeftWidth: 'var(--border-width-default)',
         borderColor: 'gray.100',
         display: { base: 'none', md: 'block' },
-        width: isSidebarChildCollapsed ? '16px' : '212px',
-        marginRight: isSidebarChildCollapsed ? '16px' : '1px',
+        width: isSidebarChildCollapsed
+          ? 'var(--spacing-md)'
+          : 'var(--layout-submenu-width)',
+        marginRight: isSidebarChildCollapsed
+          ? 'var(--spacing-md)'
+          : 'var(--border-width-default)',
         cursor: isSidebarChildCollapsed ? 'pointer' : 'default'
       })
     "
@@ -31,14 +35,16 @@
         :class="
           css({
             position: 'absolute',
-            bottom: '8px',
-            left: '-17px',
+            bottom: 'var(--spacing-xs)',
+            left: 'calc(var(--spacing-md) * -1 - var(--border-width-default))',
             transitionProperty: 'all',
-            transitionDuration: '300ms',
-            transitionDelay: isSidebarChildCollapsed ? '300ms' : '0ms',
-            transitionTimingFunction: 'cubic-bezier(.4,0,.2,1)',
+            transitionDuration: 'var(--motion-duration-slow)',
+            transitionDelay: isSidebarChildCollapsed ? 'var(--motion-duration-slow)' : '0ms',
+            transitionTimingFunction: 'var(--motion-ease-in-out)',
             opacity: isSidebarChildCollapsed ? '1' : '0',
-            transform: isSidebarChildCollapsed ? 'translateX(32px)' : 'translateX(-16px)'
+            transform: isSidebarChildCollapsed
+              ? 'translateX(var(--spacing-xl))'
+              : 'translateX(calc(var(--spacing-md) * -1))'
           })
         "
       >
@@ -47,19 +53,19 @@
             :class="
               css({
                 display: 'flex',
-                width: '24px',
-                height: '36px',
+                width: 'var(--spacing-lg)',
+                height: 'var(--spacing-2xl)',
                 bg: 'white',
-                borderWidth: '1px',
+                borderWidth: 'var(--border-width-default)',
                 borderColor: 'gray.100',
-                borderRightRadius: '999px',
+                borderRightRadius: 'var(--border-radius-full)',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
                 pr: '1',
                 pl: '1',
-                shadow: 'rgb(0 0 0 / 14%) 3px 0px 4px, rgb(0 0 0 / 12%) 0px 0px 2px',
-                transition: 'all 300ms cubic-bezier(.4,0,.2,1)',
-                _hover: { width: '36px', cursor: 'pointer' }
+                shadow: 'md',
+                transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
+                _hover: { width: 'var(--spacing-2xl)', cursor: 'pointer' }
               })
             "
           >
@@ -75,7 +81,7 @@
         css({
           position: 'fixed',
           display: 'flex',
-          transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s'
+          transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)'
         })
       "
     >
@@ -87,30 +93,32 @@
             height: '100vh',
             paddingTop: 'var(--pixel-navbar-height)',
             transitionProperty: 'width, background',
-            transitionDuration: '600ms',
-            transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            width: isSidebarChildCollapsed ? '16px' : '212px',
-            borderRightWidth: '1px',
+            transitionDuration: 'var(--motion-duration-slow)',
+            transitionTimingFunction: 'var(--motion-ease-in-out)',
+            width: isSidebarChildCollapsed
+              ? 'var(--spacing-md)'
+              : 'var(--layout-submenu-width)',
+            borderRightWidth: 'var(--border-width-default)',
             borderRightColor: isSidebarChildCollapsed ? 'gray.100' : 'transparent',
             background: 'gray.25'
           })
         "
       >
-        <!-- Items scroll container -->
+        <!-- Items scroll container. Height = viewport - navbar - bottom action -->
         <ul
           :class="
             css({
               pt: 4,
               px: 2,
               width: 'full',
+              height: 'calc(100vh - var(--pixel-navbar-height) - var(--spacing-4xl))',
               overflowY: 'auto',
               overflowX: 'hidden',
-              transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
               opacity: isSidebarChildCollapsed ? '0' : '100',
               pointerEvents: isSidebarChildCollapsed ? 'none' : 'auto'
             })
           "
-          :style="{ height: 'calc(100vh - var(--pixel-navbar-height) - 60px)' }"
         >
           <slot />
         </ul>
@@ -121,7 +129,7 @@
           :class="
             css({
               display: 'flex',
-              transition: 'all .3s cubic-bezier(.4,0,.2,1)',
+              transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
               gap: '2',
               backgroundColor: 'transparent',
               flexDirection: 'row',
@@ -145,7 +153,7 @@
                   css({
                     display: 'flex',
                     borderRadius: 'sm',
-                    transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s',
+                    transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
                     padding: '2',
                     outline: 'none',
                     _hover: {

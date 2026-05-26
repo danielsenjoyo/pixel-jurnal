@@ -219,12 +219,14 @@ All Inter usage enables tabular figures via `font-feature-settings: 'lnum' 1, 't
 
 ### Weights
 
+Jurnal exposes **only two weights**: regular (400) and semibold (600).
+Medium (500) and bold (700) are intentionally not part of the v2.1 surface —
+do not reach for them, do not add fallbacks.
+
 | Token                    | Value |
 | ------------------------ | ----- |
 | `--font-weight-regular`  | 400   |
-| `--font-weight-medium`   | 500   |
 | `--font-weight-semibold` | 600   |
-| `--font-weight-bold`     | 700   |
 
 ---
 
@@ -251,6 +253,7 @@ there together.
 | `--layout-sidebar-collapsed-width` | 56px  | AppSidebar — collapsed or with-submenu width |
 | `--layout-submenu-width`           | 208px | Sidebar submenu panel width                  |
 | `--layout-page-title-height`       | 72px  | PageTitle fixed height                       |
+| `--layout-sidebar-item-height`     | 36px  | Sidebar menu row min-height (rail + submenu) |
 
 ---
 

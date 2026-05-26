@@ -33,8 +33,10 @@ const itemClass = computed(() => {
     cursor: "pointer",
     flex: "1",
     borderRadius: "md",
-    p: "2",
-    transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0s",
+    minHeight: "var(--layout-sidebar-item-height)",
+    px: "2",
+    py: "2xs",
+    transition: "all var(--motion-duration-slow) var(--motion-ease-in-out)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center"

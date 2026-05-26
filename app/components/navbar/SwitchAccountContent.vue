@@ -117,7 +117,7 @@ const headerClass = css({
   gap: 2,
   p: 4,
   bg: "gray.25",
-  borderBottomWidth: "1px",
+  borderBottomWidth: "var(--border-width-default)",
   borderColor: "gray.100"
 });
 
@@ -136,10 +136,10 @@ const sectionClass = css({
   flexDirection: "column"
 });
 
-/* Popover avatar: 48×48 override (Pixel `lg`=36, `xl`=80 — no native 48). */
+/* Popover avatar: 48×48 override via `--spacing-3xl` (Pixel `lg`=36, `xl`=80). */
 const avatarClass = css({
-  width: "48px !important",
-  height: "48px !important"
+  width: "var(--spacing-3xl) !important",
+  height: "var(--spacing-3xl) !important"
 });
 
 const rowClass = css({
@@ -161,7 +161,7 @@ const companiesWrapperClass = css({ px: 3, py: 2 });
 
 const companiesCardClass = css({
   bg: "gray.25",
-  borderWidth: "1px",
+  borderWidth: "var(--border-width-default)",
   borderColor: "gray.50",
   rounded: "md"
 });
@@ -207,7 +207,7 @@ const footerClass = css({
   gap: 1,
   px: 3,
   py: 4,
-  borderTopWidth: "1px",
+  borderTopWidth: "var(--border-width-default)",
   borderColor: "gray.50"
 });
 

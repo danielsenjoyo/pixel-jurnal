@@ -4,35 +4,10 @@
     data-pixel-component="TheSidebar"
     data-slot="root"
     :class="rootClass"
-    :style="{
-      width: isSidebarCollapsed ? `${SIDEBAR_COLLAPSED_WIDTH}px` : `${SIDEBAR_EXPANDED_WIDTH}px`
-    }"
   >
-    <div
-      data-slot="rootChild"
-      :class="rootChildClass"
-      :style="{ marginRight: `${SIDEBAR_COLLAPSED_WIDTH}px` }"
-    >
-      <div
-        data-slot="menu"
-        :class="menuClass"
-        :style="{
-          width:
-            isSidebarCollapsed && !isSidebarHovered
-              ? `${SIDEBAR_COLLAPSED_WIDTH}px`
-              : `${SIDEBAR_EXPANDED_WIDTH}px`
-        }"
-        @mouseover="handleSidebarHover(true)"
-        @mouseleave="handleSidebarHover(false)"
-      >
-        <ul
-          class="sidebar-content"
-          :class="mainMenuClass"
-          :style="{
-            height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
-            paddingBottom: `${SIDEBAR_BOTTOM_BAR_HEIGHT}px`
-          }"
-        >
+    <div data-slot="rootChild" :class="rootChildClass">
+      <div data-slot="menu" :class="menuClass">
+        <ul class="sidebar-content" :class="mainMenuClass">
           <template v-for="(group, groupIndex) in menuGroups" :key="groupIndex">
             <li v-if="groupIndex > 0" :key="`divider-${groupIndex}`">
               <MpDivider />
@@ -65,7 +40,7 @@
                   css({
                     p: 2,
                     rounded: 'sm',
-                    transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s',
+                    transition: 'all var(--motion-duration-slow) var(--motion-ease-in-out)',
                     cursor: 'pointer',
                     _hover: {
                       backgroundColor: 'gray.50',
@@ -88,7 +63,7 @@
               :class="
                 css({
                   whiteSpace: 'nowrap',
-                  opacity: isSidebarCollapsed ? (isSidebarHovered ? '1' : '0') : '1'
+                  opacity: isSidebarCollapsed ? '0' : '1'
                 })
               "
             >
@@ -104,12 +79,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { css, MpDivider, MpFlex, MpIcon, MpText, MpTooltip } from "@mekari/pixel3";
-import {
-  NAVBAR_HEIGHT,
-  SIDEBAR_COLLAPSED_WIDTH,
-  SIDEBAR_EXPANDED_WIDTH,
-  SIDEBAR_BOTTOM_BAR_HEIGHT
-} from "~/data/constants";
 import { usePixelLayout } from "~/composables/usePixelLayout";
 import { useAppMenu } from "~/composables/useAppMenu";
 import SidebarItem from "~/components/sidebar/SidebarItem.vue";
@@ -123,44 +92,47 @@ const {
   isSidebarCollapsed,
   isSidebarChildCollapsed,
   useSidebar,
-  sidebarNode,
-  isSidebarHovered,
-  handleSidebarHover
+  sidebarNode
 } = usePixelLayout();
 
 const { menuGroups, isRouteActive, getFirstChildRoute } = useAppMenu();
 
-const isHideLabel = () => isSidebarCollapsed.value && !isSidebarHovered.value;
+// Collapsed rail never re-expands — including on hover. Label visibility
+// is purely a function of the collapse flag.
+const isHideLabel = () => isSidebarCollapsed.value;
 
 const rootClass = computed(() =>
   css({
     flex: "none",
-    transition: "all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s",
-    zIndex: "100",
+    transition: "all var(--motion-duration-slow) var(--motion-ease-in-out)",
+    zIndex: "var(--z-sidebar)",
     display: { base: "none", md: "block" },
-    shadow:
-      isSidebarChildCollapsed.value && props.hasChild
-        ? "0 10px 15px -3px rgba(0, 0, 0, 0.1),0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-        : "none"
+    width: isSidebarCollapsed.value
+      ? "var(--layout-sidebar-collapsed-width)"
+      : "var(--layout-sidebar-width)",
+    shadow: isSidebarChildCollapsed.value && props.hasChild ? "lg" : "none"
   })
 );
 
 const rootChildClass = css({
   position: "fixed",
   display: "flex",
-  transition: "all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s"
+  marginRight: "var(--layout-sidebar-collapsed-width)",
+  transition: "all var(--motion-duration-slow) var(--motion-ease-in-out)"
 });
 
 const menuClass = computed(() =>
   css({
     display: "block",
     paddingTop: "var(--pixel-navbar-height)",
-    transitionProperty: "width, box-shadow",
-    transitionDuration: "600ms",
-    transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
-    position: isSidebarCollapsed.value ? "relative" : "absolute",
-    background: "gray.25",
-    shadow: isSidebarCollapsed.value && isSidebarHovered.value ? "lg" : "none"
+    width: isSidebarCollapsed.value
+      ? "var(--layout-sidebar-collapsed-width)"
+      : "var(--layout-sidebar-width)",
+    transitionProperty: "width",
+    transitionDuration: "var(--motion-duration-slow)",
+    transitionTimingFunction: "var(--motion-ease-in-out)",
+    position: "relative",
+    background: "gray.25"
   })
 );
 
@@ -168,6 +140,10 @@ const mainMenuClass = css({
   pt: 4,
   px: 2,
   width: "full",
+  // Reserve room for the sticky bottom action row (uses the same vertical
+  // padding tokens as the row itself). 100vh - navbar = available height.
+  height: "calc(100vh - var(--layout-header-height))",
+  paddingBottom: "var(--spacing-4xl)",
   overflowY: "auto",
   overflowX: "hidden"
 });
@@ -178,7 +154,7 @@ const bottomActionClass = css({
   left: "0",
   px: 2,
   py: 3,
-  borderTopWidth: "1px",
+  borderTopWidth: "var(--border-width-default)",
   borderColor: "gray.100",
   background: "inherit",
   w: "full"
@@ -187,17 +163,17 @@ const bottomActionClass = css({
 
 <style>
 .sidebar-content::-webkit-scrollbar {
-  width: 0px;
+  width: 0;
 }
 .sidebar-content::-webkit-scrollbar-thumb {
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
 }
 .sidebar-content:hover::-webkit-scrollbar {
-  width: 0px;
+  width: 0;
   position: absolute;
 }
 .sidebar-content:hover::-webkit-scrollbar-thumb {
-  background: var(--colors-gray-400);
+  background: var(--color-gray-400);
 }
 </style>
