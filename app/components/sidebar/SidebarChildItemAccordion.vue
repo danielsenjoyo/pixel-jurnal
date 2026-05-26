@@ -6,8 +6,10 @@
         justifyContent: 'space-between',
         alignItems: 'center',
         borderRadius: 'md',
-        p: '2',
-        transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0s',
+        minHeight: 'var(--layout-sidebar-item-height)',
+        px: '2',
+        py: '1.5',
+        transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
         background: props.isActive ? 'blue.50' : 'transparent',
         color: props.isActive ? 'blue.500' : 'dark',
         fontWeight: props.isActive ? 'semiBold' : 'regular',
@@ -29,7 +31,7 @@
       <slot name="header" />
     </MpText>
 
-    <MpIcon :name="isOpen ? 'caret-down' : 'caret-right'" size="sm" />
+    <MpIcon :name="isOpen ? 'caret-down' : 'caret-right'" size="md" />
   </div>
 
   <MpCollapse :is-open="isOpen">

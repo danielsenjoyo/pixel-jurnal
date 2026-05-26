@@ -63,6 +63,7 @@ const pageTitleClass = css({
   gap: 4,
   px: 6,
   py: 4,
+  height: "var(--layout-page-title-height)",
   flexShrink: 0
 });
 
@@ -83,8 +84,8 @@ const actionsClass = css({
 
 const stageClass = css({
   bg: "white",
-  borderTopWidth: "1px",
-  borderLeftWidth: "1px",
+  borderTopWidth: "sm",
+  borderLeftWidth: "sm",
   borderColor: "gray.100",
   roundedTopLeft: "md",
   p: 6,

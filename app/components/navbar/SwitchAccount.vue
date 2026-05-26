@@ -60,10 +60,10 @@ const chipClass = css({
   _hover: { backgroundColor: "gray.50" }
 });
 
-/** Navbar avatar: 32×32px override (MpAvatar `md` is 24px, `lg` is 36px). */
+/** Navbar avatar: 32×32 override via `--spacing-xl` (MpAvatar `md` is 24, `lg` is 36). */
 const avatarClass = css({
-  width: "32px !important",
-  height: "32px !important"
+  width: "var(--mp-spacing-8) !important",
+  height: "var(--mp-spacing-8) !important"
 });
 
 const labelClass = css({

@@ -8,14 +8,14 @@
         flex: 'none',
         background: 'gray.25',
         transitionProperty: 'width, background, margin',
-        transitionDuration: '600ms',
-        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        zIndex: '99',
-        borderLeftWidth: '1px',
+        transitionDuration: 'var(--mp-durations-fast)',
+        transitionTimingFunction: 'var(--motion-ease-in-out)',
+        zIndex: 'var(--mp-z-index-docked)',
+        borderLeftWidth: 'sm',
         borderColor: 'gray.100',
         display: { base: 'none', md: 'block' },
-        width: isSidebarChildCollapsed ? '16px' : '212px',
-        marginRight: isSidebarChildCollapsed ? '16px' : '1px',
+        width: isSidebarChildCollapsed ? '4' : 'var(--layout-submenu-width)',
+        marginRight: isSidebarChildCollapsed ? '4' : '[1px]',
         cursor: isSidebarChildCollapsed ? 'pointer' : 'default'
       })
     "
@@ -31,14 +31,16 @@
         :class="
           css({
             position: 'absolute',
-            bottom: '8px',
-            left: '-17px',
+            bottom: '2',
+            left: 'calc(var(--mp-spacing-4) * -1 - var(--mp-borders-sm))',
             transitionProperty: 'all',
-            transitionDuration: '300ms',
-            transitionDelay: isSidebarChildCollapsed ? '300ms' : '0ms',
-            transitionTimingFunction: 'cubic-bezier(.4,0,.2,1)',
+            transitionDuration: 'var(--mp-durations-fast)',
+            transitionDelay: isSidebarChildCollapsed ? 'var(--mp-durations-fast)' : '0ms',
+            transitionTimingFunction: 'var(--motion-ease-in-out)',
             opacity: isSidebarChildCollapsed ? '1' : '0',
-            transform: isSidebarChildCollapsed ? 'translateX(32px)' : 'translateX(-16px)'
+            transform: isSidebarChildCollapsed
+              ? 'translateX(var(--mp-spacing-8))'
+              : 'translateX(calc(var(--mp-spacing-4) * -1))'
           })
         "
       >
@@ -47,19 +49,19 @@
             :class="
               css({
                 display: 'flex',
-                width: '24px',
-                height: '36px',
+                width: '6',
+                height: '10',
                 bg: 'white',
-                borderWidth: '1px',
+                borderWidth: 'sm',
                 borderColor: 'gray.100',
-                borderRightRadius: '999px',
+                borderRightRadius: 'var(--border-radius-full)',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
                 pr: '1',
                 pl: '1',
-                shadow: 'rgb(0 0 0 / 14%) 3px 0px 4px, rgb(0 0 0 / 12%) 0px 0px 2px',
-                transition: 'all 300ms cubic-bezier(.4,0,.2,1)',
-                _hover: { width: '36px', cursor: 'pointer' }
+                shadow: 'md',
+                transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+                _hover: { width: '10', cursor: 'pointer' }
               })
             "
           >
@@ -75,7 +77,7 @@
         css({
           position: 'fixed',
           display: 'flex',
-          transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s'
+          transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)'
         })
       "
     >
@@ -87,30 +89,30 @@
             height: '100vh',
             paddingTop: 'var(--pixel-navbar-height)',
             transitionProperty: 'width, background',
-            transitionDuration: '600ms',
-            transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            width: isSidebarChildCollapsed ? '16px' : '212px',
-            borderRightWidth: '1px',
+            transitionDuration: 'var(--mp-durations-fast)',
+            transitionTimingFunction: 'var(--motion-ease-in-out)',
+            width: isSidebarChildCollapsed ? '4' : 'var(--layout-submenu-width)',
+            borderRightWidth: 'sm',
             borderRightColor: isSidebarChildCollapsed ? 'gray.100' : 'transparent',
             background: 'gray.25'
           })
         "
       >
-        <!-- Items scroll container -->
+        <!-- Items scroll container. Height = viewport - navbar - bottom action -->
         <ul
           :class="
             css({
               pt: 4,
               px: 2,
               width: 'full',
+              height: 'calc(100vh - var(--pixel-navbar-height) - var(--mp-spacing-16))',
               overflowY: 'auto',
               overflowX: 'hidden',
-              transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
               opacity: isSidebarChildCollapsed ? '0' : '100',
               pointerEvents: isSidebarChildCollapsed ? 'none' : 'auto'
             })
           "
-          :style="{ height: 'calc(100vh - var(--pixel-navbar-height) - 60px)' }"
         >
           <slot />
         </ul>
@@ -121,7 +123,7 @@
           :class="
             css({
               display: 'flex',
-              transition: 'all .3s cubic-bezier(.4,0,.2,1)',
+              transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
               gap: '2',
               backgroundColor: 'transparent',
               flexDirection: 'row',
@@ -145,7 +147,7 @@
                   css({
                     display: 'flex',
                     borderRadius: 'sm',
-                    transition: 'all 600ms cubic-bezier(0.4, 0, 0.2, 1) 0s',
+                    transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
                     padding: '2',
                     outline: 'none',
                     _hover: {
