@@ -117,7 +117,7 @@ const headerClass = css({
   gap: 2,
   p: 4,
   bg: "gray.25",
-  borderBottomWidth: "var(--mp-borders-sm)",
+  borderBottomWidth: "sm",
   borderColor: "gray.100"
 });
 
@@ -161,7 +161,7 @@ const companiesWrapperClass = css({ px: 3, py: 2 });
 
 const companiesCardClass = css({
   bg: "gray.25",
-  borderWidth: "var(--mp-borders-sm)",
+  borderWidth: "sm",
   borderColor: "gray.50",
   rounded: "md"
 });
@@ -207,7 +207,7 @@ const footerClass = css({
   gap: 1,
   px: 3,
   py: 4,
-  borderTopWidth: "var(--mp-borders-sm)",
+  borderTopWidth: "sm",
   borderColor: "gray.50"
 });
 

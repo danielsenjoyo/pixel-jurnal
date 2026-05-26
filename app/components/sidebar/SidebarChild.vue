@@ -11,11 +11,11 @@
         transitionDuration: 'var(--mp-durations-fast)',
         transitionTimingFunction: 'var(--motion-ease-in-out)',
         zIndex: 'var(--mp-z-index-docked)',
-        borderLeftWidth: 'var(--mp-borders-sm)',
+        borderLeftWidth: 'sm',
         borderColor: 'gray.100',
         display: { base: 'none', md: 'block' },
-        width: isSidebarChildCollapsed ? 'var(--mp-spacing-4)' : 'var(--layout-submenu-width)',
-        marginRight: isSidebarChildCollapsed ? 'var(--mp-spacing-4)' : 'var(--mp-borders-sm)',
+        width: isSidebarChildCollapsed ? '4' : 'var(--layout-submenu-width)',
+        marginRight: isSidebarChildCollapsed ? '4' : '[1px]',
         cursor: isSidebarChildCollapsed ? 'pointer' : 'default'
       })
     "
@@ -31,7 +31,7 @@
         :class="
           css({
             position: 'absolute',
-            bottom: 'var(--mp-spacing-2)',
+            bottom: '2',
             left: 'calc(var(--mp-spacing-4) * -1 - var(--mp-borders-sm))',
             transitionProperty: 'all',
             transitionDuration: 'var(--mp-durations-fast)',
@@ -49,10 +49,10 @@
             :class="
               css({
                 display: 'flex',
-                width: 'var(--mp-spacing-6)',
-                height: 'var(--mp-sizes-10)',
+                width: '6',
+                height: '10',
                 bg: 'white',
-                borderWidth: 'var(--mp-borders-sm)',
+                borderWidth: 'sm',
                 borderColor: 'gray.100',
                 borderRightRadius: 'var(--border-radius-full)',
                 alignItems: 'center',
@@ -61,7 +61,7 @@
                 pl: '1',
                 shadow: 'md',
                 transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
-                _hover: { width: 'var(--mp-sizes-10)', cursor: 'pointer' }
+                _hover: { width: '10', cursor: 'pointer' }
               })
             "
           >
@@ -91,8 +91,8 @@
             transitionProperty: 'width, background',
             transitionDuration: 'var(--mp-durations-fast)',
             transitionTimingFunction: 'var(--motion-ease-in-out)',
-            width: isSidebarChildCollapsed ? 'var(--mp-spacing-4)' : 'var(--layout-submenu-width)',
-            borderRightWidth: 'var(--mp-borders-sm)',
+            width: isSidebarChildCollapsed ? '4' : 'var(--layout-submenu-width)',
+            borderRightWidth: 'sm',
             borderRightColor: isSidebarChildCollapsed ? 'gray.100' : 'transparent',
             background: 'gray.25'
           })

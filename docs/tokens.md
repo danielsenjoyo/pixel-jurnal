@@ -56,25 +56,25 @@ css({
 
 ### Brand
 
-| Token                          | Value     | Used for                         |
-| ------------------------------ | --------- | -------------------------------- |
-| `--mp-colors-brand-jurnal`     | `#40C3FF` | Jurnal mark                      |
-| `--mp-colors-brand-university` | `#448AFF` | Cross-product University accent  |
-| `--mp-colors-brand-talenta`    | `#F22929` | Cross-product Talenta accent     |
-| `--mp-colors-brand-mekari`     | `#651FFF` | Mekari corporate                 |
+| Token                          | Value     | Used for                        |
+| ------------------------------ | --------- | ------------------------------- |
+| `--mp-colors-brand-jurnal`     | `#40C3FF` | Jurnal mark                     |
+| `--mp-colors-brand-university` | `#448AFF` | Cross-product University accent |
+| `--mp-colors-brand-talenta`    | `#F22929` | Cross-product Talenta accent    |
+| `--mp-colors-brand-mekari`     | `#651FFF` | Mekari corporate                |
 
 (Full brand palette: capital, esign, expense, flex, jurnal, klikpajak,
 mekari, qontak, talenta, university.)
 
 ### Blue scale
 
-| Token                  | Value     | Used for                                |
-| ---------------------- | --------- | --------------------------------------- |
-| `--mp-colors-blue-50`  | `#EAECFB` | (reserved — emphasis surfaces)          |
-| `--mp-colors-blue-100` | `#D5DEFF` | Selected-nav background, focus ring     |
-| `--mp-colors-blue-400` | `#4B61DD` | Primary action; submenu heading label   |
-| `--mp-colors-blue-500` | `#1C44D5` | Active text/icon on selected-nav rows   |
-| `--mp-colors-blue-700` | `#0031BE` | Pressed primary                         |
+| Token                  | Value     | Used for                              |
+| ---------------------- | --------- | ------------------------------------- |
+| `--mp-colors-blue-50`  | `#EAECFB` | (reserved — emphasis surfaces)        |
+| `--mp-colors-blue-100` | `#D5DEFF` | Selected-nav background, focus ring   |
+| `--mp-colors-blue-400` | `#4B61DD` | Primary action; submenu heading label |
+| `--mp-colors-blue-500` | `#1C44D5` | Active text/icon on selected-nav rows |
+| `--mp-colors-blue-700` | `#0031BE` | Pressed primary                       |
 
 ### Neutral / Gray scale
 
@@ -93,38 +93,38 @@ mekari, qontak, talenta, university.)
 
 ### Status / Chart
 
-| Token                   | Value     | Used for                      |
-| ----------------------- | --------- | ----------------------------- |
-| `--mp-colors-rose-400`  | `#EF4444` | Notification badge, errors    |
-| `--mp-colors-green-400` | `#68BE79` | Success                       |
-| `--mp-colors-orange-400`| `#E0AB00` | Warnings                      |
-| `--mp-colors-red-400`   | `#DA473F` | Destructive (Pixel "red")     |
+| Token                    | Value     | Used for                   |
+| ------------------------ | --------- | -------------------------- |
+| `--mp-colors-rose-400`   | `#EF4444` | Notification badge, errors |
+| `--mp-colors-green-400`  | `#68BE79` | Success                    |
+| `--mp-colors-orange-400` | `#E0AB00` | Warnings                   |
+| `--mp-colors-red-400`    | `#DA473F` | Destructive (Pixel "red")  |
 
 ### Surface
 
-| Token                    | Value     | Used for                  |
-| ------------------------ | --------- | ------------------------- |
-| `--mp-colors-background` | `#F1F5F9` | App shell page background |
-| `--mp-colors-white`      | `#FFFFFF` | PageStage, AppHeader      |
-| `--mp-colors-overlay`    | `rgba(22,26,32,0.8)` | Modal backdrop |
+| Token                    | Value                | Used for                  |
+| ------------------------ | -------------------- | ------------------------- |
+| `--mp-colors-background` | `#F1F5F9`            | App shell page background |
+| `--mp-colors-white`      | `#FFFFFF`            | PageStage, AppHeader      |
+| `--mp-colors-overlay`    | `rgba(22,26,32,0.8)` | Modal backdrop            |
 
 ---
 
 ## 3. Spacing (`--mp-spacing-*` — numeric scale, rem-based)
 
-| Token                  | Value          | Pixel | Typical use                            |
-| ---------------------- | -------------- | ----- | -------------------------------------- |
-| `--mp-spacing-0`       | `0`            | 0px   | Reset                                  |
-| `--mp-spacing-0\.5`    | `0.125rem`     | 2px   | Hairline gaps                          |
-| `--mp-spacing-1`       | `0.25rem`      | 4px   | Inline icon-to-text gap, tight stacks  |
-| `--mp-spacing-1\.5`    | `0.375rem`     | 6px   | Sidebar item vertical padding, badges  |
-| `--mp-spacing-2`       | `0.5rem`       | 8px   | Default gap between adjacent controls  |
-| `--mp-spacing-3`       | `0.75rem`      | 12px  | Form field internal gap                |
-| `--mp-spacing-4`       | `1rem`         | 16px  | Card padding, sidebar group padding    |
-| `--mp-spacing-6`       | `1.5rem`       | 24px  | Page padding, primary card padding     |
-| `--mp-spacing-8`       | `2rem`         | 32px  | Section spacing                        |
-| `--mp-spacing-12`      | `3rem`         | 48px  | Hero / empty-state vertical padding    |
-| `--mp-spacing-16`      | `4rem`         | 64px  | Page-level large gaps                  |
+| Token               | Value      | Pixel | Typical use                           |
+| ------------------- | ---------- | ----- | ------------------------------------- |
+| `--mp-spacing-0`    | `0`        | 0px   | Reset                                 |
+| `--mp-spacing-0\.5` | `0.125rem` | 2px   | Hairline gaps                         |
+| `--mp-spacing-1`    | `0.25rem`  | 4px   | Inline icon-to-text gap, tight stacks |
+| `--mp-spacing-1\.5` | `0.375rem` | 6px   | Sidebar item vertical padding, badges |
+| `--mp-spacing-2`    | `0.5rem`   | 8px   | Default gap between adjacent controls |
+| `--mp-spacing-3`    | `0.75rem`  | 12px  | Form field internal gap               |
+| `--mp-spacing-4`    | `1rem`     | 16px  | Card padding, sidebar group padding   |
+| `--mp-spacing-6`    | `1.5rem`   | 24px  | Page padding, primary card padding    |
+| `--mp-spacing-8`    | `2rem`     | 32px  | Section spacing                       |
+| `--mp-spacing-12`   | `3rem`     | 48px  | Hero / empty-state vertical padding   |
+| `--mp-spacing-16`   | `4rem`     | 64px  | Page-level large gaps                 |
 
 > Note: Pixel does not ship a 40px spacing token. Use `--mp-sizes-10`
 > (`2.5rem`, 40px) when you need that gap, or compose with multiples.
@@ -133,14 +133,14 @@ mekari, qontak, talenta, university.)
 
 ## 4. Border radius (`--mp-radii-*`)
 
-| Token              | Value      | Pixel  | Use                              |
-| ------------------ | ---------- | ------ | -------------------------------- |
-| `--mp-radii-xs`    | `0.125rem` | 2px    | Tag chips                        |
-| `--mp-radii-sm`    | `0.25rem`  | 4px    | Inline pills, tiny badges        |
-| `--mp-radii-md`    | `0.375rem` | 6px    | Buttons, sidebar items           |
-| `--mp-radii-lg`    | `0.5rem`   | 8px    | Cards, stat tiles                |
-| `--mp-radii-xl`    | `0.75rem`  | 12px   | Modals, large cards              |
-| `--mp-radii-full`  | `50%`      | ellipse| **Circles only — see warning**   |
+| Token             | Value      | Pixel   | Use                            |
+| ----------------- | ---------- | ------- | ------------------------------ |
+| `--mp-radii-xs`   | `0.125rem` | 2px     | Tag chips                      |
+| `--mp-radii-sm`   | `0.25rem`  | 4px     | Inline pills, tiny badges      |
+| `--mp-radii-md`   | `0.375rem` | 6px     | Buttons, sidebar items         |
+| `--mp-radii-lg`   | `0.5rem`   | 8px     | Cards, stat tiles              |
+| `--mp-radii-xl`   | `0.75rem`  | 12px    | Modals, large cards            |
+| `--mp-radii-full` | `50%`      | ellipse | **Circles only — see warning** |
 
 > ⚠️ `--mp-radii-full: 50%` creates ellipses on non-square boxes. For
 > stadium-shape pills (notification badge, search bar), use the
@@ -150,23 +150,23 @@ mekari, qontak, talenta, university.)
 
 ## 5. Border width (`--mp-borders-*`)
 
-| Token             | Value | Use                              |
-| ----------------- | ----- | -------------------------------- |
-| `--mp-borders-sm` | `1px` | All hairlines, dividers          |
-| `--mp-borders-md` | `1.5px` | Emphasized borders             |
-| `--mp-borders-lg` | `2px` | Focus rings, strong outlines     |
+| Token             | Value   | Use                          |
+| ----------------- | ------- | ---------------------------- |
+| `--mp-borders-sm` | `1px`   | All hairlines, dividers      |
+| `--mp-borders-md` | `1.5px` | Emphasized borders           |
+| `--mp-borders-lg` | `2px`   | Focus rings, strong outlines |
 
 ---
 
 ## 6. Typography
 
-| Category | Tokens |
-| -------- | ------ |
-| Font family | `--mp-fonts-body`, `--mp-fonts-mono` |
-| Font size | `--mp-font-sizes-{xs:10,sm:12,md:14,lg:16,xl:20,2xl:24}` (px) |
-| Font weight | `--mp-font-weights-{regular:400,semi-bold:600,bold:800}` |
+| Category            | Tokens                                                                        |
+| ------------------- | ----------------------------------------------------------------------------- |
+| Font family         | `--mp-fonts-body`, `--mp-fonts-mono`                                          |
+| Font size           | `--mp-font-sizes-{xs:10,sm:12,md:14,lg:16,xl:20,2xl:24}` (px)                 |
+| Font weight         | `--mp-font-weights-{regular:400,semi-bold:600,bold:800}`                      |
 | Line height (ratio) | `--mp-line-heights-{xs:1.2,sm:1.34,md:1.4,lg:1.429,xl:1.5,2xl:1.67,3xl:1.71}` |
-| Letter spacing | `--mp-letter-spacings-{tighter,tight,normal,wide,wider,widest}` |
+| Letter spacing      | `--mp-letter-spacings-{tighter,tight,normal,wide,wider,widest}`               |
 
 > Body text (14px) uses `var(--mp-font-sizes-md)` + `var(--mp-line-heights-lg)`
 > (1.429 × 14 ≈ 20px). Tabular figures enabled globally via
@@ -179,14 +179,14 @@ mekari, qontak, talenta, university.)
 
 ## 7. Elevation / Shadow (`--mp-shadows-*`)
 
-| Token             | Use                                |
-| ----------------- | ---------------------------------- |
-| `--mp-shadows-xs` | Subtle lift (notification badge)   |
-| `--mp-shadows-sm` | Active sidebar item, raised chips  |
-| `--mp-shadows-md` | Floating cards, popovers           |
-| `--mp-shadows-lg` | Modals, drawers                    |
-| `--mp-shadows-xl` | Hero overlays                      |
-| `--mp-shadows-focus` / `--mp-shadows-outline` | Focus rings |
+| Token                                         | Use                               |
+| --------------------------------------------- | --------------------------------- |
+| `--mp-shadows-xs`                             | Subtle lift (notification badge)  |
+| `--mp-shadows-sm`                             | Active sidebar item, raised chips |
+| `--mp-shadows-md`                             | Floating cards, popovers          |
+| `--mp-shadows-lg`                             | Modals, drawers                   |
+| `--mp-shadows-xl`                             | Hero overlays                     |
+| `--mp-shadows-focus` / `--mp-shadows-outline` | Focus rings                       |
 
 ---
 
@@ -194,11 +194,11 @@ mekari, qontak, talenta, university.)
 
 Pixel v2.1 ships only duration tokens (no easings):
 
-| Token                    | Value | Notes                              |
-| ------------------------ | ----- | ---------------------------------- |
-| `--mp-durations-slow`    | 100ms | (Pixel's naming is inverted — this is the FASTEST) |
-| `--mp-durations-normal`  | 250ms | Default UI transition              |
-| `--mp-durations-fast`    | 300ms | Slowest of the three               |
+| Token                   | Value | Notes                                              |
+| ----------------------- | ----- | -------------------------------------------------- |
+| `--mp-durations-slow`   | 100ms | (Pixel's naming is inverted — this is the FASTEST) |
+| `--mp-durations-normal` | 250ms | Default UI transition                              |
+| `--mp-durations-fast`   | 300ms | Slowest of the three                               |
 
 For easing curves, use the project-local `--motion-ease-{in,out,in-out}`
 ([see §10](#10-project-local-layer)).
@@ -207,16 +207,16 @@ For easing curves, use the project-local `--motion-ease-{in,out,in-out}`
 
 ## 9. Z-index (`--mp-z-index-*`)
 
-| Token                      | Value | Use                     |
-| -------------------------- | ----- | ----------------------- |
-| `--mp-z-index-hide`        | -1    | Hidden                  |
-| `--mp-z-index-base`        | 0     | Default                 |
-| `--mp-z-index-docked`      | 10    | AppSidebar              |
-| `--mp-z-index-sticky`      | 1100  | AppHeader               |
-| `--mp-z-index-overlay`     | 1300  | Drawer/sheet backdrops  |
-| `--mp-z-index-modal`       | 1400  | Modals                  |
-| `--mp-z-index-popover`     | 1500  | Popovers, dropdowns     |
-| `--mp-z-index-tooltip`     | 1800  | Tooltips                |
+| Token                  | Value | Use                    |
+| ---------------------- | ----- | ---------------------- |
+| `--mp-z-index-hide`    | -1    | Hidden                 |
+| `--mp-z-index-base`    | 0     | Default                |
+| `--mp-z-index-docked`  | 10    | AppSidebar             |
+| `--mp-z-index-sticky`  | 1100  | AppHeader              |
+| `--mp-z-index-overlay` | 1300  | Drawer/sheet backdrops |
+| `--mp-z-index-modal`   | 1400  | Modals                 |
+| `--mp-z-index-popover` | 1500  | Popovers, dropdowns    |
+| `--mp-z-index-tooltip` | 1800  | Tooltips               |
 
 ---
 
@@ -238,17 +238,17 @@ extend Pixel — they don't replace it.
 
 ### Pill radius (Pixel `--mp-radii-full` is ellipse-only)
 
-| Token                  | Value    | Use                                |
-| ---------------------- | -------- | ---------------------------------- |
+| Token                  | Value    | Use                                           |
+| ---------------------- | -------- | --------------------------------------------- |
 | `--border-radius-full` | `9999px` | Stadium-pill (notification badge, search bar) |
 
 ### Motion easings (Pixel ships durations but no cubic-beziers)
 
-| Token                  | Value                            | Use                  |
-| ---------------------- | -------------------------------- | -------------------- |
-| `--motion-ease-out`    | `cubic-bezier(0.2, 0, 0, 1)`     | Element entering     |
-| `--motion-ease-in`     | `cubic-bezier(0.4, 0, 1, 1)`     | Element leaving      |
-| `--motion-ease-in-out` | `cubic-bezier(0.4, 0, 0.2, 1)`   | Default UI transition |
+| Token                  | Value                          | Use                   |
+| ---------------------- | ------------------------------ | --------------------- |
+| `--motion-ease-out`    | `cubic-bezier(0.2, 0, 0, 1)`   | Element entering      |
+| `--motion-ease-in`     | `cubic-bezier(0.4, 0, 1, 1)`   | Element leaving       |
+| `--motion-ease-in-out` | `cubic-bezier(0.4, 0, 0.2, 1)` | Default UI transition |
 
 ---
 

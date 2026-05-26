@@ -35,7 +35,7 @@ const itemClass = computed(() => {
     borderRadius: "md",
     minHeight: "var(--layout-sidebar-item-height)",
     px: "2",
-    py: "2xs",
+    py: "1.5",
     transition: "all var(--mp-durations-fast) var(--motion-ease-in-out)",
     display: "flex",
     justifyContent: "space-between",

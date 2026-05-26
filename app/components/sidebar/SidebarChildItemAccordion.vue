@@ -8,7 +8,7 @@
         borderRadius: 'md',
         minHeight: 'var(--layout-sidebar-item-height)',
         px: '2',
-        py: '2xs',
+        py: '1.5',
         transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
         background: props.isActive ? 'blue.50' : 'transparent',
         color: props.isActive ? 'blue.500' : 'dark',

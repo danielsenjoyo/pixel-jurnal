@@ -9,9 +9,16 @@ export default defineNuxtConfig({
   // ComponentsAppHeader). Resolves under Nuxt 4's `app/` directory layout.
   components: [{ path: "~/components", pathPrefix: false }],
 
-  // Pixel 3 base CSS is auto-injected by @mekari/pixel3-nuxt. These entries
-  // layer Jurnal's project-specific tokens + global resets on top.
-  css: ["~/assets/css/tokens.css", "~/assets/css/global.css"],
+  // Pixel 3 token surface (`--mp-*` CSS variables) — `@mekari/pixel3-nuxt`
+  // only injects the empty `@layer` declaration; the actual token values
+  // live in `@mekari/pixel3-styled-system/tokens/index.css` and must be
+  // imported explicitly. The project-local tokens layer + global resets
+  // sit on top.
+  css: [
+    "@mekari/pixel3-styled-system/styles.css",
+    "~/assets/css/tokens.css",
+    "~/assets/css/global.css"
+  ],
 
   app: {
     head: {

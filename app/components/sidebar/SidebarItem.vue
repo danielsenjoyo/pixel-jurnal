@@ -73,9 +73,9 @@ const parentClass = computed(() =>
     display: "flex",
     alignItems: "center",
     minHeight: "var(--layout-sidebar-item-height)",
-    // py:'2xs' (6px) + 24px icon = 36px row. px:'2' (8px) keeps click target.
+    // py:'1.5' (--mp-spacing-1.5 = 6px) + 24px icon = 36px row. px:'2' = 8px sides.
     px: 2,
-    py: "2xs",
+    py: "1.5",
     rounded: "md",
     cursor: "pointer",
     transition: "width var(--mp-durations-fast) var(--motion-ease-in-out)",

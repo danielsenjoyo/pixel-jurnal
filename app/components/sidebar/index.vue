@@ -133,7 +133,7 @@ const mainMenuClass = css({
   // Reserve room for the sticky bottom action row (uses the same vertical
   // padding tokens as the row itself). 100vh - navbar = available height.
   height: "calc(100vh - var(--layout-header-height))",
-  paddingBottom: "var(--mp-spacing-16)",
+  paddingBottom: "16",
   overflowY: "auto",
   overflowX: "hidden"
 });
@@ -144,7 +144,7 @@ const bottomActionClass = css({
   left: "0",
   px: 2,
   py: 3,
-  borderTopWidth: "var(--mp-borders-sm)",
+  borderTopWidth: "sm",
   borderColor: "gray.100",
   background: "inherit",
   w: "full"

@@ -12,7 +12,7 @@
         px: '6',
         display: 'flex',
         alignItems: 'center',
-        borderBottomWidth: 'var(--mp-borders-sm)',
+        borderBottomWidth: 'sm',
         borderColor: 'gray.100',
         height: 'var(--layout-header-height)'
       })
@@ -105,6 +105,6 @@ const logoLinkClass = css({
 
 /** Icon-only navbar buttons share `--spacing-2xs` (6px) square padding (Figma spec). */
 const iconBtnClass = css({
-  padding: "var(--mp-spacing-1\\.5)"
+  padding: "1.5"
 });
 </script>
