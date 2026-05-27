@@ -49,9 +49,9 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
   [
     { id: "cash-bank", label: "Cash & bank", icon: "bank", route: "/cash-bank" },
     { id: "sales", label: "Sales", icon: "sales", route: "/sales" },
-    { id: "purchase", label: "Purchase", icon: "cart", route: "/purchase" },
+    { id: "purchase", label: "Purchases", icon: "cart", route: "/purchase" },
     { id: "expenses", label: "Expenses", icon: "expenses", route: "/expenses" },
-    { id: "job-order", label: "Job order", icon: "table-view-list", route: "/job-order" },
+    { id: "job-order", label: "Job orders", icon: "table-view-list", route: "/job-order" },
     { id: "mekari-pay", label: "Mekari Pay", icon: "mekari_pay", route: "/mekari-pay" }
   ],
   [

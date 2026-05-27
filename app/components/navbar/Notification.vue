@@ -9,7 +9,7 @@
       Red pill notification indicator floating top-right of the bell. No
       tail/notch — the badge is a clean rounded pill.
     -->
-    <span class="jurnal-notification-indicator" aria-hidden="true">9+</span>
+    <span :class="indicatorClass" aria-hidden="true">9+</span>
   </div>
 </template>
 
@@ -19,24 +19,26 @@ import { css, MpButton, MpIcon, MpTooltip } from "@mekari/pixel3";
 defineProps<{ iconClass?: string }>();
 
 const wrapperClass = css({ position: "relative", display: "inline-flex" });
-</script>
 
-<style scoped>
-.jurnal-notification-indicator {
-  position: absolute;
-  top: calc(var(--mp-spacing-1\.5) * -1);
-  right: calc(var(--mp-spacing-3) * -1);
-  min-width: var(--mp-spacing-6);
-  height: var(--mp-spacing-4);
-  padding: 0 var(--mp-spacing-1\.5);
-  border-radius: var(--border-radius-full);
-  background-color: var(--mp-colors-rose-400);
-  color: var(--mp-colors-white);
-  font-size: var(--mp-font-sizes-sm);
-  font-weight: var(--mp-font-weights-semi-bold);
-  line-height: var(--mp-line-heights-sm);
-  text-align: center;
-  pointer-events: none;
-  box-shadow: var(--mp-shadows-xs);
-}
-</style>
+// Pill badge — all values resolve to Pixel tokens via Panda shortcuts.
+// Negative offsets use Panda's negative-token syntax (`-1.5` → -6px).
+// `--border-radius-full` is the project-local stadium-pill radius (Pixel's
+// `radii.full` is 50% / ellipse). minWidth + height map to the sizes scale.
+const indicatorClass = css({
+  position: "absolute",
+  top: "-1.5",
+  right: "-3",
+  minWidth: "6",
+  height: "4",
+  px: "1.5",
+  borderRadius: "var(--border-radius-full)",
+  bg: "rose.400",
+  color: "white",
+  fontSize: "sm",
+  fontWeight: "semiBold",
+  lineHeight: "sm",
+  textAlign: "center",
+  pointerEvents: "none",
+  boxShadow: "xs"
+});
+</script>

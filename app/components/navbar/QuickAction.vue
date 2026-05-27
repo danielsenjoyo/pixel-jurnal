@@ -74,7 +74,7 @@ const panelClass = css({
 const headingClass = css({
   px: 4,
   pb: 2,
-  letterSpacing: "4px",
+  letterSpacing: "widest",
   color: "gray.400"
 });
 
@@ -82,8 +82,8 @@ const itemClass = css({
   px: 4,
   py: 2,
   color: "white",
-  fontSize: "label",
-  lineHeight: "label",
+  fontSize: "md",
+  lineHeight: "lg",
   _hover: { backgroundColor: "gray.600" }
 });
 </script>

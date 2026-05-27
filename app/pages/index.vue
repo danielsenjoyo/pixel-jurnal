@@ -38,8 +38,8 @@ const hintClass = css({ maxWidth: "560px", textAlign: "center" });
 const codeClass = css({
   px: 1,
   py: "0.5",
-  fontFamily: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace",
-  fontSize: "body-small",
+  fontFamily: "mono",
+  fontSize: "sm",
   bg: "gray.25",
   rounded: "sm",
   color: "dark"

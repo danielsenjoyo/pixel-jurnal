@@ -2,7 +2,7 @@
   <aside ref="sidebarNode" data-pixel-component="TheSidebar" data-slot="root" :class="rootClass">
     <div data-slot="rootChild" :class="rootChildClass">
       <div data-slot="menu" :class="menuClass">
-        <ul class="sidebar-content" :class="mainMenuClass">
+        <ul :class="mainMenuClass">
           <template v-for="(group, groupIndex) in menuGroups" :key="groupIndex">
             <li v-if="groupIndex > 0" :key="`divider-${groupIndex}`">
               <MpDivider />
@@ -35,7 +35,9 @@
                   css({
                     p: 2,
                     rounded: 'sm',
-                    transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+                    transitionProperty: 'all',
+                    transitionDuration: 'fast',
+                    transitionTimingFunction: 'var(--motion-ease-in-out)',
                     cursor: 'pointer',
                     _hover: {
                       backgroundColor: 'gray.50',
@@ -94,8 +96,10 @@ const isHideLabel = () => isSidebarCollapsed.value;
 const rootClass = computed(() =>
   css({
     flex: "none",
-    transition: "all var(--mp-durations-fast) var(--motion-ease-in-out)",
-    zIndex: "var(--mp-z-index-docked)",
+    transitionProperty: "all",
+    transitionDuration: "fast",
+    transitionTimingFunction: "var(--motion-ease-in-out)",
+    zIndex: "docked",
     display: { base: "none", md: "block" },
     width: isSidebarCollapsed.value
       ? "var(--layout-sidebar-collapsed-width)"
@@ -108,7 +112,9 @@ const rootChildClass = css({
   position: "fixed",
   display: "flex",
   marginRight: "var(--layout-sidebar-collapsed-width)",
-  transition: "all var(--mp-durations-fast) var(--motion-ease-in-out)"
+  transitionProperty: "all",
+  transitionDuration: "fast",
+  transitionTimingFunction: "var(--motion-ease-in-out)"
 });
 
 const menuClass = computed(() =>
@@ -119,7 +125,7 @@ const menuClass = computed(() =>
       ? "var(--layout-sidebar-collapsed-width)"
       : "var(--layout-sidebar-width)",
     transitionProperty: "width",
-    transitionDuration: "var(--mp-durations-fast)",
+    transitionDuration: "fast",
     transitionTimingFunction: "var(--motion-ease-in-out)",
     position: "relative",
     background: "gray.25"
@@ -135,7 +141,13 @@ const mainMenuClass = css({
   height: "calc(100vh - var(--layout-header-height))",
   paddingBottom: "16",
   overflowY: "auto",
-  overflowX: "hidden"
+  overflowX: "hidden",
+  // Hidden-track scrollbar (was a <style> block; folded into css() so the
+  // component carries no scoped CSS).
+  "&::-webkit-scrollbar": { width: "0" },
+  "&::-webkit-scrollbar-thumb": { background: "transparent", borderRadius: "sm" },
+  "&:hover::-webkit-scrollbar": { width: "0", position: "absolute" },
+  "&:hover::-webkit-scrollbar-thumb": { background: "gray.400" }
 });
 
 const bottomActionClass = css({
@@ -150,20 +162,3 @@ const bottomActionClass = css({
   w: "full"
 });
 </script>
-
-<style>
-.sidebar-content::-webkit-scrollbar {
-  width: 0;
-}
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: var(--mp-radii-sm);
-}
-.sidebar-content:hover::-webkit-scrollbar {
-  width: 0;
-  position: absolute;
-}
-.sidebar-content:hover::-webkit-scrollbar-thumb {
-  background: var(--mp-colors-gray-400);
-}
-</style>

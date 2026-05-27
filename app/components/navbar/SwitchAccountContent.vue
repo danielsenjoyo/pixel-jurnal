@@ -138,8 +138,8 @@ const sectionClass = css({
 
 /* Popover avatar: 48×48 override via `--spacing-3xl` (Pixel `lg`=36, `xl`=80). */
 const avatarClass = css({
-  width: "var(--mp-spacing-12) !important",
-  height: "var(--mp-spacing-12) !important"
+  width: "12!",
+  height: "12!"
 });
 
 const rowClass = css({
@@ -147,7 +147,7 @@ const rowClass = css({
   alignItems: "center",
   justifyContent: "space-between",
   width: "full",
-  minHeight: "36px",
+  minHeight: "9",
   px: 3,
   py: 2,
   bg: "transparent",
