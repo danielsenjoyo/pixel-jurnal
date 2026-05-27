@@ -62,8 +62,8 @@ const chipClass = css({
 
 /** Navbar avatar: 32×32 override via `--spacing-xl` (MpAvatar `md` is 24, `lg` is 36). */
 const avatarClass = css({
-  width: "var(--mp-spacing-8) !important",
-  height: "var(--mp-spacing-8) !important"
+  width: "8!",
+  height: "8!"
 });
 
 const labelClass = css({

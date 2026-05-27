@@ -8,9 +8,9 @@
         flex: 'none',
         background: 'gray.25',
         transitionProperty: 'width, background, margin',
-        transitionDuration: 'var(--mp-durations-fast)',
+        transitionDuration: 'fast',
         transitionTimingFunction: 'var(--motion-ease-in-out)',
-        zIndex: 'var(--mp-z-index-docked)',
+        zIndex: 'docked',
         borderLeftWidth: 'sm',
         borderColor: 'gray.100',
         display: { base: 'none', md: 'block' },
@@ -32,15 +32,15 @@
           css({
             position: 'absolute',
             bottom: '2',
-            left: 'calc(var(--mp-spacing-4) * -1 - var(--mp-borders-sm))',
+            left: '[calc(-1rem - 1px)]',
             transitionProperty: 'all',
-            transitionDuration: 'var(--mp-durations-fast)',
-            transitionDelay: isSidebarChildCollapsed ? 'var(--mp-durations-fast)' : '0ms',
+            transitionDuration: 'fast',
+            transitionDelay: isSidebarChildCollapsed ? 'fast' : '0ms',
             transitionTimingFunction: 'var(--motion-ease-in-out)',
             opacity: isSidebarChildCollapsed ? '1' : '0',
             transform: isSidebarChildCollapsed
-              ? 'translateX(var(--mp-spacing-8))'
-              : 'translateX(calc(var(--mp-spacing-4) * -1))'
+              ? '[translateX(2rem)]'
+              : '[translateX(-1rem)]'
           })
         "
       >
@@ -60,7 +60,9 @@
                 pr: '1',
                 pl: '1',
                 shadow: 'md',
-                transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+                transitionProperty: 'all',
+                transitionDuration: 'fast',
+                transitionTimingFunction: 'var(--motion-ease-in-out)',
                 _hover: { width: '10', cursor: 'pointer' }
               })
             "
@@ -77,7 +79,9 @@
         css({
           position: 'fixed',
           display: 'flex',
-          transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)'
+          transitionProperty: 'all',
+          transitionDuration: 'fast',
+          transitionTimingFunction: 'var(--motion-ease-in-out)'
         })
       "
     >
@@ -89,7 +93,7 @@
             height: '100vh',
             paddingTop: 'var(--pixel-navbar-height)',
             transitionProperty: 'width, background',
-            transitionDuration: 'var(--mp-durations-fast)',
+            transitionDuration: 'fast',
             transitionTimingFunction: 'var(--motion-ease-in-out)',
             width: isSidebarChildCollapsed ? '4' : 'var(--layout-submenu-width)',
             borderRightWidth: 'sm',
@@ -105,10 +109,12 @@
               pt: 4,
               px: 2,
               width: 'full',
-              height: 'calc(100vh - var(--pixel-navbar-height) - var(--mp-spacing-16))',
+              height: '[calc(100vh - var(--pixel-navbar-height) - 4rem)]',
               overflowY: 'auto',
               overflowX: 'hidden',
-              transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+              transitionProperty: 'all',
+              transitionDuration: 'fast',
+              transitionTimingFunction: 'var(--motion-ease-in-out)',
               opacity: isSidebarChildCollapsed ? '0' : '100',
               pointerEvents: isSidebarChildCollapsed ? 'none' : 'auto'
             })
@@ -123,7 +129,9 @@
           :class="
             css({
               display: 'flex',
-              transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+              transitionProperty: 'all',
+              transitionDuration: 'fast',
+              transitionTimingFunction: 'var(--motion-ease-in-out)',
               gap: '2',
               backgroundColor: 'transparent',
               flexDirection: 'row',
@@ -147,7 +155,9 @@
                   css({
                     display: 'flex',
                     borderRadius: 'sm',
-                    transition: 'all var(--mp-durations-fast) var(--motion-ease-in-out)',
+                    transitionProperty: 'all',
+                    transitionDuration: 'fast',
+                    transitionTimingFunction: 'var(--motion-ease-in-out)',
                     padding: '2',
                     outline: 'none',
                     _hover: {

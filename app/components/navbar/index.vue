@@ -6,7 +6,7 @@
     :class="
       css({
         position: 'fixed',
-        zIndex: 'var(--mp-z-index-sticky)',
+        zIndex: 'sticky',
         width: 'full',
         bg: 'white',
         px: '6',

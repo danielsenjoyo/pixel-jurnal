@@ -1,8 +1,8 @@
 <template>
   <!-- Section title -->
-  <MpFlex justify="space-between" alignItems="center" height="var(--mp-sizes-10)">
+  <MpFlex justify="space-between" alignItems="center" height="10">
     <MpText
-      :class="css({ letterSpacing: '2px', p: 2, textTransform: 'uppercase' })"
+      :class="css({ letterSpacing: 'widest', p: 2, textTransform: 'uppercase' })"
       size="label-small"
       weight="semiBold"
       color="blue.400"
@@ -78,7 +78,7 @@ const sectionHeadingClass = css({
   px: 2,
   pt: 3,
   pb: 1,
-  letterSpacing: "2px",
+  letterSpacing: "widest",
   textTransform: "uppercase"
 });
 

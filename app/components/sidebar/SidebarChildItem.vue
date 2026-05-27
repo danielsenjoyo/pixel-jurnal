@@ -36,7 +36,9 @@ const itemClass = computed(() => {
     minHeight: "var(--layout-sidebar-item-height)",
     px: "2",
     py: "1.5",
-    transition: "all var(--mp-durations-fast) var(--motion-ease-in-out)",
+    transitionProperty: "all",
+    transitionDuration: "fast",
+    transitionTimingFunction: "var(--motion-ease-in-out)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center"
