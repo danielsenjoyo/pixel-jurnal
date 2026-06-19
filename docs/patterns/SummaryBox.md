@@ -1,0 +1,79 @@
+# Summary Box (KPI strip)
+
+> Part of the Mekari Jurnal page-construction pattern set.
+> Component: [`app/components/template/SummaryBox.vue`](../../app/components/template/SummaryBox.vue).
+> Reference usage: [`index-template.vue`](../../app/pages/templates/index-template.vue) Zone A.
+> Port of the official Mekari Pixel "summary box" (`Pixel-Sandbox/pixel3-templates-patterns`).
+
+## Purpose
+
+A two-tone KPI card — a type-tinted **top band** (label + count badge) over a
+neutral white **bottom band** (caption + amount) — laid out in a responsive grid
+at the top of an index page. Optional loading spinner and filter affordance.
+
+## When to use
+
+Optional. Use when a list screen benefits from a KPI summary (overdue totals,
+counts by status, …). Omit entirely on pages with no headline numbers.
+
+## Markup
+
+```vue
+<div :class="statsGridClass"><!-- repeat(auto-fit, minmax(240px,1fr)); gap:4 -->
+  <!-- count badge + hover-reveal filter icon -->
+  <SummaryBox variant="red" label="Overdue" :badge="12" amount="1,250,000" is-filter />
+
+  <!-- top-band icon + tooltip -->
+  <SummaryBox variant="orange" label="Due soon" amount="680,000">
+    <template #top-right-content>
+      <MpTooltip label="Due within 7 days" placement="bottom">
+        <MpIcon name="doc" size="sm" color="gray.400" />
+      </MpTooltip>
+    </template>
+  </SummaryBox>
+
+  <!-- action button in the bottom band -->
+  <SummaryBox variant="gray" label="Paid" amount="3,400,000">
+    <template #bottom-right-content>
+      <MpButton variant="secondary" size="sm">View</MpButton>
+    </template>
+  </SummaryBox>
+</div>
+<div :class="statsCaptionClass">
+  <MpText size="body-small" color="gray.600">As of 18 Jun 2026</MpText>
+</div>
+```
+
+## Props
+
+| Prop          | Values                               | Notes                                                                            |
+| ------------- | ------------------------------------ | -------------------------------------------------------------------------------- |
+| `variant`     | `orange` `red` `green` `blue` `gray` | Tints the top band + border. `gray` = neutral default.                           |
+| `label`       | string                               | Top-band title (truncates with a tooltip).                                       |
+| `badge`       | string \| number                     | Count pill in the top band (omit → no pill).                                     |
+| `caption`     | string                               | Bottom-band caption (default `Total`).                                           |
+| `amount`      | string \| number                     | **Pre-formatted** value string.                                                  |
+| `isFilter`    | boolean                              | Filter icon in the bottom band that **reveals on card hover** (tooltip-wrapped). |
+| `isActive`    | boolean                              | Keeps the filter icon visible + filled (`duotone`) while a filter is applied.    |
+| `isHoverable` | boolean                              | Hover border + shadow lift (also implied by `isFilter`).                         |
+| `isLoading`   | boolean                              | Spinner overlay; hides the amount.                                               |
+
+## Slots
+
+| Slot                    | Use                                                       |
+| ----------------------- | --------------------------------------------------------- |
+| `#label`                | Replace the text title with custom content (e.g. a logo). |
+| `#top-right-content`    | Icon/tooltip at the top-right of the tinted band.         |
+| `#bottom-right-content` | Action button(s) / text link in the bottom band.          |
+
+## Rules
+
+- Grid is `repeat(auto-fit, minmax(240px, 1fr))`, `gap: 4` — **never** a fixed column count.
+- Pick the variant by **intent**: `orange` = warning, `red` = danger/overdue, `green` = success, `blue` = info, `gray` = neutral.
+- `amount` is pre-formatted by the caller (`Intl.NumberFormat`) — the component does not format.
+- Optional caption row (`statsCaptionClass`) is right-aligned `body-small / gray.600`.
+
+## Gotchas
+
+- Per-variant classes are written as **literal `css()` calls** (a `BORDER`/`TOP_BG`/`BADGE_BG` map). Panda's static extractor won't emit rules for `css({ bg: map[x] })` indirection — each token value must appear literally. Add a new variant by extending all the literal maps, not by computing a token string.
+- `#bottom-right-content` content is **always visible**; only the built-in `is-filter` icon hides-until-hover.
