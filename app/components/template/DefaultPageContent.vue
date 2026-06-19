@@ -19,6 +19,12 @@
       </div>
     </header>
 
+    <!-- Optional page-level tab bar, sits under the title on the gray shell
+         (above the white PageStage). Opt-in via the #tabs slot. -->
+    <div v-if="$slots.tabs" :class="tabsBandClass">
+      <slot name="tabs" />
+    </div>
+
     <!-- PageStage (Figma node 1:17750 → "PageStage" frame): white surface
          anchored top-left, 1px top + left border, rounded top-left only —
          no bottom/right edges, so the card visually bleeds to the viewport
@@ -80,6 +86,20 @@ const actionsClass = css({
   alignItems: "center",
   gap: 2,
   flexShrink: 0
+});
+
+// Page-level tab bar band — aligns with the title padding, sits on the gray
+// shell. The tab list's full-width ::before bottom line is hidden, and its
+// bottom padding + 24px bottom margin are removed, so the tabs sit flush against
+// the stage. The library anchors the active indicator at bottom:-2px (to overlap
+// the now-removed track), which tucks 1px under the stage — pin it to bottom:-1px
+// so its full 2px sits flush on the stage's top edge.
+const tabsBandClass = css({
+  px: 6,
+  flexShrink: 0,
+  "& .mp-tab-list__root::before": { display: "none!" },
+  "& .mp-tab-list__list": { paddingBottom: "0!", marginBottom: "0!" },
+  "& .mp-tab-selected-border": { bottom: "-1px!" }
 });
 
 const stageClass = css({

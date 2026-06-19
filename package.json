@@ -19,6 +19,7 @@
     "@mekari/pixel3": "1.0.12",
     "@mekari/pixel3-nuxt": "0.1.2",
     "@mekari/pixel3-postcss": "1.0.12",
+    "@mekari/pixel3-theme": "0.6.0",
     "nuxt": "^4.4.4",
     "vue": "^3.5.33",
     "vue-router": "^5.0.6"
@@ -26,6 +27,14 @@
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "unrs-resolver",
+      "vue-demi"
+    ]
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",

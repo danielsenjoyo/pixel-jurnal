@@ -3,7 +3,8 @@
 > Living document. Update this file whenever component behavior, layout
 > dimensions, or interaction rules are clarified or change. Pair this with
 > [`tokens.md`](./tokens.md) — that file owns the raw values, this file owns
-> the rules and rationale.
+> the rules and rationale. For building **list/index screens** inside the page
+> stage, see [`index-page-pattern.md`](./index-page-pattern.md).
 
 **Token mode:** Pixel 3 — Design Tokens **v2.1**.
 **Reference Figma:** Jurnal Master Pages → node `1:17750` (Master Template).
