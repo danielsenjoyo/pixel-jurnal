@@ -12,7 +12,7 @@
               <SidebarItem
                 as="RouterLink"
                 :to="getFirstChildRoute(menu)"
-                :label="menu.label"
+                :label="tLabel(menu)"
                 :icon="menu.icon"
                 :is-active="isRouteActive(menu.route)"
                 :is-show-arrow="Boolean(menu.isExternal)"
@@ -64,7 +64,7 @@
                 })
               "
             >
-              Company ID : {{ accountInformation.companyId }}
+              {{ t("companyId") }} : {{ accountInformation.companyId }}
             </MpText>
           </MpFlex>
         </div>
@@ -78,6 +78,7 @@ import { computed } from "vue";
 import { css, MpDivider, MpFlex, MpIcon, MpText, MpTooltip } from "@mekari/pixel3";
 import { usePixelLayout } from "~/composables/usePixelLayout";
 import { useAppMenu } from "~/composables/useAppMenu";
+import { useLanguage } from "~/composables/useLanguage";
 import SidebarItem from "~/components/sidebar/SidebarItem.vue";
 
 const props = defineProps({
@@ -87,7 +88,8 @@ const props = defineProps({
 const { accountInformation, isSidebarCollapsed, isSidebarChildCollapsed, useSidebar, sidebarNode } =
   usePixelLayout();
 
-const { menuGroups, isRouteActive, getFirstChildRoute } = useAppMenu();
+const { menuGroups, isRouteActive, getFirstChildRoute, tLabel } = useAppMenu();
+const { t } = useLanguage();
 
 // Collapsed rail never re-expands — including on hover. Label visibility
 // is purely a function of the collapse flag.

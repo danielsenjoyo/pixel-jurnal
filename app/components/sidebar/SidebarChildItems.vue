@@ -7,7 +7,7 @@
       weight="semiBold"
       color="blue.400"
     >
-      {{ submenu?.title }}
+      {{ submenu ? tTitle(submenu) : "" }}
     </MpText>
   </MpFlex>
 
@@ -19,7 +19,7 @@
         :is-active="isRouteActive(item.route)"
         :default-is-open="isRouteActive(item.route)"
       >
-        <template #header>{{ item.label }}</template>
+        <template #header>{{ tLabel(item) }}</template>
         <template #content>
           <template v-for="child in item.children" :key="child.id">
             <!-- Subsection header (e.g. TEMPLATE EMAIL, PDF TEMPLATE, WHATSAPP) -->
@@ -30,7 +30,7 @@
               weight="semiBold"
               color="gray.400"
             >
-              {{ child.label }}
+              {{ tLabel(child) }}
             </MpText>
 
             <SidebarChildItem
@@ -40,7 +40,7 @@
               :counter="child.count != null ? String(child.count) : undefined"
               @click="openItem(child)"
             >
-              {{ child.label }}
+              {{ tLabel(child) }}
             </SidebarChildItem>
           </template>
         </template>
@@ -52,7 +52,7 @@
         :counter="item.count != null ? String(item.count) : undefined"
         @click="openItem(item)"
       >
-        {{ item.label }}
+        {{ tLabel(item) }}
       </SidebarChildItem>
     </template>
   </template>
@@ -69,7 +69,7 @@ import type { AppMenuChild } from "~/data/menu";
 
 const route = useRoute();
 const router = useRouter();
-const { activeSubmenu, getFirstChildRoute, isRouteActive } = useAppMenu();
+const { activeSubmenu, getFirstChildRoute, isRouteActive, tLabel, tTitle } = useAppMenu();
 
 const submenu = computed(() => activeSubmenu.value?.submenu ?? null);
 const defaultChildId = computed(() => submenu.value?.items[0]?.id ?? null);

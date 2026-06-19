@@ -1,6 +1,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { APP_MENU_GROUPS, APP_MENU_ITEMS, type AppMenuChild, type AppMenuItem } from "~/data/menu";
+import { useLanguage } from "~/composables/useLanguage";
 
 function isRouteActive(currentPath: string, itemRoute: string) {
   return itemRoute === "/"
@@ -27,6 +28,18 @@ function findActiveChild(items: AppMenuChild[], currentPath: string): AppMenuChi
 
 export function useAppMenu() {
   const route = useRoute();
+  const { locale } = useLanguage();
+
+  /** Locale-aware label: Indonesian when locale is `id` and a `labelId`
+   *  exists, English otherwise. Reading `locale.value` here makes any
+   *  template/computed that calls it reactive to language changes. */
+  function tLabel(item: { label: string; labelId?: string }): string {
+    return locale.value === "id" && item.labelId ? item.labelId : item.label;
+  }
+
+  function tTitle(submenu: { title: string; titleId?: string }): string {
+    return locale.value === "id" && submenu.titleId ? submenu.titleId : submenu.title;
+  }
 
   const activeTopMenu = computed(
     () => APP_MENU_ITEMS.find((item) => isRouteActive(route.path, item.route)) ?? null
@@ -43,8 +56,8 @@ export function useAppMenu() {
   });
 
   const activePageTitle = computed(() => {
-    if (activeChildMenu.value) return activeChildMenu.value.label;
-    return activeTopMenu.value?.label ?? "";
+    if (activeChildMenu.value) return tLabel(activeChildMenu.value);
+    return activeTopMenu.value ? tLabel(activeTopMenu.value) : "";
   });
 
   return {
@@ -55,6 +68,8 @@ export function useAppMenu() {
     activeChildMenu,
     activePageTitle,
     getFirstChildRoute,
-    isRouteActive: (itemRoute: string) => isRouteActive(route.path, itemRoute)
+    isRouteActive: (itemRoute: string) => isRouteActive(route.path, itemRoute),
+    tLabel,
+    tTitle
   };
 }
