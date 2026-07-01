@@ -5,8 +5,12 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  '@mekari/pixel3-nuxt@0.1.2': f2bb8711c2668493b785bde762b54a6dc737c8c9b8c87b73baddb443b42d04f7
-  '@mekari/pixel3-postcss@1.0.12': 6411dc17f242f20b5214e518f411fe640b02d58bb21e9df1bf831a27e1d7b260
+  '@mekari/pixel3-nuxt@0.1.2':
+    hash: f2bb8711c2668493b785bde762b54a6dc737c8c9b8c87b73baddb443b42d04f7
+    path: patches/@mekari__pixel3-nuxt@0.1.2.patch
+  '@mekari/pixel3-postcss@1.0.12':
+    hash: 6411dc17f242f20b5214e518f411fe640b02d58bb21e9df1bf831a27e1d7b260
+    path: patches/@mekari__pixel3-postcss@1.0.12.patch
 
 importers:
 
