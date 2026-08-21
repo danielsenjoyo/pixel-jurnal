@@ -9,6 +9,13 @@
 A right-side panel for the full filter set (or any secondary form that shouldn't
 take over the whole screen). Composed from the `MpDrawer` parts.
 
+> **Two drawer flavors.** This page describes the **live** filter drawer —
+> fields bind the same refs as the toolbar, so "Apply just closes." For a
+> drawer with many fields, per-field validation, or edits that must be
+> discardable via Cancel, use the **staged draft/applied** pattern instead:
+> see [`AdvancedFilter`](./AdvancedFilter.md). Don't assume "Apply just closes"
+> applies universally — check which flavor a given drawer actually implements.
+
 ## When to use
 
 - **Filters** that don't fit the one-line filter bar (the canonical use here).

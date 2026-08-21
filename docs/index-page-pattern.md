@@ -99,6 +99,23 @@ which renders on the gray shell directly above the white stage.
 - Because the track is removed, the active indicator (`.mp-tab-selected-border`, anchored at `bottom:-2px` to overlap the now-gone track) is re-pinned to **`bottom:-1px`** so its **full 2px** lands flush on the stage's top edge instead of tucking 1px under it.
 - This is the **only** deviation from the library tab pattern. The in-stage content tabs (§6) keep the library default (track + 14px header).
 
+**Multi-document-type index pages.** When each page-level tab is really a
+different document type with its own dataset, status vocabulary, and a few
+field-presence differences (e.g. Sales' Quotation/Order/Delivery/Invoice —
+`app/pages/sales.vue`), don't fork the whole zone template per tab. Keep **one**
+physical template and switch what it reads through a computed pointer:
+
+```ts
+const activeTabKey = computed(() => TAB_ORDER[activePageTab.value]);
+const activeConfig = computed(() => TAB_CONFIG[activeTabKey.value]); // per-tab field flags, statuses, doc types
+const activeState = computed(() => tabState[activeTabKey.value]); // per-tab UI state — see §12
+```
+
+Keep a **persistent state object per tab** (not one shared object, and not
+remounting a per-tab component on switch) so each tab's filter/page/selection
+survives switching away and back — a plain `Record<TabKey, TabUiState>`
+created once, indexed by `activeTabKey`.
+
 ---
 
 ## 5. Summary boxes — KPI strip (Zone A, optional)
@@ -216,6 +233,15 @@ A flex `space-between` row that wraps:
 
 The full filter set lives in an `MpDrawer` (right placement, `sm`), composed from
 the library parts. Filters apply **live** via `v-model`, so **Apply just closes**.
+
+> This section describes the **live** filter drawer. When a filter needs many
+> fields, per-field validation, or a Cancel that discards in-progress edits,
+> use the staged **draft/applied** variant instead — see
+> [`patterns/AdvancedFilter.md`](./patterns/AdvancedFilter.md) (reference impl:
+> `app/pages/sales.vue`). That doc also covers a real `MpDrawer` gotcha: its
+> `:is-open` prop isn't re-read after mount, so closing it from the app (rather
+> than its own X/overlay/Escape) is silently ignored — the workaround is
+> gating the drawer's mount with `v-if` rather than toggling `:is-open` alone.
 
 ```vue
 <MpDrawer
@@ -349,6 +375,14 @@ illustration → title → body** — with copy that **adapts to the cause** (se
 keyword vs. quick filter vs. genuinely-empty source). No CTA: recovery is via the
 search × (§7) and the clearable quick-filter selects.
 
+**One scoped exception:** when the zero-match cause is a staged, multi-field
+[`AdvancedFilter`](./patterns/AdvancedFilter.md) rather than just the quick
+filters, add a "Clear all filters" text link. With many possible fields active
+at once, "adjust one of them" (the reasoning behind the no-CTA rule above) is a
+much weaker affordance than a single clear action — see `app/pages/sales.vue`'s
+`emptyReason` computed and [`patterns/BlankSlate.md`](./patterns/BlankSlate.md)'s
+4th case.
+
 ```vue
 <div v-else :class="emptyStateClass">
   <!-- gap:3, py:16, centered -->
@@ -460,6 +494,7 @@ only touches `pagedRows` ids).
 
 ## Changelog
 
+- **v1.4.0** — Documented the **multi-document-type index page** technique (§4: one physical template, a computed `activeTabKey`/`activeConfig`/`activeState` pointer, persistent per-tab state) and the **staged draft/applied filter drawer** (§8, full spec in `patterns/AdvancedFilter.md`) for filters too large for the live-filter model. Broadened the blank-slate no-CTA rule (§11) with one scoped exception: an advanced-filter zero-match state gets a "Clear all filters" link, since v1.3.0's reasoning (recovery via the search × and quick filters) doesn't extend to a filter with many possible active fields at once. Reference impl: `app/pages/sales.vue`.
 - **v1.3.0** — Dropped the blank-slate **Clear filters** CTA. Recovery now happens through the **search field's own clear (×) button** (revealed on hover/focus, only with a keyword, `@click="search = ''"` — the library's `is-clearable` is avoided because its svg clear emits `undefined`) and the clearable quick-filter selects. Added a `searchTerm` computed to normalize the search keyword.
 - **v1.2.0** — Zone I now uses the official Mekari **"search not found" 3D illustration** (`public/illustrations/search-not-found.png`, from the Pixel patterns repo) instead of a flat icon, with copy that names the search term (`"<term>" not found`) and three adaptive cases (search / filter / empty) via `emptyTitle` + `emptyDescription` computeds.
 - **v1.1.0** — Upgraded Zone I to the library **blank slate / Empty State** pattern: muted 48px icon, 16px (`lg`) title, capped-width body, and context-aware copy + a **Clear filters** CTA driven by a `hasActiveFilters` computed (no-results vs. genuinely-empty cases).

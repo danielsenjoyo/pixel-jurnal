@@ -51,7 +51,7 @@ pattern (no top border).
 
 ## Rules
 
-- **Reset `page` to 1** whenever per-page or sort changes (`setPerPage`, `toggleSort`).
+- **Reset `page` to 1** whenever per-page or sort changes (`setPerPage`, `toggleSort`) — **or whenever any filter criteria change**, quick filter, search, or a drawer's Apply (see [`AdvancedFilter`](./AdvancedFilter.md)). The reference `templates/index-template.vue` currently only resets on per-page/sort; `app/pages/sales.vue` is the reference for the broader rule, via a `deep` watch on the applied filter state.
 - **Clamp** `page` into `[1, pageCount]` via `watch([page, pageCount], …)`.
 - `pageOptions` is `[{ label, value }]`; `MpAutocomplete @change` gives an **option object** — unwrap `.value` in `onJumpPage`.
 - Prev/next are icon-only ghost buttons → require `aria-label` and `:is-disabled` at the ends.
