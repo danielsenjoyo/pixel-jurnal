@@ -35,7 +35,11 @@
           @click="companiesExpanded = !companiesExpanded"
         >
           <MpText color="dark">{{ t("companies") }}</MpText>
-          <MpIcon :name="companiesExpanded ? 'caret-up' : 'caret-down'" size="sm" color="gray.600" />
+          <MpIcon
+            :name="companiesExpanded ? 'caret-up' : 'caret-down'"
+            size="sm"
+            color="gray.600"
+          />
         </button>
 
         <div v-if="companiesExpanded" :class="companiesWrapperClass">
@@ -46,7 +50,9 @@
                   <MpText :weight="c.current ? 'semiBold' : 'regular'" color="dark">
                     {{ c.name }}
                   </MpText>
-                  <MpText size="body-small" color="gray.600">{{ t("companyId") }}: {{ c.id }}</MpText>
+                  <MpText size="body-small" color="gray.600"
+                    >{{ t("companyId") }}: {{ c.id }}</MpText
+                  >
                 </div>
                 <MpIcon v-if="c.current" name="check" size="sm" color="gray.600" />
               </li>
