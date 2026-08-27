@@ -50,6 +50,7 @@ A flex `space-between` row (`filterBarClass`):
 - **`MpSelect` options are native `<option>` children** — this version has **no `:options` prop**. Always include a `<option value="">All …</option>` for the cleared state, plus `is-full-width is-clearable`.
 - **Own search clear (×).** Do **not** use `MpInput is-clearable` for search: its native clear is an `<svg>` whose click emits `undefined` (breaking `search.trim()`) and doesn't reliably reset. Render an own `<button data-search-clear @click="search = ''">` inside the `position:relative` `searchGroupClass`, gated by `v-if="searchTerm"` and faded in on `&:hover / &:focus-within`.
 - **Shared refs.** Quick filters and the drawer fields bind the **same** refs (`filterCategory`, `filterStatus`, `search`) so both surfaces stay in sync.
+- This still holds when the drawer itself uses the staged draft/applied pattern ([`AdvancedFilter`](./AdvancedFilter.md)): quick filters bind straight to the **applied** state (never through the drawer's draft), so they stay "live" even though the drawer's own fields aren't. The Sales index's status/document-type quick selects and search box are the example.
 - The **Filter** button opens the [`Drawer`](./Drawer.md), never a popover.
 - Normalize the keyword through a `searchTerm` computed: `computed(() => (search.value ?? "").trim())`.
 

@@ -41,7 +41,8 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`Tabs.md`](./patterns/Tabs.md) — page-level vs. content tabs.
 - [`SummaryBox.md`](./patterns/SummaryBox.md) — KPI strip.
 - [`FilterBar.md`](./patterns/FilterBar.md) — quick filters + search.
-- [`Drawer.md`](./patterns/Drawer.md) — right-side filter/form panel.
+- [`Drawer.md`](./patterns/Drawer.md) — right-side filter/form panel (live-filter model).
+- [`AdvancedFilter.md`](./patterns/AdvancedFilter.md) — staged draft/applied filter drawer, for many-field filters needing Reset/Cancel/Apply semantics.
 - [`TablePage.md`](./patterns/TablePage.md) — fixed-layout table, sticky header + Actions.
 - [`BulkActionBar.md`](./patterns/BulkActionBar.md) — selection header swap.
 - [`Pagination.md`](./patterns/Pagination.md) — rows-per-page + page-jump footer.
@@ -53,6 +54,7 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 ### Deep reference
 
 - **[`index-page-pattern.md`](./index-page-pattern.md)** — the exhaustive index-page reference (full rationale, state-model table, component gotchas, changelog). The `patterns/` files are the focused extract; this is the long form.
+- **[`app/pages/sales.vue`](../app/pages/sales.vue)** — second reference index-page implementation: a multi-tab index page (one physical template, 4 persistent per-tab states) using the staged [`AdvancedFilter`](./patterns/AdvancedFilter.md) drawer instead of the plain live `Drawer`.
 
 ## Conventions
 

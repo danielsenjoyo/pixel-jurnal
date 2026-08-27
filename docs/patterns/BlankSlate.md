@@ -35,18 +35,19 @@ const emptyDescription = computed(() => {
 });
 ```
 
-## Three cases, one block
+## Three (or four) cases, one block
 
-| Cause                  | Title                | Body                                                                     |
-| ---------------------- | -------------------- | ------------------------------------------------------------------------ |
-| Search keyword         | `"<term>" not found` | "Check the keywords you entered and try your search again."              |
-| Quick filter only      | `No results found`   | "No items match your filters. Try adjusting them…"                       |
-| Genuinely empty source | `No data yet`        | "There's nothing here yet." _(swap in a "Create …" CTA on real screens)_ |
+| Cause                                     | Title                           | Body                                                                                                 |
+| ----------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Search keyword                            | `"<term>" not found`            | "Check the keywords you entered and try your search again."                                          |
+| Quick filter only                         | `No results found`              | "No items match your filters. Try adjusting them…"                                                   |
+| Genuinely empty source                    | `No data yet`                   | "There's nothing here yet." _(swap in a "Create …" CTA on real screens)_                             |
+| Advanced filter, zero matches (see below) | `No results match your filters` | "Your filter criteria didn't match any transaction. Try widening a date range or clearing a filter." |
 
 ## Rules
 
 - **Illustration, not a flat icon.** Use the Mekari Pixel "search not found" asset (3D card + magnifier with a red ✕) at `width: 180px` (`height: auto`) on a decorative `<img alt="">`. New blank-slate illustrations go under `public/illustrations/`.
-- **No in-slate CTA.** Title `lg` (16px) semibold; body `body-small / gray.600` capped at `maxWidth: 320px`. Recovery happens through the [`FilterBar`](./FilterBar.md)'s search × and the clearable quick-filter selects — which **stay mounted** above the blank slate (they're outside the `v-if`).
+- **No in-slate CTA — except one deliberate case.** Title `lg` (16px) semibold; body `body-small / gray.600` capped at `maxWidth: 320px`. Recovery normally happens through the [`FilterBar`](./FilterBar.md)'s search × and the clearable quick-filter selects — which **stay mounted** above the blank slate (they're outside the `v-if`). The exception: when the zero-match cause is a multi-field [`AdvancedFilter`](./AdvancedFilter.md) (not just the quick filters), add a "Clear all filters" text link — with many possible fields active at once, "adjust one of them" is a much weaker affordance than a single clear action. See `app/pages/sales.vue`'s `emptyReason` computed (`"search" | "filter" | "none"`) for how this is distinguished from the plain search/quick-filter cases.
 - For the **truly-empty** (first-run) case on a real screen, this is where a "Create …" primary CTA belongs.
 
 ## Gotchas

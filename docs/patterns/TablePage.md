@@ -38,6 +38,34 @@ const tableFixedClass = css({ tableLayout: "fixed", minWidth: "800px" });
 - `table-layout: fixed` + a `<colgroup>` make widths **authoritative and content-independent** — this is what stops the body reflowing when the header swaps to the bulk bar (a single `colspan` cell).
 - **Checkbox column = fixed `44px`; Actions column = fixed `140px`.** The middle columns are **percentages summing to 100%**, so they absorb remaining width and the two fixed columns never grow.
 - `min-width: 800px` preserves natural width: on a narrow container `MpTableContainer` **scrolls horizontally** instead of squeezing columns.
+- **Don't pick the middle-column percentages evenly** — weight them by each column's real minimum need (header label + sort icon, and typical data like "Sales Invoice #10040" or a "Partially paid" badge). An even split looks fine until a column's header can't fit in its share and starts clipping (see the two gotchas below).
+- **A page whose column _set_ varies at runtime** (tabs with different field counts, e.g. `app/pages/sales.vue`'s 6–8 columns per document type) can't use one static `minWidth` literal — a value sized for the narrow tab is too tight for the wide one. Compute both `colWidths` and the table's `min-width` from the **same per-column-key minimum-px map**, and apply the `min-width` as an inline `:style` on `MpTable` (same treatment as the `<col>` widths below — genuinely per-instance data, not a themeable value, so this is a deliberate, narrow exception to the "no inline `style`" rule). A single shared source of truth keeps the ratios and the overall minimum consistent.
+
+```ts
+const COLUMN_MIN_PX: Record<ColKey, number> = {
+  number: 150,
+  customer: 160,
+  date: 90,
+  status: 110,
+  total: 110 /* … */
+};
+const colWidths = computed(() => {
+  const totalMin = columns.value.reduce((sum, c) => sum + COLUMN_MIN_PX[c.key], 0);
+  return [
+    "44px",
+    ...columns.value.map((c) => `${((COLUMN_MIN_PX[c.key] / totalMin) * 100).toFixed(2)}%`),
+    "140px"
+  ];
+});
+const tableMinWidth = computed(() => {
+  const totalMin = columns.value.reduce((sum, c) => sum + COLUMN_MIN_PX[c.key], 0);
+  return `${44 + totalMin + 140}px`;
+});
+```
+
+```vue
+<MpTable is-hoverable :class="tableFixedClass" :style="{ minWidth: tableMinWidth }">
+```
 
 ## Header
 
@@ -73,3 +101,5 @@ around your fetch.
 
 - **No classes on `tr`/`td`** for table styling — `MpTable` styles via `.mp-table` descendants. Pass layout via `:class` on `MpTable` / `MpTableHead`, and the sticky/width classes on the specific `as="th"`/`as="td"` cells.
 - Re-check overflow after the row set changes: `watch(() => filteredRows.length, () => requestAnimationFrame(checkTableOverflow))`.
+- **`MpTableContainer` has no default overflow behavior at all.** Its Panda recipe ships zero base CSS; horizontal scroll only turns on via the `has-shadow` prop (`<MpTableContainer has-shadow>`), which sets the inner scroll div's `overflow-x: scroll`. Without it, a table wider than its container **doesn't scroll — it just overflows the page**, silently defeating the whole fixed-layout-plus-`min-width` design above. `templates/index-template.vue` is missing this too (its own comment claims "scrolls horizontally (overflow-x:auto)," which isn't accurate for the installed version) — always pass `has-shadow` explicitly, don't assume it's a default.
+- **Every body/header cell needs its own overflow clipping** (`overflow: hidden; text-overflow: ellipsis; white-space: nowrap`) — `table-layout: fixed` gives each column an authoritative _width_, but without clipping, content wider than that width still renders past the column's edge and visually bleeds into (or behind) the next one instead of truncating. Apply a clip class directly on every `as="th"`/`as="td"` (it's safe there — it doesn't touch `display`, so the cell keeps `display: table-cell`). One level _inside_ that, anything laid out as `inline-flex`/`flex` (an `MpTextlink` button, the sortable-header button + icon) needs its own inner text wrapped in a **block-level** span with `min-width: 0` — flex items default to `min-width: auto` (shrink-to-content), so without it the parent cell's clipping never gets a chance to bite and, worse, a `justify-content: center` flex button clips symmetrically from both ends instead of truncating with a trailing "…".
