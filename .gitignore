@@ -28,3 +28,7 @@ logs
 
 # Local design reference screenshots
 Screenshot*.png
+
+# pixel-review generated reports and temp files (output only, not source)
+reports/*.html
+reports/.tmp-review/
