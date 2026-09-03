@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "jurnal-nuxt",
-      "runtimeExecutable": "/tmp/node-v22.21.1-darwin-arm64/bin/node",
-      "runtimeArgs": ["/Users/snjoy/Documents/Claude/mekari-jurnal-boilerplate/node_modules/nuxt/bin/nuxt.mjs", "dev"],
+      "name": "pixel-jurnal-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev"],
       "port": 3000
     }
   ]
