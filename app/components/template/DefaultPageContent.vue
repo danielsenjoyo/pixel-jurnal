@@ -6,9 +6,22 @@
          so stub pages stay one-liners. -->
     <header :class="pageTitleClass">
       <div :class="titleColumnClass">
-        <MpText as="h1" size="h1" weight="semiBold" color="dark">
-          {{ resolvedTitle }}
-        </MpText>
+        <MpTextlink
+          v-if="breadcrumb"
+          as="a"
+          variant="primary"
+          :href="breadcrumbTo"
+          :class="breadcrumbClass"
+          @click.prevent="breadcrumbTo && navigateTo(breadcrumbTo)"
+        >
+          {{ breadcrumb }}
+        </MpTextlink>
+        <div :class="titleRowClass">
+          <MpText as="h1" size="h1" weight="semiBold" color="dark">
+            {{ resolvedTitle }}
+          </MpText>
+          <slot name="title-badge" />
+        </div>
         <MpText v-if="resolvedSubtitle" size="body-small" color="gray.600">
           {{ resolvedSubtitle }}
         </MpText>
@@ -37,12 +50,17 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { MpText, css } from "@mekari/pixel3";
+import { MpText, MpTextlink, css } from "@mekari/pixel3";
 import { useAppMenu } from "~/composables/useAppMenu";
 
 const props = defineProps<{
   title?: string;
   subtitle?: string;
+  // Optional breadcrumb link above the title (e.g. "Purchases" → /purchase)
+  // — for a details page one level under a list page. Omit both on a list
+  // page itself.
+  breadcrumb?: string;
+  breadcrumbTo?: string;
 }>();
 
 const { activePageTitle } = useAppMenu();
@@ -69,7 +87,11 @@ const pageTitleClass = css({
   gap: 4,
   px: 6,
   py: 4,
-  height: "var(--layout-page-title-height)",
+  // minHeight, not height: a details page's optional breadcrumb line (see
+  // `breadcrumb` prop) makes the title column taller than the standard
+  // band — let it grow instead of clipping. Every page without a breadcrumb
+  // still renders at exactly the standard height.
+  minHeight: "var(--layout-page-title-height)",
   flexShrink: 0
 });
 
@@ -80,6 +102,9 @@ const titleColumnClass = css({
   flex: "1 1 auto",
   minWidth: 0
 });
+
+const breadcrumbClass = css({ fontSize: "sm" });
+const titleRowClass = css({ display: "flex", alignItems: "center", gap: 3 });
 
 const actionsClass = css({
   display: "flex",
