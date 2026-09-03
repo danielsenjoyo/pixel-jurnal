@@ -53,10 +53,37 @@ For destructive confirmation or a focused single-task dialog, use a [`Modal`](./
 - **Open state:** drive with `:is-open` + `@close` — this version emits `open`/`close`, **not** `update:isOpen`, so there is **no `v-model:is-open`**. `@close` covers the × button, overlay click, and Esc.
 - **Close button placement:** `MpDrawerCloseButton` does **not** self-position — it must live **inside `MpDrawerHeader`** (a flex `space-between` container). As a bare sibling it drops to the top-left.
 - **Header title size:** the header recipe sizes text at `md` (14px). Wrap the title in `<span :class="drawerTitleClass">` to bump it to **`lg` (16px)**; weight is inherited from the recipe.
-- **Live filters → Apply just closes.** Because fields bind shared refs via `v-model`, filtering happens as you type/select. `Apply` only closes; `Reset` clears the shared refs.
+- **Live or staged — decide by how many fields there are.**
+  - **Live** (the template above): fields bind the page's own refs, so filtering
+    happens as you type. `Apply` only closes; `Reset` clears the refs. Right for
+    a handful of fields where each change is cheap and legible.
+  - **Staged** (Purchases: [`PurchaseFilterDrawer.vue`](../../app/components/purchase/PurchaseFilterDrawer.vue)):
+    the drawer edits a **local draft** and only `Apply` hands it to the page;
+    `Cancel` discards. Switch to this once the set grows past a few fields, for
+    two reasons. Re-running the list on every keystroke means most of the work
+    happens behind an overlay the user can't see past — the result is a
+    surprise when the drawer closes rather than feedback. And a live drawer
+    makes `Cancel` and `Apply` decorative: neither does anything the other
+    doesn't, so there is no way to back out of a half-built filter.
+  - **A staged drawer owes the user two things a live one doesn't.** It closes
+    over its own settings, so put a **dot on the Filter button** while anything
+    is set, and a **Clear filters** action in the [`BlankSlate`](./BlankSlate.md) —
+    otherwise a filter that matches nothing leaves an empty screen with no
+    visible cause and no way out.
 - Form fields are wrapped in `MpFormControl` + `MpFormLabel` — see [`Form`](./Form.md).
 
 ## Gotchas
 
 - `placement="right"`, `size="sm"` for the filter use case. Larger forms can use `md`.
-- The drawer fields and the quick filters bind the **same** refs (see [`FilterBar`](./FilterBar.md)).
+- The drawer fields and the quick filters bind the **same** state (see [`FilterBar`](./FilterBar.md)).
+- **Not every field belongs on every tab.** Where the list has tabs over
+  different record types, hide the controls that have no referent — Purchases
+  drops the money ranges on Delivery and Request, the due-date range on both,
+  and the tag picker on Join invoice. A control that can only ever match
+  nothing reads as broken, which is worse than its absence.
+- **`MpRadio` has no group wrapper in Pixel 3** — there is no `MpRadioGroup`.
+  Radios are grouped by sharing one `v-model`; lay them out yourself in a flex
+  row. Note that MpRadio was the first radio in this app, and Panda emits recipe
+  CSS only for components it statically finds: the controls rendered as
+  zero-height invisible boxes until `.nuxt` and `node_modules/.vite` were
+  cleared. Expect that on the first use of any Pixel component.

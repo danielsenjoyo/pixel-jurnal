@@ -115,7 +115,12 @@
       </div>
 
       <div :class="filterRightClass">
-        <MpButton variant="secondary" left-icon="filter" @click="isFilterDrawerOpen = true">Filter</MpButton>
+        <div :class="filterButtonWrapClass">
+          <MpButton variant="secondary" left-icon="filter" @click="isFilterDrawerOpen = true">Filter</MpButton>
+          <!-- A staged drawer closes over its own settings, so the button is
+               the only place the user can see that a filter is still on. -->
+          <span v-if="hasActiveFilter" :class="filterDotClass" aria-hidden="true" />
+        </div>
         <div :class="searchGroupClass">
           <MpInputGroup>
             <MpInputLeftAddon>
@@ -137,53 +142,18 @@
       </div>
     </div>
 
-    <!-- Full filter drawer — mirrors the source page's advance-search modal
-         (date range, due-date range, amount range, tag), scoped down to the
-         fields relevant to a prototype. Applies live; Apply just closes. -->
-    <MpDrawer :is-open="isFilterDrawerOpen" placement="right" size="sm" @close="isFilterDrawerOpen = false">
-      <MpDrawerOverlay />
-      <MpDrawerContent>
-        <MpDrawerHeader>
-          <span :class="drawerTitleClass">Filter</span>
-          <MpDrawerCloseButton />
-        </MpDrawerHeader>
-        <MpDrawerBody>
-          <div :class="filterDrawerFormClass">
-            <MpFormControl v-if="statusOptions.length">
-              <MpFormLabel>Status</MpFormLabel>
-              <MpSelect v-model="quickStatus" placeholder="All status" is-full-width is-clearable>
-                <option value="">All status</option>
-                <option v-for="opt in statusOptions" :key="opt" :value="opt">{{ STATUS_LABEL[opt] }}</option>
-              </MpSelect>
-            </MpFormControl>
-
-            <MpFormControl>
-              <MpFormLabel>Tag</MpFormLabel>
-              <MpSelect v-model="filterTag" placeholder="All tags" is-full-width is-clearable>
-                <option value="">All tags</option>
-                <option v-for="tag in TAG_OPTIONS" :key="tag" :value="tag">{{ tag }}</option>
-              </MpSelect>
-            </MpFormControl>
-
-            <MpFormControl>
-              <MpFormLabel>Amount from</MpFormLabel>
-              <MpInput v-model="filterAmountMin" type="number" placeholder="0" is-full-width />
-            </MpFormControl>
-
-            <MpFormControl>
-              <MpFormLabel>Amount to</MpFormLabel>
-              <MpInput v-model="filterAmountMax" type="number" placeholder="0" is-full-width />
-            </MpFormControl>
-          </div>
-        </MpDrawerBody>
-        <MpDrawerFooter>
-          <div :class="filterDrawerFooterClass">
-            <MpButton variant="ghost" @click="resetFilters">Reset</MpButton>
-            <MpButton variant="primary" @click="isFilterDrawerOpen = false">Apply</MpButton>
-          </div>
-        </MpDrawerFooter>
-      </MpDrawerContent>
-    </MpDrawer>
+    <!-- Advanced filter. Staged, not live: it edits its own draft and only
+         Apply commits, which is why `filter` is replaced wholesale here. See
+         the component for the per-tab field rules. -->
+    <PurchaseFilterDrawer
+      :is-open="isFilterDrawerOpen"
+      :active-tab="activeTabKey"
+      :status-options="statusOptions"
+      :status-label="statusLabelFor"
+      :applied="filter"
+      @close="isFilterDrawerOpen = false"
+      @apply="onApplyFilter"
+    />
 
     <!-- Delete confirmation — shared by the row-level and bulk "Delete"
          actions (pendingDeleteIds holds either one row or the whole
@@ -327,6 +297,7 @@
       <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
       <MpText weight="semiBold" color="dark" :class="emptyTitleClass">{{ emptyTitle }}</MpText>
       <MpText size="body-small" color="gray.600" :class="emptyDescClass">{{ emptyDescription }}</MpText>
+      <MpButton v-if="hasActiveFilter" variant="secondary" @click="resetFilters">Clear filters</MpButton>
     </div>
   </DefaultPageContent>
 </template>
@@ -339,16 +310,7 @@ import {
   MpBadge,
   MpButton,
   MpCheckbox,
-  MpDrawer,
-  MpDrawerBody,
-  MpDrawerCloseButton,
-  MpDrawerContent,
-  MpDrawerFooter,
-  MpDrawerHeader,
-  MpDrawerOverlay,
   MpFlex,
-  MpFormControl,
-  MpFormLabel,
   MpIcon,
   MpInput,
   MpInputGroup,
@@ -382,9 +344,15 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import SummaryBox from "~/components/template/SummaryBox.vue";
+import PurchaseFilterDrawer from "~/components/purchase/PurchaseFilterDrawer.vue";
+import {
+  emptyPurchaseFilter,
+  isFilterActive,
+  matchesPurchaseFilter,
+  type PurchaseFilter,
+} from "~/data/purchase-filter";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE, type PurchaseStatus } from "~/data/purchase-status";
 import {
-  TAG_OPTIONS,
   TYPE_CAPABILITIES,
   formatAmount,
   formatCurrency,
@@ -572,6 +540,12 @@ interface Row {
   memo: string;
   vendor: string;
   procurementStaff: string;
+  // Carried purely so the advanced filter's "Column option" can search them —
+  // none of these are shown in any tab's column set.
+  warehouse: string;
+  referenceNo: string;
+  message: string;
+  products: string[];
   dueDate: string;
   dueDateSort: string;
   status: StatusValue;
@@ -614,6 +588,10 @@ function toRow(t: PurchaseTransaction): Row {
     memo: t.memo,
     vendor: t.vendorName,
     procurementStaff: t.procurementStaff,
+    warehouse: t.warehouse,
+    referenceNo: t.referenceNo,
+    message: t.message,
+    products: t.lines.map((l) => l.product),
     dueDate: t.dueDate,
     dueDateSort: t.dueDateSort,
     status: t.status,
@@ -654,11 +632,21 @@ const columns = computed(() => COLUMNS_BY_TAB[activeTabKey.value]);
 const statusOptions = computed(() => STATUS_OPTIONS_BY_TAB[activeTabKey.value]);
 
 const isFilterDrawerOpen = ref(false);
-const search = ref("");
-const quickStatus = ref("");
-const filterTag = ref("");
-const filterAmountMin = ref("");
-const filterAmountMax = ref("");
+// One object, not loose refs: the drawer stages a copy of exactly this shape
+// and Apply swaps it in, so page and drawer can never disagree about what is
+// currently filtered. The search box and the quick status select edit two of
+// its fields directly — they are shortcuts into the same filter, not a second
+// one layered on top.
+const filter = ref<PurchaseFilter>(emptyPurchaseFilter());
+const search = computed({
+  get: () => filter.value.key,
+  set: (value: string) => (filter.value.key = value),
+});
+const quickStatus = computed({
+  get: () => filter.value.status,
+  set: (value: string) => (filter.value.status = value),
+});
+const hasActiveFilter = computed(() => isFilterActive(filter.value));
 const page = ref(1);
 const perPage = ref(10);
 const selected = ref<number[]>([]);
@@ -681,7 +669,10 @@ watch(activeTabIndex, () => {
   page.value = 1;
   selected.value = [];
   sortKey.value = null;
-  quickStatus.value = "";
+  // The source clears the whole filter on tab change, not just the status: the
+  // fields differ per tab, so a filter carried across could be narrowing by a
+  // control the new tab doesn't even show.
+  filter.value = emptyPurchaseFilter();
 });
 
 function sortValue(row: Row, key: ColumnKey): string | number {
@@ -724,18 +715,7 @@ function cellText(row: Row, key: ColumnKey): string {
 
 const filteredRows = computed(() => {
   void refreshTick.value;
-  const term = searchTerm.value.toLowerCase();
-  const min = filterAmountMin.value ? Number(filterAmountMin.value) : null;
-  const max = filterAmountMax.value ? Number(filterAmountMax.value) : null;
-
-  let result = rowsForTab(activeTabKey.value).filter((row) => {
-    const matchesTerm = !term || row.number.toLowerCase().includes(term) || row.vendor.toLowerCase().includes(term) || row.tags.some((t) => t.toLowerCase().includes(term));
-    const matchesStatus = !quickStatus.value || row.status === quickStatus.value;
-    const matchesTag = !filterTag.value || row.tags.includes(filterTag.value);
-    const matchesMin = min === null || row.totalAmount >= min;
-    const matchesMax = max === null || row.totalAmount <= max;
-    return matchesTerm && matchesStatus && matchesTag && matchesMin && matchesMax;
-  });
+  let result = rowsForTab(activeTabKey.value).filter((row) => matchesPurchaseFilter(row, filter.value));
 
   if (sortKey.value) {
     const key = sortKey.value;
@@ -824,22 +804,30 @@ function onSummaryClick(status: StatusValue) {
 
 const emptyTitle = computed(() => {
   if (searchTerm.value) return `"${searchTerm.value}" not found`;
-  if (quickStatus.value || filterTag.value || filterAmountMin.value || filterAmountMax.value) return "No results found";
+  if (hasActiveFilter.value) return "No results found";
   return "No data yet";
 });
 const emptyDescription = computed(() => {
   if (searchTerm.value) return "Check the keywords you entered and try your search again.";
-  if (quickStatus.value || filterTag.value || filterAmountMin.value || filterAmountMax.value)
-    return "No items match your filters. Try adjusting them, or clear all filters to start over.";
+  if (hasActiveFilter.value) return "No items match your filters. Try adjusting them, or clear all filters to start over.";
   return "There's nothing here yet.";
 });
 
 function resetFilters() {
-  quickStatus.value = "";
-  filterTag.value = "";
-  filterAmountMin.value = "";
-  filterAmountMax.value = "";
-  search.value = "";
+  filter.value = emptyPurchaseFilter();
+}
+
+function statusLabelFor(status: string): string {
+  return STATUS_LABEL[status as PurchaseStatus] ?? status;
+}
+
+function onApplyFilter(next: PurchaseFilter) {
+  filter.value = next;
+  // Any change to the criteria can shrink the result set below the current
+  // page, which would otherwise leave the user staring at an empty page 4.
+  page.value = 1;
+  selected.value = [];
+  isFilterDrawerOpen.value = false;
 }
 
 
@@ -951,6 +939,18 @@ const promoTextClass = css({ display: "flex", flexDirection: "column", gap: 1, m
 const statsCaptionClass = css({ display: "flex", justifyContent: "flex-end", mt: 2, mb: 4 });
 const tabLabelClass = css({ display: "inline-flex", alignItems: "center", gap: 2 });
 
+const filterButtonWrapClass = css({ position: "relative", display: "inline-flex" });
+const filterDotClass = css({
+  position: "absolute",
+  top: "-2px",
+  right: "-2px",
+  width: "10px",
+  height: "10px",
+  borderRadius: "full",
+  bg: "red.400",
+  borderWidth: "2px",
+  borderColor: "white",
+});
 const filterBarClass = css({ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 3, flexWrap: "wrap", mt: 5, mb: 5 });
 const filterLeftClass = css({ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap" });
 const filterRightClass = css({ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" });
@@ -1048,9 +1048,6 @@ const pagerRightClass = css({ display: "flex", alignItems: "center", gap: 2, fle
 const pageJumpClass = css({ width: "100px" });
 const pageJumpInnerClass = css({ h: "7.5" });
 
-const drawerTitleClass = css({ fontSize: "lg" });
-const filterDrawerFormClass = css({ display: "flex", flexDirection: "column", gap: 4 });
-const filterDrawerFooterClass = css({ display: "flex", justifyContent: "space-between", gap: 2, width: "full" });
 
 const modalTitleClass = css({ fontSize: "lg" });
 const modalFooterClass = css({ display: "flex", justifyContent: "flex-end", gap: 2 });
