@@ -273,6 +273,35 @@
         </MpTableContainer>
       </template>
 
+      <!-- Landed costs calculated against this invoice — reverse of the landed
+           cost's own purchaseId, same lookup shape as the returns list above. -->
+      <template v-if="relatedLandedCosts.length">
+        <MpDivider variant="dashed" :class="dividerClass" />
+        <MpText weight="semiBold" color="dark" :class="relatedHeadingClass">Landed costs</MpText>
+        <MpTableContainer>
+          <MpTable :class="relatedTableClass">
+            <MpTableHead :class="tableHeadClass">
+              <MpTableRow>
+                <MpTableCell as="th">Transaction no.</MpTableCell>
+                <MpTableCell as="th">Created date</MpTableCell>
+                <MpTableCell as="th">Total landed cost</MpTableCell>
+              </MpTableRow>
+            </MpTableHead>
+            <MpTableBody>
+              <MpTableRow v-for="lc in relatedLandedCosts" :key="lc.id">
+                <MpTableCell as="td">
+                  <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="navigateTo(`/purchase/landed-cost/${lc.id}`)">
+                    {{ lc.number }}
+                  </MpTextlink>
+                </MpTableCell>
+                <MpTableCell as="td">{{ formatDisplayDate(lc.createdDateSort) }}</MpTableCell>
+                <MpTableCell as="td">{{ formatCurrency(lc.total) }}</MpTableCell>
+              </MpTableRow>
+            </MpTableBody>
+          </MpTable>
+        </MpTableContainer>
+      </template>
+
       <!-- Zone D — payment history (compact related list). -->
       <template v-if="invoice.payments.length">
         <MpDivider variant="dashed" :class="dividerClass" />
@@ -337,6 +366,7 @@
                   <MpPopoverListItem role="menuitem" @click="onAction('duplicate')">Duplicate transaction</MpPopoverListItem>
                   <MpPopoverListItem role="menuitem" @click="onAction('send-payment')">Send payment</MpPopoverListItem>
                   <MpPopoverListItem role="menuitem" @click="onAction('create-return')">Create purchase return</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onAction('landed-cost')">Landed cost</MpPopoverListItem>
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -402,6 +432,7 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
+import { getLandedCostsForPurchase } from "~/data/purchase-landed-cost";
 import {
   deleteTransactions,
   duplicateTransaction,
@@ -433,6 +464,7 @@ const adjacent = computed(() => getAdjacentTransactionIds(id.value));
 // Reverse of the return's own linkedInvoiceId — resolved by lookup so the link
 // is stored once, same as Order → Delivery.
 const relatedReturns = computed(() => (invoice.value ? getReturnsForInvoice(invoice.value.id) : []));
+const relatedLandedCosts = computed(() => (invoice.value ? getLandedCostsForPurchase(invoice.value.id) : []));
 
 useHead({ title: computed(() => (invoice.value ? `${invoice.value.number} — Mekari Jurnal` : "Invoice not found — Mekari Jurnal")) });
 
@@ -445,6 +477,12 @@ function goTo(nextId: number | null) {
 function onAction(action: string) {
   if (action === "duplicate") {
     onDuplicate();
+    return;
+  }
+  if (action === "landed-cost") {
+    // Like a return, a landed cost only exists relative to a purchase, so this
+    // is its entry point and the id rides in the query.
+    navigateTo(`/purchase/landed-cost/new?purchase=${invoice.value?.id}`);
     return;
   }
   if (action === "create-return") {

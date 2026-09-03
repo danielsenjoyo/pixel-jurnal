@@ -251,7 +251,7 @@ function dateAt(daysFromToday: number) {
   return d;
 }
 
-function formatDate(d: Date) {
+export function formatDate(d: Date) {
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
@@ -312,7 +312,7 @@ export const DATE_INPUT_FORMAT = "DD/MM/YYYY";
 // of UTC (this session's browser timezone is UTC+7): local midnight becomes
 // the previous day once expressed in UTC. Never use toISOString for a
 // date-only value.
-function toLocalIsoDate(d: Date): string {
+export function toLocalIsoDate(d: Date): string {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
 
@@ -320,7 +320,7 @@ function toLocalIsoDate(d: Date): string {
 // re-introduces the same timezone shift once converted back to a local
 // calendar day (just in the opposite direction, so it bites viewers *behind*
 // UTC). Parse the components ourselves and build a local Date instead.
-function parseLocalIsoDate(iso: string): Date {
+export function parseLocalIsoDate(iso: string): Date {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
 }

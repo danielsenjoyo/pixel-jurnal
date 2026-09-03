@@ -163,6 +163,35 @@ trailing add row** — the two affordances every other form here relies on.
   lists its returns) or the child is reachable only from the URL that created
   it.
 
+## When the form has to balance before it saves
+
+A landed cost lists expenses and then spreads them across the purchase's
+products. It is only coherent when the two halves agree: every rupiah listed as
+used has to land on a product. That makes it the first form here with a
+**cross-table invariant**, and the rules it produced generalise to any form with
+one.
+
+- **Show the running figures, not just the verdict.** Total expense / Allocated
+  / Remaining sit under the table, updating as you type. A form that only tells
+  you the sum is wrong *after* you press Save makes you hunt for the shortfall.
+- **State the shortfall as an amount, not a condition.** The banner reads
+  "Rp15.290,00 still to allocate", not "allocation must balance". The number is
+  the thing the user has to act on.
+- **Block the save, don't warn after it.** An unallocated remainder would
+  silently drop out of the costing — there is no sensible record to write. This
+  is the one place validation is about a *relationship between* rows rather
+  than a field, so it lives in `isValid` alongside the field checks and feeds
+  the same `missingFields` banner (buttons still never disable — see
+  [Validation](#validation)).
+- **Give the arithmetic a shortcut.** "Distribute by value" splits the total in
+  proportion to line value and puts the rounding difference on the last row.
+  Without it, reaching exactly zero by hand is a chore the user has to do with
+  a calculator, and rounding makes it sometimes impossible.
+- **Derived columns stay read-only.** Landed unit price and Landed amount are
+  computed from the one editable figure, by the same exported helpers the
+  detail page and the store use (`landedUnitPrice` / `landedAmount`) — the
+  shared-engine rule again.
+
 ## Editable line-items table
 
 The table from [`TablePage`](./TablePage.md), with form controls in the cells.
@@ -272,6 +301,8 @@ Every page built in this module, and the archetype it follows.
 | `/purchase/join-invoice/new` + `edit`  | **form**  | `PurchaseJoinInvoiceForm` — bundles invoice records            |
 | `/purchase/return/[id]`                | details   | Credits one invoice; links back to it                          |
 | `/purchase/return/new` + `edit/[id]`   | **form**  | `PurchaseReturnForm` — quantities off a chosen invoice          |
+| `/purchase/landed-cost/[id]`           | details   | Two tables; no vendor/status; Delete + Edit                     |
+| `/purchase/landed-cost/new` + `edit`   | **form**  | `LandedCostForm` — must balance to zero before saving           |
 
 **Financing** is a list-only tab: the reference app has no detail or form route
 for it either, so neither does this clone. `TYPE_CAPABILITIES.financing.route`
@@ -284,6 +315,12 @@ is `""` for exactly that reason.
 
 ## Changelog
 
+- **v1.3.0** — Added Landed cost (details + form) and the
+  "must balance before it saves" section: the first form here whose validity is
+  a relationship between two tables rather than a property of a field. Its data
+  lives in its own module (`app/data/purchase-landed-cost.ts`) rather than as a
+  ninth `TransactionType`, because it has no vendor, status or due date — see
+  the header comment there for the full reasoning.
 - **v1.0.0** — Extracted from `PurchaseInvoiceForm.vue` after it was matched to
   the real product's Create Purchase Invoice screenshot. Documents the zone
   order, the bottom-right action bar (vs. the details page's `#actions`), the
