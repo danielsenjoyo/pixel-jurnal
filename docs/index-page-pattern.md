@@ -295,6 +295,17 @@ const tableFixedClass = css({ tableLayout: "fixed", minWidth: "800px" });
 - **A wrapping/aligned `MpTextlink`/`MpButton` cell needs `!`-forced overrides.** These ship their own `display: inline-flex` + `white-space: nowrap`, which both size the element to its content *and centre it*. Set `css({ display: "flex!", width: "full!", minWidth: "0!", whiteSpace: "normal!", justifyContent: "flex-start!", textAlign: "left!", wordBreak: "break-word" })` — the `width: "full!"` + `justifyContent` pair is what re-anchors the text to the cell's edge. Without it a long value renders **centred and overflowing equally off both sides** of the cell. Use a `flex-end` / `text-align: right` variant for numeric columns. A bare `<span>` needs none of this (no competing class), which is why the bug only shows in the linked column.
 - **The Actions column (§9.3) is optional, not mandatory.** Drop it when the record link (§9.5) already covers "view" and the bulk bar (§9.4) already covers multi-select actions — the Purchases page (`app/pages/purchase/index.vue`) removed it rather than keep a redundant per-row popover. Dropping it also means dropping the overflow-tracking machinery in §9.3, which existed only to draw that column's divider.
 
+### 9.1a Column alignment
+
+**Align every column the same way — left — including the money ones.**
+Right-aligning figures is the accounting convention, but it fights the sortable
+header: the sort icon sits *after* the label, so a right-aligned label stops
+~24px short of where the right-aligned figures end and no two edges line up.
+On the Purchases list the Total column's header ended at 1479 while its data
+ended at 1503; left alignment puts both at 1319. If you do want right-aligned
+figures, the header label and its icon have to be right-aligned as a unit, with
+the icon *before* the label — not just `justify-content: flex-end` on the row.
+
 ### 9.2 Header
 
 - `MpTableHead` is `is-fixed` (sticky). The library renders its bottom border as a **2px box-shadow on `<thead>`** — override it to **1px** via `tableHeadClass` (`box-shadow: 0 1px 0 0 var(--mp-colors-gray-100)`). This applies to both the default and bulk header rows.
@@ -470,6 +481,7 @@ only touches `pagedRows` ids).
 
 ## Changelog
 
+- **v1.5.0** — Added §9.1a: align all columns left, including money. Right-aligned figures don't line up with a sortable header, because the sort icon pushes the label off the shared edge.
 - **v1.4.0** — Reworked §9.1 column sizing: **per-column px widths** (a `COLUMN_WIDTH` map with a derived `min-width`) replace the even percentage split, which was starving every column to the narrowest one's width and clipping document numbers mid-string; horizontal overflow of `MpTableContainer` is now stated as intended behaviour rather than something to design around. Cell text **wraps instead of clipping**, and the `!`-forced override an `MpTextlink`/`MpButton` cell needs is documented as `display:flex!` + `width:full!` + `justifyContent` (without which a long value renders centred and spilling off *both* sides). Also documented the Actions column (§9.3) as optional — dropped on the Purchases index page in favour of the record link + bulk bar.
 - **v1.3.0** — Dropped the blank-slate **Clear filters** CTA. Recovery now happens through the **search field's own clear (×) button** (revealed on hover/focus, only with a keyword, `@click="search = ''"` — the library's `is-clearable` is avoided because its svg clear emits `undefined`) and the clearable quick-filter selects. Added a `searchTerm` computed to normalize the search keyword.
 - **v1.2.0** — Zone I now uses the official Mekari **"search not found" 3D illustration** (`public/illustrations/search-not-found.png`, from the Pixel patterns repo) instead of a flat icon, with copy that names the search term (`"<term>" not found`) and three adaptive cases (search / filter / empty) via `emptyTitle` + `emptyDescription` computeds.

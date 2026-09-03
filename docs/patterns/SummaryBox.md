@@ -83,10 +83,18 @@ counts by status, …). Omit entirely on pages with no headline numbers.
   than the rows beneath them. The Purchase audit caught exactly this: the strip
   stays on invoice totals while the user is on the Request tab, and keeps showing
   millions while a search renders "not found" (`CHOICE · Contextual`, `reports/`).
-  **The fix that shipped:** derive the KPIs from the same `filteredRows` the
-  table renders, so they can't diverge, *and* caption the strip with the scope
-  it covers (`"Invoice"`, `"Invoice · filtered"`). A metric that only exists for
-  one record type (the old "Payment (last 30 days)") has to be replaced by one
-  that is derivable for every tab — otherwise it will keep lying on the tabs it
-  doesn't apply to. Clicking a box then filters *in place* rather than jumping
-  to another tab, which would contradict the figure just clicked.
+  **Two ways out, and the reference picks the second.** Either scope the
+  figures to the same query that feeds the table, or keep them global and
+  *say so in the caption*. Purchases does the latter: the boxes are always the
+  all-time invoice figures and don't move when you change tab, filter or
+  search, and the caption reads **"Balance is for all time period, unless
+  stated otherwise"**. That works because the labels are themselves
+  invoice-specific ("Unpaid invoices", "Payments sent last 30 days") — a strip
+  whose labels already name their scope isn't mistaken for a summary of
+  whatever happens to be below it. Re-scoping per tab was tried first and
+  undone: it forced every metric to be one that made sense for every type,
+  which is how "Payments sent last 30 days" became a meaningless "Total value".
+- **A click on a scoped box should land you where the figure came from.** These
+  boxes describe invoices, so clicking one switches to the Invoice tab *and*
+  applies that status. Filtering in place would contradict the number just
+  clicked whenever another tab was open.

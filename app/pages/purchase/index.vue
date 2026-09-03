@@ -27,33 +27,59 @@
       </MpPopover>
     </template>
 
-    <!-- Zone A — Summary boxes (KPI strip). Scoped to `filteredRows` — the
-         rows actually in the table below — so it can never describe a
-         different dataset than the one it sits on top of. The caption states
-         that scope explicitly. -->
+    <!-- Zone A — Summary boxes (KPI strip). These are ALWAYS the all-time
+         invoice figures: they do not follow the active tab, the quick filter
+         or the search. That is deliberate and matches the reference — the
+         caption underneath says so outright ("Balance is for all time period"),
+         which is what stops the strip reading as a summary of the table below
+         it. An earlier revision scoped them to the visible rows instead; the
+         reference resolves the same ambiguity by labelling rather than
+         re-scoping, and the labels ("Unpaid invoices", "Payments sent last 30
+         days") only make sense for invoices anyway.
+         See docs/patterns/SummaryBox.md. -->
     <div :class="statsGridClass">
       <SummaryBox
         variant="orange"
-        label="Open"
-        :badge="summary.open.count"
-        :amount="formatAmount(summary.open.amount)"
+        label="Unpaid invoices"
+        :badge="summary.unpaid.count"
+        :amount="formatCurrency(summary.unpaid.amount)"
         is-filter
-        :is-active="quickStatus === 'open'"
-        @click="onSummaryClick('open')"
+        :is-active="quickStatus === 'unpaid'"
+        @click="onSummaryClick('unpaid')"
       />
       <SummaryBox
         variant="red"
-        label="Overdue"
+        label="Overdue invoices"
         :badge="summary.overdue.count"
-        :amount="formatAmount(summary.overdue.amount)"
+        :amount="formatCurrency(summary.overdue.amount)"
         is-filter
         :is-active="quickStatus === 'overdue'"
         @click="onSummaryClick('overdue')"
       />
-      <SummaryBox variant="green" label="Total value" :amount="formatAmount(summary.totalValue.amount)" is-hoverable />
+      <SummaryBox
+        variant="green"
+        label="Payments sent last 30 days"
+        :badge="summary.payments.count"
+        :amount="formatCurrency(summary.payments.amount)"
+        is-hoverable
+      />
+
+      <!-- Fourth cell is a Mekari Pay promo, not a KPI — same grid track, but
+           its own card. The reference uses a branded Mekari Pay illustration;
+           we don't have that asset, so a tinted `wallet` icon stands in rather
+           than shipping a fabricated logo or a broken image. -->
+      <div :class="promoCardClass">
+        <div :class="promoIconClass">
+          <MpIcon name="wallet" size="md" color="blue.600" />
+        </div>
+        <div :class="promoTextClass">
+          <MpText size="body-small" weight="semiBold" color="dark">Verify your data to send payment soon</MpText>
+          <MpTextlink as="button" variant="primary" @click="onAction('check-mekari-pay')">Check Mekari Pay</MpTextlink>
+        </div>
+      </div>
     </div>
     <div :class="statsCaptionClass">
-      <MpText size="body-small" color="gray.600">{{ summaryScopeLabel }} · updated as of {{ asOfDate }}</MpText>
+      <MpText size="body-small" color="gray.600">Balance is for all time period, unless stated otherwise</MpText>
     </div>
 
     <!-- Zone B — content tabs. Mirrors the 9 tabs of the source page's
@@ -216,7 +242,7 @@
               </MpTableCell>
               <MpTableCell v-else as="th" :class="checkboxCellClass" />
               <MpTableCell v-for="col in columns" :key="col.key" as="th" :class="col.numeric ? numCellClass : undefined">
-                <button type="button" :class="[sortHeaderClass, col.numeric ? sortHeaderNumClass : '']" @click="toggleSort(col.key)">
+                <button type="button" :class="sortHeaderClass" @click="toggleSort(col.key)">
                   <span :class="headerLabelClass">{{ col.label }}</span>
                   <MpIcon :name="sortIconFor(col.key)" size="sm" color="gray.400" />
                 </button>
@@ -361,9 +387,9 @@ import {
   TAG_OPTIONS,
   TYPE_CAPABILITIES,
   formatAmount,
+  formatCurrency,
   deleteTransactions,
   getPurchaseTransactions,
-  todayDisplayDate,
   type PurchaseTransaction,
   type TransactionType,
 } from "~/data/purchase-transactions";
@@ -619,15 +645,6 @@ const approvalCount = computed(() => {
   void refreshTick.value;
   return rowsForTab("ap").length;
 });
-// Names the scope the KPI figures cover, so the strip can't be mistaken for a
-// module-wide summary when a tab or filter is narrowing it.
-const summaryScopeLabel = computed(() => {
-  const tab = TABS[activeTabIndex.value]!.label;
-  const narrowed = Boolean(searchTerm.value || quickStatus.value || filterTag.value || filterAmountMin.value || filterAmountMax.value);
-  return narrowed ? `${tab} · filtered` : tab;
-});
-
-const asOfDate = todayDisplayDate();
 
 // ---- Page state ---------------------------------------------------------
 
@@ -733,24 +750,21 @@ const filteredRows = computed(() => {
   return result;
 });
 
-// KPI strip — derived from `filteredRows`, i.e. exactly the rows the table is
-// showing, so it always summarises what's underneath it. It used to be scoped
-// to Invoice-type records only and ignored the tab, filters and search, which
-// meant it silently described a different dataset than the table it sat on top
-// of (invoice totals while you were reading the Request tab; millions while a
-// search rendered "not found"). A KPI strip directly above a table is read as
-// a summary OF that table — see docs/patterns/SummaryBox.md.
+// All-time INVOICE figures — deliberately independent of the tab, quick
+// filter and search (see the Zone A comment in the template). Recomputed off
+// refreshTick because the shared dataset is a plain array.
 const summary = computed(() => {
-  const rows = filteredRows.value;
-  const open = rows.filter((r) => r.status === "open");
-  const overdue = rows.filter((r) => r.status === "overdue");
+  void refreshTick.value;
+  const invoices = getPurchaseTransactions().filter((t) => t.type === "invoice");
+  // "Unpaid" is anything still owing, not just status === "unpaid" — an open,
+  // partially paid or overdue invoice all still have a balance outstanding.
+  const unpaid = invoices.filter((t) => t.balanceDue > 0);
+  const overdue = invoices.filter((t) => t.status === "overdue");
+  const paid = invoices.filter((t) => t.amountReceived > 0);
   return {
-    open: { count: open.length, amount: open.reduce((sum, r) => sum + r.balanceDue, 0) },
-    overdue: { count: overdue.length, amount: overdue.reduce((sum, r) => sum + r.balanceDue, 0) },
-    // "Total value" rather than the old "Payment (last 30 days)": a payments
-    // figure only exists for money-bearing invoice records, so it could never
-    // honestly describe the Request or Delivery tabs.
-    totalValue: { amount: rows.reduce((sum, r) => sum + r.totalAmount, 0) },
+    unpaid: { count: unpaid.length, amount: unpaid.reduce((sum, t) => sum + t.balanceDue, 0) },
+    overdue: { count: overdue.length, amount: overdue.reduce((sum, t) => sum + t.balanceDue, 0) },
+    payments: { count: paid.length, amount: paid.reduce((sum, t) => sum + t.amountReceived, 0) },
   };
 });
 
@@ -800,11 +814,11 @@ function onJumpPage(val: unknown) {
   const n = Number(v);
   if (!Number.isNaN(n)) page.value = n;
 }
-// The KPI boxes now describe the CURRENT tab, so clicking one filters in
-// place rather than jumping to the Invoice tab — jumping would contradict the
-// figure the user just clicked. Clicking an active box clears the filter.
+// The boxes describe invoices, so a click jumps to the Invoice tab and applies
+// that status — filtering in place would contradict the figure just clicked
+// whenever another tab is open. Clicking an active box clears the filter.
 function onSummaryClick(status: StatusValue) {
-  if (!statusOptions.value.includes(status)) return; // tab has no such status
+  activeTabIndex.value = TABS.findIndex((t) => t.key === "pi");
   quickStatus.value = quickStatus.value === status ? "" : status;
 }
 
@@ -840,6 +854,10 @@ function onOpen(row: Row) {
 
 // Every type in this menu now has its own create route — see TYPE_CAPABILITIES
 // for the route segment each one owns.
+function onAction(action: string) {
+  void action; // inert in this prototype, same as the detail pages' links
+}
+
 function onNewTransaction(key: string) {
   const route = TYPE_CAPABILITIES[key as TransactionType]?.route;
   if (route) navigateTo(`/purchase/${route}/new`);
@@ -908,6 +926,28 @@ const tableMinWidth = computed(
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
 const statsGridClass = css({ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 4 });
+const promoCardClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+  bg: "white",
+  borderWidth: "sm",
+  borderColor: "gray.100",
+  rounded: "md",
+  px: 5,
+  py: 4,
+});
+const promoIconClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "40px",
+  height: "40px",
+  flexShrink: 0,
+  rounded: "full",
+  bg: "blue.100",
+});
+const promoTextClass = css({ display: "flex", flexDirection: "column", gap: 1, minWidth: "0" });
 const statsCaptionClass = css({ display: "flex", justifyContent: "flex-end", mt: 2, mb: 4 });
 const tabLabelClass = css({ display: "inline-flex", alignItems: "center", gap: 2 });
 
@@ -956,7 +996,12 @@ const scrollShadowClass = css({
 });
 const tableFixedClass = css({ tableLayout: "fixed" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
-const numCellClass = css({ textAlign: "right" });
+// Money columns are LEFT-aligned on this table, like every other column.
+// Right-aligning them looked misaligned rather than tidy: the sortable header
+// puts its sort icon after the label, so a right-aligned label stops ~24px
+// short of where the right-aligned figures end, and no two edges line up.
+// Left alignment makes the header label and the row data share one edge.
+const numCellClass = css({ textAlign: "left" });
 const checkboxCellClass = css({ width: "44px", pl: "3!", pr: "0!" });
 // MpTableCell defaults to white-space:nowrap + overflow:visible, so long text
 // (vendor names, memos) spills sideways into the neighbouring cell. Wrap it
@@ -980,11 +1025,9 @@ const wrapCellBase = {
   textAlign: "left!",
 } as const;
 const wrapCellClass = css({ ...wrapCellBase, justifyContent: "flex-start!" });
-const numWrapCellClass = css({ ...wrapCellBase, justifyContent: "flex-end!", textAlign: "right!" });
+const numWrapCellClass = css({ ...wrapCellBase, justifyContent: "flex-start!" });
 
 const sortHeaderClass = css({ display: "flex", alignItems: "center", gap: 1, border: "0", bg: "transparent", p: 0, cursor: "pointer", color: "inherit", font: "inherit", width: "full" });
-// Numeric headers right-align to sit over their (right-aligned) figures.
-const sortHeaderNumClass = css({ justifyContent: "flex-end" });
 // Header labels wrap rather than clip too, but must NOT take width:full —
 // they sit next to the sort icon inside the header button's own flex row.
 const headerLabelClass = css({ minWidth: "0", whiteSpace: "normal", wordBreak: "break-word", textAlign: "left" });
