@@ -60,6 +60,24 @@ const actionBorderClass = css({ boxShadow: "inset 2px 0 0 0 var(--mp-colors-gray
 ## Body
 
 - First data cell is the record link: `<MpTextlink as="button" variant="primary" @click="onOpen(row)">`.
+- **Pull that link 2px left of the cell's text edge.** `MpTextlink` renders a
+  `<button>` whose recipe adds `padding: 2px`, so its glyphs sit 2px right of
+  every plain-text sibling — the description stacked under it, and the column
+  header above it. One cell it's invisible; a full column of them is a visible
+  stagger. Cancel it on the link only:
+
+  ```ts
+  const linkCellClass = css({ ...wrapCellBase, ml: "-2px", mr: "-2px" });
+  ```
+
+  **A negative margin, not `padding: 0`.** The recipe declares that padding
+  `!important` and *unlayered*, which outranks a Panda `pl: "0!"` utility
+  (layered — its `!important` loses the reversed layer order) and outranks an
+  inline `style.paddingLeft = "0"` too. Both fail *silently*: the class lands on
+  the element, computed padding stays `2px`. Margin has no competing
+  declaration, so it simply applies, and the 2px still holds the focus ring off
+  the glyphs. The box moves into the cell's own 8px padding, so nothing
+  overflows. Same fix wherever a textlink has to line up with non-link text.
 - Status cell uses an [`StatusBadge`](./StatusBadge.md) (`MpBadge for="tableStatus"`).
 - Last cell = row actions: an `MpPopover` (`placement="bottom-end"`) → secondary `Actions` dropdown → `MpPopoverList` of `role="menuitem"` items.
 

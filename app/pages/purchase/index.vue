@@ -237,7 +237,7 @@
 
               <MpTableCell v-for="col in columns" :key="col.key" as="td" :class="col.numeric ? numCellClass : undefined">
                 <template v-if="col.key === 'number'">
-                  <MpTextlink as="button" variant="primary" :class="wrapCellClass" @click="onOpen(row)">{{ row.number }}</MpTextlink>
+                  <MpTextlink as="button" variant="primary" :class="linkCellClass" @click="onOpen(row)">{{ row.number }}</MpTextlink>
                   <MpText v-if="row.memo" size="body-small" color="gray.600" :class="wrapCellClass">{{ row.memo }}</MpText>
                 </template>
                 <template v-else-if="col.key === 'status'">
@@ -253,7 +253,7 @@
                     <MpText size="body-small">{{ row.urgency.label }}</MpText>
                   </MpFlex>
                 </template>
-                <template v-else><span :class="col.numeric ? numWrapCellClass : wrapCellClass">{{ cellText(row, col.key) }}</span></template>
+                <template v-else><span :class="wrapCellClass">{{ cellText(row, col.key) }}</span></template>
               </MpTableCell>
             </MpTableRow>
           </MpTableBody>
@@ -1023,9 +1023,24 @@ const wrapCellBase = {
   whiteSpace: "normal!",
   wordBreak: "break-word",
   textAlign: "left!",
+  justifyContent: "flex-start!",
 } as const;
-const wrapCellClass = css({ ...wrapCellBase, justifyContent: "flex-start!" });
-const numWrapCellClass = css({ ...wrapCellBase, justifyContent: "flex-start!" });
+const wrapCellClass = css(wrapCellBase);
+// The Number cell stacks a link over a description, and the link is the only
+// one of the two that is a <button>: MpTextlink's recipe gives it 2px of inline
+// padding, so its glyphs sat 2px right of both the description beneath it and
+// the "Number" header above — a stagger repeated down every row of every tab.
+//
+// Cancelled with a negative margin rather than by zeroing the padding, because
+// the padding CANNOT be zeroed from here: the Pixel recipe declares it
+// `!important` and unlayered, which outranks both a Panda `pl: "0!"` utility
+// (layered, so its own `!important` loses) and even an inline style. Both were
+// tried and silently did nothing — the class lands on the element and computed
+// padding stays 2px. Margin has no competing declaration, so it just works.
+// The 2px of padding still does its job of holding the focus ring off the
+// glyphs; only the box moves, and it moves into the cell's own 8px padding,
+// so nothing overflows.
+const linkCellClass = css({ ...wrapCellBase, ml: "-2px", mr: "-2px" });
 
 const sortHeaderClass = css({ display: "flex", alignItems: "center", gap: 1, border: "0", bg: "transparent", p: 0, cursor: "pointer", color: "inherit", font: "inherit", width: "full" });
 // Header labels wrap rather than clip too, but must NOT take width:full —
