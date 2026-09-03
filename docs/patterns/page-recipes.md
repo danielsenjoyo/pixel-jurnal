@@ -28,11 +28,16 @@ sections) → compact `TablePage` (related lists) → `Modal` (destructive confi
 
 ## Recipe: Create / edit form page
 
-> A focused data-entry screen. _No dedicated format doc — compose from [`Form`](./Form.md)._
+> A focused data-entry screen. Full recipe: [`form-page-format`](./form-page-format.md).
 
-`page-title-bar` (`{Verb} {Entity}` + Save/Cancel actions) → **stage:** stacked
-[`Form`](./Form.md) sections → footer action row (Cancel / Save). Confirm
-discard-on-leave via a [`Modal`](./Modal.md).
+`page-title-bar` (`{Verb} {Entity}`; `#actions` holds a **record-type switch**,
+_not_ the save buttons) → **stage:** identity row + running total → meta grid →
+editable line-items [`TablePage`](./TablePage.md) → notes/attachments + totals
+stack → **bottom-right** action row (Cancel / Save ▾). Confirm discard-on-leave
+via a [`Modal`](./Modal.md).
+
+**The one thing to get right:** commit buttons live at the bottom of the form
+body, not in the title band — the opposite of the details page.
 
 ## Recipe: Settings page
 
@@ -42,6 +47,37 @@ discard-on-leave via a [`Modal`](./Modal.md).
 [`Form`](./Form.md) (single group) or a list of grouped controls. Reuse
 [`TablePage`](./TablePage.md) only when the settings are genuinely tabular
 (e.g. user/role lists, custom-field definitions).
+
+## Cross-page rule: one format per value type, per module
+
+Matching each screen to its own reference screenshot is right; letting each
+screen pick its own **format** for the same value is not. Money and dates are
+the two that drift, because a list, a detail page and a form each get built at
+a different time against a different reference.
+
+The Purchase audit found both drifting inside one module — `21 Aug 2026` on the
+list versus `21/08/2026` on the detail page, and `Rp 1.810.965` on the detail
+page versus `Rp9.024.000,00` in the form (different decimals _and_ different
+spacing). Each was locally defensible and collectively wrong: the user compares
+these values across screens.
+
+**Rule.** Export one `formatCurrency` / `formatDate` from the module's data file
+and import it everywhere. A page that genuinely needs a different presentation
+should say why in a comment next to the call — not redefine the helper locally.
+
+**Purchase settled on:** money `Rp10.016.640,00` (Indonesian convention — `.`
+groups thousands, `,` separates two decimals, no space after `Rp`), and dates
+`27 Aug 2026`. The bare-number variant used in table columns whose header
+already says "Total" shares the same formatter, so grouping and decimals can't
+drift between the two.
+
+**An editable money field is not a display.** It needs a matching `parseAmount`,
+because `.` and `,` carry meaning — `210.000,50` is 210000.5, not 21000050. And
+it must **not** reformat while the user types: at two decimals, live formatting
+turns "1" into "1,00", after which the next keystroke gives "1,002", which
+parses back to 1. Format on `focusout` only. Note `MpInput` forwards neither
+`@focus`/`@blur` nor `@focusin` — but `focusout` bubbles, so bind it on a
+wrapping element.
 
 ## Pattern index
 
@@ -60,4 +96,5 @@ discard-on-leave via a [`Modal`](./Modal.md).
 | [`Form`](./Form.md)                               | `MpFormControl`-wrapped fields.                  |
 | [`Modal`](./Modal.md)                             | Centred confirm / focused dialog.                |
 | [`index-page-format`](./index-page-format.md)     | Index-page zone composition.                     |
-| [`details-page-format`](./details-page-format.md) | Details-page zone composition (proposed).        |
+| [`details-page-format`](./details-page-format.md) | Details-page zone composition.                   |
+| [`form-page-format`](./form-page-format.md)       | Create/edit form-page zone composition.          |

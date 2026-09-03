@@ -16,6 +16,7 @@ and the `@mekari/pixel3` component library.
 | Pick patterns for a kind of page                | [`patterns/page-recipes.md`](./patterns/page-recipes.md)                                                                |
 | Build a list/index screen                       | [`patterns/index-page-format.md`](./patterns/index-page-format.md) + [`index-page-pattern.md`](./index-page-pattern.md) |
 | Build a single-record screen                    | [`patterns/details-page-format.md`](./patterns/details-page-format.md)                                                  |
+| Build a create/edit form screen                 | [`patterns/form-page-format.md`](./patterns/form-page-format.md) + [`patterns/Form.md`](./patterns/Form.md)             |
 
 ## Map
 
@@ -33,7 +34,8 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 
 - [`page-recipes.md`](./patterns/page-recipes.md) — which patterns assemble which page type.
 - [`index-page-format.md`](./patterns/index-page-format.md) — index/list page zone composition.
-- [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition _(proposed)_.
+- [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition.
+- [`form-page-format.md`](./patterns/form-page-format.md) — create/edit form page composition (+ the Purchase module page map).
 
 **Building blocks**
 

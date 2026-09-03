@@ -60,6 +60,35 @@ const actionBorderClass = css({ boxShadow: "inset 2px 0 0 0 var(--mp-colors-gray
 ## Body
 
 - First data cell is the record link: `<MpTextlink as="button" variant="primary" @click="onOpen(row)">`.
+- **Pull that link 2px left of the cell's text edge.** `MpTextlink` renders a
+  `<button>` whose recipe adds `padding: 2px`, so its glyphs sit 2px right of
+  every plain-text sibling — the description stacked under it, and the column
+  header above it. One cell it's invisible; a full column of them is a visible
+  stagger. Cancel it on the link only:
+
+  ```ts
+  const linkCellClass = css({ ...wrapCellBase, ml: "-2px", mr: "-2px" });
+  ```
+
+  **A negative margin, not `padding: 0`.** The recipe declares that padding
+  `!important` and _unlayered_, which outranks a Panda `pl: "0!"` utility
+  (layered — its `!important` loses the reversed layer order) and outranks an
+  inline `style.paddingLeft = "0"` too. Both fail _silently_: the class lands on
+  the element, computed padding stays `2px`. Margin has no competing
+  declaration, so it simply applies, and the 2px still holds the focus ring off
+  the glyphs. The box moves into the cell's own 8px padding, so nothing
+  overflows. Same fix wherever a textlink has to line up with non-link text —
+  not just in a table. Detail pages hit the identical stagger on meta-field
+  links (a vendor/warehouse link under its `MpText` label), right-aligned
+  links (`View journal entry` under a right-aligned total — the symmetric
+  `ml`/`mr` cancels correctly there too, since it moves both edges equally),
+  and product-table links. Rather than re-deriving the fix per page, it's one
+  shared module: [`app/utils/textlink-align.ts`](../../app/utils/textlink-align.ts)
+  exports `textlinkAlignClass` (bare links) and `textlinkCellClass` (links that
+  also need the wrap rules — replaces `wrapInlineClass` **on `MpTextlink`
+  only**; that class is shared with `MpTag`, which is not a button, carries its
+  own deliberate padding, and would be pulled out of line by the margin).
+
 - Status cell uses an [`StatusBadge`](./StatusBadge.md) (`MpBadge for="tableStatus"`).
 - Last cell = row actions: an `MpPopover` (`placement="bottom-end"`) → secondary `Actions` dropdown → `MpPopoverList` of `role="menuitem"` items.
 
@@ -68,6 +97,28 @@ const actionBorderClass = css({ boxShadow: "inset 2px 0 0 0 var(--mp-colors-gray
 While `isLoading`, render 5 skeleton rows of `columns.length + 2` cells, each an
 `MpSkeleton is-loading` wrapping a `skeletonBarClass` bar. Toggle `isLoading`
 around your fetch.
+
+## Horizontal scroll affordance
+
+A table that overflows must say so. Without it the last column is simply
+clipped at the container edge and nothing indicates there is more to the right
+— flagged in the Purchase audit (`NNG · H1`). Put this on `MpTableContainer`:
+
+```ts
+const scrollShadowClass = css({
+  backgroundImage:
+    "linear-gradient(to right, var(--mp-colors-white) 30%, transparent), linear-gradient(to left, var(--mp-colors-white) 30%, transparent), linear-gradient(to right, rgba(29,31,36,0.16), transparent), linear-gradient(to left, rgba(29,31,36,0.16), transparent)",
+  backgroundPosition: "left center, right center, left center, right center",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
+  backgroundAttachment: "local, local, scroll, scroll"
+});
+```
+
+The two `local` white gradients ride with the content and scroll away; the two
+`scroll` shadows stay pinned to the container. Net effect: a shadow appears on
+whichever side still has content and vanishes at each end — **no
+`ResizeObserver`, no scroll listener, no reactive state**.
 
 ## Gotchas
 

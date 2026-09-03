@@ -46,7 +46,15 @@ const emptyDescription = computed(() => {
 ## Rules
 
 - **Illustration, not a flat icon.** Use the Mekari Pixel "search not found" asset (3D card + magnifier with a red ✕) at `width: 180px` (`height: auto`) on a decorative `<img alt="">`. New blank-slate illustrations go under `public/illustrations/`.
-- **No in-slate CTA.** Title `lg` (16px) semibold; body `body-small / gray.600` capped at `maxWidth: 320px`. Recovery happens through the [`FilterBar`](./FilterBar.md)'s search × and the clearable quick-filter selects — which **stay mounted** above the blank slate (they're outside the `v-if`).
+- **No in-slate CTA — unless the filter is staged.** Title `lg` (16px)
+  semibold; body `body-small / gray.600` capped at `maxWidth: 320px`. Recovery
+  normally happens through the [`FilterBar`](./FilterBar.md)'s search × and the
+  clearable quick-filter selects, which **stay mounted** above the blank slate
+  (they're outside the `v-if`). That stops being enough once the filter lives
+  in a staged [`Drawer`](./Drawer.md): the criteria are then invisible while it
+  is closed, so the user faces an empty list with nothing on screen explaining
+  it. There, add a **Clear filters** button to the slate, gated on the filter
+  actually being active — Purchases does this.
 - For the **truly-empty** (first-run) case on a real screen, this is where a "Create …" primary CTA belongs.
 
 ## Gotchas
