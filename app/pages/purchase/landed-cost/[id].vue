@@ -22,7 +22,7 @@
             v-if="purchase"
             as="button"
             variant="primary"
-            :class="wrapInlineClass"
+            :class="textlinkCellClass"
             @click="navigateTo(`/purchase/invoice/${purchase.id}`)"
           >
             {{ purchase.number }}
@@ -34,7 +34,7 @@
 
         <div :class="totalColClass">
           <MpText weight="semiBold" color="dark">Total landed cost {{ formatCurrency(record.total) }}</MpText>
-          <MpTextlink as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
         </div>
       </div>
 
@@ -193,6 +193,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import {
   deleteLandedCost,
   getLandedCostById,
@@ -255,7 +256,6 @@ const landedTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "1
 // On a <td>: wrapping only. NEVER set `display` here — see
 // docs/patterns/details-page-format.md.
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
 
 const bottomActionsClass = css({
   display: "flex",

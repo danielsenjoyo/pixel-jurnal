@@ -90,7 +90,7 @@
         <div :class="metaColClass">
           <div :class="metaFieldClass">
             <MpText color="gray.600">Vendor name</MpText>
-            <MpTextlink v-if="request.vendorName" as="button" variant="primary" @click="onAction('view-vendor')">{{ request.vendorName }}</MpTextlink>
+            <MpTextlink v-if="request.vendorName" :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ request.vendorName }}</MpTextlink>
             <MpText v-else>—</MpText>
           </div>
           <div :class="metaFieldClass">
@@ -140,7 +140,7 @@
           <MpTableBody>
             <MpTableRow v-for="line in request.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
               </MpTableCell>
               <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
@@ -185,13 +185,13 @@
         <MpFlex align-items="center" gap="3">
           <MpIcon name="doc" size="md" color="gray.400" />
           <div :class="metaFieldClass">
-            <MpTextlink as="button" variant="primary" @click="onAction('download-attachment')">Request_Attachment.pdf</MpTextlink>
+            <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('download-attachment')">Request_Attachment.pdf</MpTextlink>
             <MpText size="body-small" color="gray.600">248.2 KB</MpText>
           </div>
         </MpFlex>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="lastUpdatedClass" @click="onAction('view-audit-log')">
+      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
         Last updated by {{ request.requestorName || "Rizal Candra" }} on {{ formatDisplayDate(request.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
@@ -292,6 +292,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { deleteTransactions, duplicateTransaction, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById } from "~/data/purchase-transactions";
 
@@ -371,9 +372,6 @@ const lineCaptionClass = css({ mt: 3, mb: 3 });
 // own content width instead of the column's, which renders as visibly ragged,
 // staggered rows.
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });
-// On an inline child inside a cell (MpTag / MpTextlink) that ships its own
-// nowrap — these are not the cell, so an inline-block box is correct here.
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
 
 const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" });
 const notesColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "240px" });

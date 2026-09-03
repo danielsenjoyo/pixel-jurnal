@@ -52,7 +52,7 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink as="button" variant="primary" @click="onAction('view-vendor')">{{ invoice.vendorName }}</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ invoice.vendorName }}</MpTextlink>
         </div>
 
         <div :class="metaFieldClass">
@@ -65,7 +65,7 @@
 
         <div :class="balanceColClass">
           <MpText weight="semiBold" color="dark">Balance due {{ formatCurrency(invoice.balanceDue) }}</MpText>
-          <MpTextlink as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
         </div>
       </div>
 
@@ -106,7 +106,7 @@
           </div>
           <div v-if="invoice.warehouse" :class="metaFieldClass">
             <MpText color="gray.600">Warehouse</MpText>
-            <MpTextlink as="button" variant="primary" @click="onAction('view-warehouse')">{{ invoice.warehouse }}</MpTextlink>
+            <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-warehouse')">{{ invoice.warehouse }}</MpTextlink>
           </div>
           <div :class="metaFieldClass">
             <MpText color="gray.600">Tags</MpText>
@@ -144,7 +144,7 @@
           <MpTableBody>
             <MpTableRow v-for="line in invoice.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
               </MpTableCell>
               <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
@@ -234,7 +234,7 @@
       <!-- Renders as a link in the real product (opens an audit-log modal) —
            not wired to anything here, same as the other inert links on this
            page (view-vendor, view-product, …). -->
-      <MpTextlink as="button" variant="secondary" :class="lastUpdatedClass" @click="onAction('view-audit-log')">
+      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
         Last updated by Rizal Candra on {{ formatDisplayDate(invoice.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
@@ -258,7 +258,7 @@
             <MpTableBody>
               <MpTableRow v-for="ret in relatedReturns" :key="ret.id">
                 <MpTableCell as="td">
-                  <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="navigateTo(`/purchase/return/${ret.id}`)">
+                  <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="navigateTo(`/purchase/return/${ret.id}`)">
                     {{ ret.number }}
                   </MpTextlink>
                 </MpTableCell>
@@ -290,7 +290,7 @@
             <MpTableBody>
               <MpTableRow v-for="lc in relatedLandedCosts" :key="lc.id">
                 <MpTableCell as="td">
-                  <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="navigateTo(`/purchase/landed-cost/${lc.id}`)">
+                  <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="navigateTo(`/purchase/landed-cost/${lc.id}`)">
                     {{ lc.number }}
                   </MpTextlink>
                 </MpTableCell>
@@ -431,6 +431,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { getLandedCostsForPurchase } from "~/data/purchase-landed-cost";
 import {

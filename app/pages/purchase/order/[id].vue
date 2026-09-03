@@ -48,7 +48,7 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink as="button" variant="primary" @click="onAction('view-vendor')">{{ order.vendorName }}</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ order.vendorName }}</MpTextlink>
         </div>
 
         <div :class="metaFieldClass">
@@ -102,7 +102,7 @@
           </div>
           <div v-if="order.warehouse" :class="metaFieldClass">
             <MpText color="gray.600">Warehouse</MpText>
-            <MpTextlink as="button" variant="primary" @click="onAction('view-warehouse')">{{ order.warehouse }}</MpTextlink>
+            <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-warehouse')">{{ order.warehouse }}</MpTextlink>
           </div>
           <div :class="metaFieldClass">
             <MpText color="gray.600">Tags</MpText>
@@ -140,7 +140,7 @@
           <MpTableBody>
             <MpTableRow v-for="line in order.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
               </MpTableCell>
               <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
@@ -201,7 +201,7 @@
         </div>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="lastUpdatedClass" @click="onAction('view-audit-log')">
+      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
         Last updated by Rizal Candra on {{ formatDisplayDate(order.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
@@ -233,7 +233,7 @@
               <MpTableRow>
                 <MpTableCell as="td">{{ linkedDelivery.transactionDate }}</MpTableCell>
                 <MpTableCell as="td">
-                  <MpTextlink as="button" variant="primary" @click="navigateTo(`/purchase/delivery/${linkedDelivery.id}`)">{{ linkedDelivery.number }}</MpTextlink>
+                  <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="navigateTo(`/purchase/delivery/${linkedDelivery.id}`)">{{ linkedDelivery.number }}</MpTextlink>
                 </MpTableCell>
                 <MpTableCell as="td">
                   <MpBadge for="tableStatus" :type="PURCHASE_STATUS_TYPE[linkedDelivery.status]">
@@ -345,6 +345,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { deleteTransactions, duplicateTransaction, formatCurrency, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById } from "~/data/purchase-transactions";
 

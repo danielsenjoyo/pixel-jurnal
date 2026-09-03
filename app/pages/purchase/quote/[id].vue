@@ -47,7 +47,7 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink as="button" variant="primary" @click="onAction('view-vendor')">{{ quote.vendorName }}</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ quote.vendorName }}</MpTextlink>
         </div>
 
         <div :class="metaFieldClass">
@@ -135,7 +135,7 @@
           <MpTableBody>
             <MpTableRow v-for="line in quote.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
               </MpTableCell>
               <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
@@ -193,7 +193,7 @@
         </div>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="lastUpdatedClass" @click="onAction('view-audit-log')">
+      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
         Last updated by Rizal Candra on {{ formatDisplayDate(quote.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
@@ -293,6 +293,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { deleteTransactions, duplicateTransaction, formatCurrency, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById } from "~/data/purchase-transactions";
 

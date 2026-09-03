@@ -49,7 +49,7 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink as="button" variant="primary" @click="onAction('view-vendor')">{{ record.vendorName }}</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ record.vendorName }}</MpTextlink>
         </div>
 
         <div :class="metaFieldClass">
@@ -62,7 +62,7 @@
 
         <div :class="balanceColClass">
           <MpText weight="semiBold" color="dark">Total return {{ formatCurrency(record.total) }}</MpText>
-          <MpTextlink as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
         </div>
       </div>
 
@@ -105,7 +105,7 @@
               v-if="linkedInvoice"
               as="button"
               variant="primary"
-              :class="wrapInlineClass"
+              :class="textlinkCellClass"
               @click="navigateTo(`/purchase/invoice/${linkedInvoice.id}`)"
             >
               {{ linkedInvoice.number }}
@@ -118,7 +118,7 @@
           </div>
           <div v-if="record.warehouse" :class="metaFieldClass">
             <MpText color="gray.600">Warehouse</MpText>
-            <MpTextlink as="button" variant="primary" @click="onAction('view-warehouse')">{{ record.warehouse }}</MpTextlink>
+            <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-warehouse')">{{ record.warehouse }}</MpTextlink>
           </div>
           <div :class="metaFieldClass">
             <MpText color="gray.600">Tags</MpText>
@@ -156,7 +156,7 @@
           <MpTableBody>
             <MpTableRow v-for="line in record.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
               </MpTableCell>
               <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
@@ -215,7 +215,7 @@
         </div>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="lastUpdatedClass" @click="onAction('view-audit-log')">
+      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
         Last updated by Rizal Candra on {{ formatDisplayDate(record.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
@@ -309,6 +309,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import {
   deleteTransactions,

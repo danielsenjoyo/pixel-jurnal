@@ -77,7 +77,17 @@ const actionBorderClass = css({ boxShadow: "inset 2px 0 0 0 var(--mp-colors-gray
   the element, computed padding stays `2px`. Margin has no competing
   declaration, so it simply applies, and the 2px still holds the focus ring off
   the glyphs. The box moves into the cell's own 8px padding, so nothing
-  overflows. Same fix wherever a textlink has to line up with non-link text.
+  overflows. Same fix wherever a textlink has to line up with non-link text —
+  not just in a table. Detail pages hit the identical stagger on meta-field
+  links (a vendor/warehouse link under its `MpText` label), right-aligned
+  links (`View journal entry` under a right-aligned total — the symmetric
+  `ml`/`mr` cancels correctly there too, since it moves both edges equally),
+  and product-table links. Rather than re-deriving the fix per page, it's one
+  shared module: [`app/utils/textlink-align.ts`](../../app/utils/textlink-align.ts)
+  exports `textlinkAlignClass` (bare links) and `textlinkCellClass` (links that
+  also need the wrap rules — replaces `wrapInlineClass` **on `MpTextlink`
+  only**; that class is shared with `MpTag`, which is not a button, carries its
+  own deliberate padding, and would be pulled out of line by the margin).
 - Status cell uses an [`StatusBadge`](./StatusBadge.md) (`MpBadge for="tableStatus"`).
 - Last cell = row actions: an `MpPopover` (`placement="bottom-end"`) → secondary `Actions` dropdown → `MpPopoverList` of `role="menuitem"` items.
 

@@ -54,7 +54,7 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink as="button" variant="primary" @click="onAction('view-vendor')">{{ joinInvoice.vendorName }}</MpTextlink>
+          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ joinInvoice.vendorName }}</MpTextlink>
         </div>
 
         <div :class="metaFieldClass">
@@ -130,7 +130,7 @@
           <MpTableBody>
             <MpTableRow v-for="invoice in joinedInvoices" :key="invoice.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="navigateTo(`/purchase/invoice/${invoice.id}`)">
+                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="navigateTo(`/purchase/invoice/${invoice.id}`)">
                   {{ invoice.number }}
                 </MpTextlink>
               </MpTableCell>
@@ -208,6 +208,7 @@ import {
   MpTooltip,
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { formatCurrency, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById, type PurchaseTransaction } from "~/data/purchase-transactions";
 

@@ -303,8 +303,14 @@ inline-block box:
 
 ```ts
 const wrapCellClass   = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });                          // on <td>
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block" }); // on MpTag / MpTextlink
+const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block" }); // on MpTag only
 ```
+
+`wrapInlineClass` is for `MpTag`. An `MpTextlink` needs the same wrap rules
+**plus** a 2px margin correction — use `textlinkCellClass` from
+[`app/utils/textlink-align.ts`](../../app/utils/textlink-align.ts) instead
+(see [`TablePage`](./TablePage.md#body) for why). Reusing `wrapInlineClass` on
+a link leaves its text 2px off the edge every plain-text sibling sits on.
 
 Quick check when a table looks "off": read `getComputedStyle(td).display`
 — it must be `table-cell` — and confirm one column's `getBoundingClientRect().x`
