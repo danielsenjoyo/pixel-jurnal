@@ -77,3 +77,16 @@ counts by status, …). Omit entirely on pages with no headline numbers.
 
 - Per-variant classes are written as **literal `css()` calls** (a `BORDER`/`TOP_BG`/`BADGE_BG` map). Panda's static extractor won't emit rules for `css({ bg: map[x] })` indirection — each token value must appear literally. Add a new variant by extending all the literal maps, not by computing a token string.
 - `#bottom-right-content` content is **always visible**; only the built-in `is-filter` icon hides-until-hover.
+- **A KPI strip sitting above a table is read as a summary _of that table_.**
+  If the figures are scoped differently — one record type only, or ignoring the
+  active tab / filter / search — they will silently describe a different dataset
+  than the rows beneath them. The Purchase audit caught exactly this: the strip
+  stays on invoice totals while the user is on the Request tab, and keeps showing
+  millions while a search renders "not found" (`CHOICE · Contextual`, `reports/`).
+  **The fix that shipped:** derive the KPIs from the same `filteredRows` the
+  table renders, so they can't diverge, *and* caption the strip with the scope
+  it covers (`"Invoice"`, `"Invoice · filtered"`). A metric that only exists for
+  one record type (the old "Payment (last 30 days)") has to be replaced by one
+  that is derivable for every tab — otherwise it will keep lying on the tabs it
+  doesn't apply to. Clicking a box then filters *in place* rather than jumping
+  to another tab, which would contradict the figure just clicked.

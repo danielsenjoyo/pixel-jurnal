@@ -69,6 +69,28 @@ While `isLoading`, render 5 skeleton rows of `columns.length + 2` cells, each an
 `MpSkeleton is-loading` wrapping a `skeletonBarClass` bar. Toggle `isLoading`
 around your fetch.
 
+## Horizontal scroll affordance
+
+A table that overflows must say so. Without it the last column is simply
+clipped at the container edge and nothing indicates there is more to the right
+— flagged in the Purchase audit (`NNG · H1`). Put this on `MpTableContainer`:
+
+```ts
+const scrollShadowClass = css({
+  backgroundImage:
+    "linear-gradient(to right, var(--mp-colors-white) 30%, transparent), linear-gradient(to left, var(--mp-colors-white) 30%, transparent), linear-gradient(to right, rgba(29,31,36,0.16), transparent), linear-gradient(to left, rgba(29,31,36,0.16), transparent)",
+  backgroundPosition: "left center, right center, left center, right center",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
+  backgroundAttachment: "local, local, scroll, scroll",
+});
+```
+
+The two `local` white gradients ride with the content and scroll away; the two
+`scroll` shadows stay pinned to the container. Net effect: a shadow appears on
+whichever side still has content and vanishes at each end — **no
+`ResizeObserver`, no scroll listener, no reactive state**.
+
 ## Gotchas
 
 - **No classes on `tr`/`td`** for table styling — `MpTable` styles via `.mp-table` descendants. Pass layout via `:class` on `MpTable` / `MpTableHead`, and the sticky/width classes on the specific `as="th"`/`as="td"` cells.
