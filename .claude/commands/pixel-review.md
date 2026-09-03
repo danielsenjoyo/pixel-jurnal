@@ -5,23 +5,22 @@ description: Design review — Playwright exploration + CHOICE+NNG-weighted UX a
 Run a full design review on the prototype. $ARGUMENTS
 
 **Never use `mcp__claude-in-chrome__*` tools for this workflow.** All exploration and interaction must
-go through `node_modules/pixel-review/src/driver.js` (Playwright, headless) via `flow.json` triggers —
-including `type:` and `select-text:` for text fields and custom dropdowns. If a state seems impossible
-to reach with the trigger DSL, extend the DSL in `node_modules/pixel-review/src/driver.js` rather than
-falling back to manual browser control; manual browser screenshots are far more expensive in context
-than the script's `result.json` output.
+go through `scripts/pixel-review.js` (Playwright, headless) via `flow.json` triggers — including
+`type:` and `select-text:` for text fields and custom dropdowns. If a state seems impossible to reach
+with the trigger DSL, extend the DSL in `scripts/pixel-review.js` rather than falling back to manual
+browser control; manual browser screenshots are far more expensive in context than the script's
+`result.json` output.
 
 ## Pre-flight checks
 
-**Step 1 — verify the driver exists:**
+**Step 1 — verify the script exists:**
 
 ```bash
-test -f node_modules/pixel-review/src/driver.js && echo "OK" || echo "MISSING"
+test -f scripts/pixel-review.js && echo "OK" || echo "MISSING"
 ```
 
-If MISSING: tell the user to install the package (`pnpm add -D pixel-review` / `npm install -D
-pixel-review` / `yarn add -D pixel-review`, matching whichever lockfile the repo already uses), then
-run `/pixel-review` again. Do not proceed.
+If MISSING: tell the user the file should be committed to the repo. If they just cloned, ask them to
+check their git pull. Do not proceed.
 
 **Step 2 — verify the Chromium browser binary is installed:**
 
@@ -29,12 +28,18 @@ run `/pixel-review` again. Do not proceed.
 node -e "const {chromium}=require('@playwright/test');const fs=require('fs');process.exit(fs.existsSync(chromium.executablePath())?0:1)" && echo "OK" || echo "MISSING"
 ```
 
+`test -d node_modules/@playwright/test` alone is not enough — the npm package can be present while the
+actual browser binary was never downloaded, and this check would pass either way. The check above
+verifies the binary itself is on disk (it fails the same way, with a non-zero exit, if `@playwright/test`
+isn't even installed — same MISSING branch covers both).
+
 If MISSING: stop and tell the user:
 
-> The Chromium browser binary isn't installed yet. Run this once per machine, then run `/pixel-review`
-> again:
+> Playwright's Chromium browser binary isn't installed yet (or `@playwright/test` itself is missing).
+> Run these once per machine, then run `/pixel-review` again:
 >
 > ```
+> pnpm add -D @playwright/test   # only if the package itself is missing
 > npx playwright install chromium
 > ```
 
@@ -48,7 +53,7 @@ already gave you:
 
 1. **`$ARGUMENTS`** — any URL found is the prototype URL (or the PRD/doc URL, if it looks like
    Confluence/Coda/Superhuman); non-URL text is the flow/feature instruction, e.g. `"create ticket
-flow"` in `"create ticket flow https://prototype.example.com/tickets/all-tickets"`.
+flow"` in `"create ticket flow https://prototype.qontak.com/tickets/all-tickets"`.
 2. **The current conversation**, if `/pixel-review` is running in the same session as the "vibe
    coding" (implementing/iterating) work that came right before it — don't make the user restate
    context you already have from watching them build it:
@@ -147,11 +152,10 @@ From the user's flow/feature instruction (e.g. `"create ticket flow"`), work out
 
 1. Identify the most likely starting route from the given prototype URL (e.g. `/tickets/all-tickets`
    for a "create ticket flow").
-2. Run one lightweight discovery pass via `node_modules/pixel-review/src/driver.js` (never
-   `claude-in-chrome`) against that route before writing any triggers, so you know what's actually on
-   the page:
+2. Run one lightweight discovery pass via `scripts/pixel-review.js` (never `claude-in-chrome`) against
+   that route before writing any triggers, so you know what's actually on the page:
    ```bash
-   node node_modules/pixel-review/src/driver.js --url <prototype-url> --routes <route> --out-dir reports/.tmp-review/
+   node scripts/pixel-review.js --url <prototype-url> --routes <route> --out-dir reports/.tmp-review/
    ```
    Read `reports/.tmp-review/result.json` and inspect the `elements` (buttons, inputs) captured for
    that route's initial state to find what opens the flow (e.g. a "Create ticket" button).
@@ -193,7 +197,7 @@ table, and mapping rules below.
 | `null`                    | No interaction — just screenshot                                                                                                                                                                                            |
 | `click:<css-selector>`    | Click element by CSS selector                                                                                                                                                                                               |
 | `click-text:<label>`      | Click a `button`/`a`/`[role=button]`/`.mp-button` by exact text content                                                                                                                                                     |
-| `select-text:<label>`     | Click a dropdown/autocomplete option row by exact text — broader match than `click-text` (also matches `li`, `[role=option]`, popover/list items), use for autocomplete/popover-list options that aren't real buttons       |
+| `select-text:<label>`     | Click a dropdown/autocomplete option row by exact text — broader match than `click-text` (also matches `li`, `[role=option]`, popover/list items), use for MpAutocomplete/MpPopoverList options that aren't real buttons    |
 | `type:<selector>\|<text>` | Click `<selector>` to focus it, then type `<text>` via real keystrokes (fires input/autocomplete listeners). Omit `<selector>\|` to type into whatever already has focus (chain right after a `click:`/`select-text:` step) |
 | `wait:<ms>`               | Wait N milliseconds                                                                                                                                                                                                         |
 | `scroll`                  | Scroll to page bottom                                                                                                                                                                                                       |
@@ -228,13 +232,13 @@ Write the completed JSON to `reports/.tmp-review/flow.json`.
 **PRD mode or instruction mode** (flow config exists), run in flow config mode:
 
 ```bash
-node node_modules/pixel-review/src/driver.js --url <prototype-url> --flow-config reports/.tmp-review/flow.json --out-dir reports/.tmp-review/
+node scripts/pixel-review.js --url <prototype-url> --flow-config reports/.tmp-review/flow.json --out-dir reports/.tmp-review/
 ```
 
 **BFS fallback mode only** (no PRD, no flow instruction given), run in BFS discovery mode:
 
 ```bash
-node node_modules/pixel-review/src/driver.js --url <prototype-url> --out-dir reports/.tmp-review/
+node scripts/pixel-review.js --url <prototype-url> --out-dir reports/.tmp-review/
 ```
 
 The script uses Chrome with your existing session (copies profile to temp dir if Chrome is running).
@@ -302,7 +306,7 @@ The gap table rows (only `<tr>` elements, no wrappers) go into `{{PRD_GAP_ROWS_H
 ### Framework 2 — CHOICE Principles
 
 Evaluate each of the 6 principles (Clear, Holistic, Open, Individual, Contextual, Emotional) across
-all screens, using `node_modules/pixel-review/assets/principles.md` `## CHOICE Principles`.
+all screens, using `scripts/pixel-review-principles.md` `## Mekari CHOICE Principles`.
 
 For each principle, note screens where it is satisfied and screens where it falls short — every
 finding recorded here needs a severity, since the score comes entirely from the findings you tag
@@ -314,10 +318,9 @@ Use inline reference format: `CHOICE · Clear`
 
 ### Framework 3 — NNG Heuristics
 
-Evaluate all 10 heuristics from `node_modules/pixel-review/assets/principles.md`
-`## NNG 10 Usability Heuristics`. For each heuristic, check every screen — every finding recorded
-here needs a severity, since the score comes entirely from the findings you tag (see "Scoring"
-below).
+Evaluate all 10 heuristics from `scripts/pixel-review-principles.md` `## NNG 10 Usability Heuristics`.
+For each heuristic, check every screen — every finding recorded here needs a severity, since the
+score comes entirely from the findings you tag (see "Scoring" below).
 
 Use inline reference format: `NNG · H4`
 
@@ -333,8 +336,7 @@ Simulate 5 personas interacting with the prototype based on the Playwright resul
 - A simulated quote (first-person, realistic)
 - Task completion: **Berhasil** / **Berhasil dengan kesulitan** / **Gagal**
 
-Personas (adjust to fit the feature being reviewed — these are a generic starting set, swap in
-personas that actually match the product):
+Personas (adjust to fit the feature being reviewed):
 
 1. **Sales Rep** — B2B account executive, high call volume, driven by daily targets
 2. **Customer Service Agent** — handles incoming tickets under SLA pressure, context-switching often
@@ -380,13 +382,12 @@ The exact mechanism, so you understand what the report will show even though you
 
 ## Generate HTML report
 
-After all 4 frameworks are complete, generate the report by filling in
-`node_modules/pixel-review/assets/report-template.html`.
+After all 4 frameworks are complete, generate the report by filling in `scripts/report-template.html`.
 
 **Read the template first:**
 
 ```bash
-cat node_modules/pixel-review/assets/report-template.html
+cat scripts/report-template.html
 ```
 
 The template has `{{PLACEHOLDER}}` markers for all dynamic content. Replace every marker with your

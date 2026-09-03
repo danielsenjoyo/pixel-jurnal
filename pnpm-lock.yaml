@@ -41,6 +41,9 @@ importers:
       '@nuxt/eslint':
         specifier: ^1.15.2
         version: 1.15.2(@typescript-eslint/utils@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.34)(eslint@9.39.4(jiti@2.7.0))(magicast@0.5.3)(typescript@6.0.3)(vite@7.3.3(jiti@2.7.0)(lightningcss@1.25.1)(terser@5.48.0)(yaml@2.9.0))
+      '@playwright/test':
+        specifier: ^1.62.1
+        version: 1.62.1
       eslint:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.7.0)
@@ -50,9 +53,6 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
-      pixel-review:
-        specifier: github:masfajs/pixel-review
-        version: https://codeload.github.com/masfajs/pixel-review/tar.gz/dedcebf558c4fb7872d4a1209ffc7d32c264b30f
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
@@ -4626,12 +4626,6 @@ packages:
   picomatch@4.0.4:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
-
-  pixel-review@https://codeload.github.com/masfajs/pixel-review/tar.gz/dedcebf558c4fb7872d4a1209ffc7d32c264b30f:
-    resolution: {gitHosted: true, integrity: sha512-A2LNHOKXViLL8iaf1Ze2Md1bdbz2BwGJ9W80JD+jZNwGE4KAL9HWUGyEL1wWGulf8m6JDX1wK9lI0ie9aKNxgg==, tarball: https://codeload.github.com/masfajs/pixel-review/tar.gz/dedcebf558c4fb7872d4a1209ffc7d32c264b30f}
-    version: 0.1.0
-    engines: {node: '>=18'}
-    hasBin: true
 
   pkg-types@1.3.1:
     resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
@@ -11623,10 +11617,6 @@ snapshots:
   picomatch@4.0.3: {}
 
   picomatch@4.0.4: {}
-
-  pixel-review@https://codeload.github.com/masfajs/pixel-review/tar.gz/dedcebf558c4fb7872d4a1209ffc7d32c264b30f:
-    dependencies:
-      '@playwright/test': 1.62.1
 
   pkg-types@1.3.1:
     dependencies:

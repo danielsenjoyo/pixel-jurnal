@@ -31,6 +31,11 @@ options:
 Don't ask this when the user explicitly requests a plain `git push` with no vibe-coding context (e.g.
 they're just syncing an already-reviewed branch).
 
-`/pixel-review` is provided by the `pixel-review` devDependency (`.claude/commands/pixel-review.md`,
-scaffolded via `npx pixel-review init`) — a live browser UX audit of the running prototype, distinct
-from any diff/compliance-checklist review the repo may already have.
+`/pixel-review` (`.claude/commands/pixel-review.md`) is a live browser UX audit of the running
+prototype, distinct from any diff/compliance-checklist review the repo may already have.
+
+## Design Review Knowledge
+
+Used by `/pixel-review`. Lives in `scripts/pixel-review-principles.md` so it travels as one portable
+asset set with `pixel-review.js` and `report-template.html`. Never guess from memory — always read
+that file first.
