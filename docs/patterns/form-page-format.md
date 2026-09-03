@@ -143,6 +143,26 @@ hidden entirely in edit mode — an existing record's type is fixed.
   (Join Invoice picks invoices), the affordance is still the trailing row's
   first cell. A separate labelled picker above the table reads as a filter.
 
+## When the lines aren't yours to add
+
+Not every line-items table is built from scratch. A Purchase Return's rows are
+whatever the invoice it credits already has, and the only editable figure per
+row is *how many come back*. So that form has **no product picker and no
+trailing add row** — the two affordances every other form here relies on.
+
+- **Load the rows from the parent record, and cap each one.** The cap is the
+  parent's quantity less whatever earlier children already consumed
+  (`returnableQuantities`), so two returns can't send back more than was
+  bought. Show the cap next to the field ("of 3") rather than only enforcing it
+  on submit.
+- **Surface an over-limit as its own message naming the line.** A generic
+  "invalid" can't say *which* product is over, and the number differs per row.
+- **The parent is the entry point.** The reference app reaches this form from
+  the invoice's Actions menu, passing the id in the query — there is no Return
+  list tab, there or here. Add the reverse link on the parent (the invoice
+  lists its returns) or the child is reachable only from the URL that created
+  it.
+
 ## Editable line-items table
 
 The table from [`TablePage`](./TablePage.md), with form controls in the cells.
@@ -250,6 +270,8 @@ Every page built in this module, and the archetype it follows.
 | `/purchase/request/new` + `edit/[id]`  | **form**  | `PurchaseRequestForm` — no money, requestor/urgency            |
 | `/purchase/delivery/new` + `edit/[id]` | **form**  | `PurchaseDeliveryForm` — shipping intrinsic, shipping fee only |
 | `/purchase/join-invoice/new` + `edit`  | **form**  | `PurchaseJoinInvoiceForm` — bundles invoice records            |
+| `/purchase/return/[id]`                | details   | Credits one invoice; links back to it                          |
+| `/purchase/return/new` + `edit/[id]`   | **form**  | `PurchaseReturnForm` — quantities off a chosen invoice          |
 
 **Financing** is a list-only tab: the reference app has no detail or form route
 for it either, so neither does this clone. `TYPE_CAPABILITIES.financing.route`
@@ -268,6 +290,9 @@ is `""` for exactly that reason.
   trailing-placeholder add-line pattern, the fixed totals-stack order, the
   shared-totals-engine rule, and the disabled-button/unreachable-validation dead
   end found in the Purchase design audit.
+- **v1.2.0** — Added Purchase Return (details + form), and with it the
+  "lines aren't yours to add" section: a form whose rows come from a parent
+  record, capped by what that parent has left to give.
 - **v1.1.3** — Recorded the one-column-rhythm rule: every section on a form
   shares the identity row's `repeat(4, 1fr)` and pads with empty cells, rather
   than re-dividing the width per section.

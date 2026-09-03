@@ -537,6 +537,9 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
 
 interface Row {
   id: number;
+  /** The record's own type, so a row in a cross-cutting tab (Need approval /
+   *  Rejected — which mix types) still knows which detail route it belongs to. */
+  type: TransactionType;
   transactionDate: string;
   transactionDateSort: string;
   number: string;
@@ -578,6 +581,7 @@ const TAB_TYPE: Partial<Record<TabKey, TransactionType>> = {
 function toRow(t: PurchaseTransaction): Row {
   return {
     id: t.id,
+    type: t.type,
     transactionDate: t.transactionDate,
     transactionDateSort: t.transactionDateSort,
     number: t.number,
@@ -824,27 +828,14 @@ function resetFilters() {
   search.value = "";
 }
 
-// Invoice, Order, Request, Quote, Delivery, and Join Invoice are the only
-// types with a detail page so far (app/pages/purchase/{invoice,order,
-// request,quote,delivery,join-invoice}/[id].vue). Other tabs are no-ops
-// until their own show pages land. Keyed by TransactionType, not TabKey, so
-// it doubles as the "where does a duplicate of this type land" map below
-// (Delivery and Join Invoice have no Duplicate action on their own pages,
-// but a duplicate landing here from elsewhere would still resolve
-// correctly).
-const DETAIL_ROUTE: Partial<Record<TransactionType, string>> = {
-  invoice: "/purchase/invoice",
-  order: "/purchase/order",
-  request: "/purchase/request",
-  quote: "/purchase/quote",
-  delivery: "/purchase/delivery",
-  join_invoice: "/purchase/join-invoice",
-};
-const TAB_DETAIL_ROUTE = computed(() => (TAB_TYPE[activeTabKey.value] ? DETAIL_ROUTE[TAB_TYPE[activeTabKey.value]!] : undefined));
 
+// Route by the ROW's type, not the tab's. "Need approval" and "Rejected" cut
+// across every type and so have no type of their own — keying off the tab left
+// their rows unclickable, which became easy to hit once Returns started
+// appearing there too.
 function onOpen(row: Row) {
-  const base = TAB_DETAIL_ROUTE.value;
-  if (base) navigateTo(`${base}/${row.id}`);
+  const route = TYPE_CAPABILITIES[row.type]?.route;
+  if (route) navigateTo(`/purchase/${route}/${row.id}`);
 }
 
 // Every type in this menu now has its own create route — see TYPE_CAPABILITIES

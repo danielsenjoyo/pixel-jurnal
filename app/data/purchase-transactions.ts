@@ -23,7 +23,7 @@
 // into its own type's tab, because there's only one place it can be.
 import type { PurchaseStatus } from "./purchase-status";
 
-export type TransactionType = "invoice" | "join_invoice" | "delivery" | "order" | "quote" | "request" | "financing";
+export type TransactionType = "invoice" | "join_invoice" | "delivery" | "order" | "quote" | "request" | "financing" | "return";
 
 // Display label used in both the record's `number` ("Purchase Invoice
 // #14026") and the tab title — matches the real Jurnal product's naming
@@ -40,6 +40,7 @@ export const TRANSACTION_TYPE_LABEL: Record<TransactionType, string> = {
   quote: "Purchase Quote",
   request: "Purchase Request",
   financing: "Purchase Financing",
+  return: "Purchase Return",
 };
 
 // Real Jurnal ids are large sequential database ids, not small per-type
@@ -166,6 +167,13 @@ export interface PurchaseTransaction {
   // must exist first). Drives the "Fulfillment" tag and the Delivery related-
   // records table on the Order detail page.
   linkedDeliveryId: number | null;
+  // Return-only (null for every other type): the Invoice this return is raised
+  // against. A return is never standalone — it always credits back part of a
+  // specific invoice, which is why the create form is reached from that
+  // invoice's Actions menu rather than from the list (the reference app has no
+  // Return tab). Its lines are a subset of that invoice's, with the quantities
+  // actually being sent back.
+  linkedInvoiceId: number | null;
   // Join-invoice-only (empty for every other type): ids of real `type:
   // "invoice"` records this join invoice bundles for combined billing — set
   // by linkJoinInvoicesToInvoices() after the dataset is built. A join
@@ -365,6 +373,8 @@ const STATUS_POOL: Record<TransactionType, PurchaseStatus[]> = {
   quote: ["open", "closed"],
   request: ["open", "partial", "closed"],
   financing: ["open", "overdue", "paid"],
+  // A return is open until the credit is settled against the invoice.
+  return: ["open", "closed"],
 };
 
 function buildTransaction(type: TransactionType, i: number, seq: number): PurchaseTransaction {
@@ -451,11 +461,12 @@ function buildTransaction(type: TransactionType, i: number, seq: number): Purcha
     depositAmount: type === "order" && i % 2 === 0 ? Math.round(total * 0.2) : 0,
     payments,
     linkedDeliveryId: null,
+    linkedInvoiceId: null,
     joinedInvoiceIds: [],
   };
 }
 
-const TYPES: TransactionType[] = ["invoice", "join_invoice", "delivery", "order", "quote", "request", "financing"];
+const TYPES: TransactionType[] = ["invoice", "join_invoice", "delivery", "order", "quote", "request", "financing", "return"];
 const COUNT_PER_TYPE = 13;
 
 // Links roughly a third of the Order records to a real Delivery record in
@@ -493,6 +504,42 @@ function linkJoinInvoicesToInvoices(all: PurchaseTransaction[]): void {
   });
 }
 
+// Points each generated Return at a real Invoice and rewrites its lines to be
+// a genuine subset of that invoice's, so a return never credits more than was
+// invoiced. Runs as a pass over the finished array because the invoices have
+// to exist first — same reason as linkOrdersToDeliveries.
+function linkReturnsToInvoices(all: PurchaseTransaction[]): void {
+  const invoices = all.filter((t) => t.type === "invoice");
+  if (!invoices.length) return;
+  all
+    .filter((t) => t.type === "return")
+    .forEach((ret, i) => {
+      const invoice = invoices[i % invoices.length]!;
+      ret.linkedInvoiceId = invoice.id;
+      ret.vendorName = invoice.vendorName;
+      ret.vendorAddress = invoice.vendorAddress;
+      ret.email = [...invoice.email];
+      ret.warehouse = invoice.warehouse;
+      // Return the first line or two, at a quantity no greater than invoiced.
+      const returned = invoice.lines.slice(0, 1 + (i % 2)).map((l, idx) => {
+        const quantity = Math.max(1, Math.ceil(l.quantity / 2));
+        return { ...l, id: idx + 1, quantity, amount: lineAmount(quantity, l.unitPrice, l.discountPercent) };
+      });
+      ret.lines = returned;
+      ret.subtotal = returned.reduce((sum, l) => sum + l.amount, 0);
+      ret.taxAmount = Math.round(ret.subtotal * TAX_RATE);
+      ret.taxes = ret.taxAmount > 0 ? [{ label: "PPN 11%", amount: ret.taxAmount }] : [];
+      ret.total = ret.subtotal + ret.taxAmount;
+      ret.balanceDue = ret.total;
+      ret.amountReceived = 0;
+      ret.payments = [];
+      ret.shippingInfo = true;
+      ret.shippingAddress = invoice.vendorAddress;
+      ret.shippingDate = ret.transactionDate;
+      ret.shippingDateSort = ret.transactionDateSort;
+    });
+}
+
 function buildDataset(): PurchaseTransaction[] {
   const all: PurchaseTransaction[] = [];
   let seq = 1;
@@ -504,6 +551,7 @@ function buildDataset(): PurchaseTransaction[] {
   }
   linkOrdersToDeliveries(all);
   linkJoinInvoicesToInvoices(all);
+  linkReturnsToInvoices(all);
   return all;
 }
 
@@ -585,6 +633,7 @@ export function duplicateTransaction(id: number): PurchaseTransaction | undefine
     // source order's delivery link or the source join invoice's bundled
     // invoices (there's nothing billed yet to bundle).
     linkedDeliveryId: null,
+    linkedInvoiceId: null,
     joinedInvoiceIds: [],
   };
 
@@ -648,6 +697,8 @@ export interface PurchaseTransactionInput {
   relatedBudgetYear: string;
   // Join-invoice-only: the invoice records this one bundles.
   joinedInvoiceIds: number[];
+  // Return-only: the invoice this return credits against.
+  linkedInvoiceId: number | null;
 }
 
 /** @deprecated Kept as an alias while call sites migrate. */
@@ -803,6 +854,9 @@ export const TYPE_CAPABILITIES: Record<TransactionType, TransactionTypeCapabilit
   // Financing is a list-only tab in the reference app — no detail or form
   // route exists for it there either, so nothing here can create one.
   financing:    { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: false, shipping: "never",  deposit: false, withholding: false, requestFields: false, bundlesInvoices: false, route: "" },
+  // A return carries shipping unconditionally (the goods are going back), and
+  // has no deposit or withholding of its own — it credits against an invoice.
+  return:       { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: true,  shipping: "always", deposit: false, withholding: false, requestFields: false, bundlesInvoices: false, route: "return" },
 };
 
 export function emptyTransactionInput(): PurchaseTransactionInput {
@@ -815,7 +869,7 @@ export function emptyTransactionInput(): PurchaseTransactionInput {
     discountType: "percent", discountValue: 0, withholdingPercent: 0, depositAmount: 0,
     attachments: [], message: "", memo: "", lines: [],
     procurementStaff: "", requestorName: "", requestorEmail: "", urgency: null, relatedBudgetYear: "",
-    joinedInvoiceIds: [],
+    joinedInvoiceIds: [], linkedInvoiceId: null,
   };
 }
 
@@ -824,6 +878,31 @@ export function emptyTransactionInput(): PurchaseTransactionInput {
 export function getTransactionOfType(id: number, type: TransactionType): PurchaseTransaction | undefined {
   const t = getPurchaseTransactionById(id);
   return t && t.type === type ? t : undefined;
+}
+
+/** Every Return raised against a given invoice — the reverse of
+ *  `linkedInvoiceId`, resolved by lookup rather than stored twice. */
+export function getReturnsForInvoice(invoiceId: number): PurchaseTransaction[] {
+  return getPurchaseTransactions().filter((t) => t.type === "return" && t.linkedInvoiceId === invoiceId);
+}
+
+/** How much of each invoice line is still returnable: the invoiced quantity
+ *  less whatever earlier returns already sent back. Keyed by line product,
+ *  which is what identifies a line across the two records here. */
+export function returnableQuantities(invoiceId: number, excludeReturnId?: number): Map<string, number> {
+  const invoice = getPurchaseTransactionById(invoiceId);
+  const remaining = new Map<string, number>();
+  if (!invoice) return remaining;
+  for (const line of invoice.lines) {
+    remaining.set(line.product, (remaining.get(line.product) ?? 0) + line.quantity);
+  }
+  for (const ret of getReturnsForInvoice(invoiceId)) {
+    if (excludeReturnId != null && ret.id === excludeReturnId) continue;
+    for (const line of ret.lines) {
+      remaining.set(line.product, (remaining.get(line.product) ?? 0) - line.quantity);
+    }
+  }
+  return remaining;
 }
 
 export function getPurchaseInvoiceById(id: number): PurchaseTransaction | undefined {
@@ -890,6 +969,7 @@ export function createTransaction(type: TransactionType, input: PurchaseTransact
     attachments: input.attachments,
     payments: [],
     linkedDeliveryId: null,
+    linkedInvoiceId: type === "return" ? input.linkedInvoiceId : null,
     joinedInvoiceIds: cap.bundlesInvoices ? input.joinedInvoiceIds : [],
   };
 

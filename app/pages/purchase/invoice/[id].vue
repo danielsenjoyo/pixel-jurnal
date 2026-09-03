@@ -238,6 +238,41 @@
         Last updated by Rizal Candra on {{ formatDisplayDate(invoice.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
+      <!-- Returns raised against this invoice. The forward link is stored on
+           the return (linkedInvoiceId); this direction is a lookup, same as
+           Order → Delivery. Without it a return would be reachable only from
+           the URL it was created at, since there is no Return list tab. -->
+      <template v-if="relatedReturns.length">
+        <MpDivider variant="dashed" :class="dividerClass" />
+        <MpText weight="semiBold" color="dark" :class="relatedHeadingClass">Purchase returns</MpText>
+        <MpTableContainer>
+          <MpTable :class="relatedTableClass">
+            <MpTableHead :class="tableHeadClass">
+              <MpTableRow>
+                <MpTableCell as="th">Return no.</MpTableCell>
+                <MpTableCell as="th">Date</MpTableCell>
+                <MpTableCell as="th">Status</MpTableCell>
+                <MpTableCell as="th" :class="numCellClass">Total</MpTableCell>
+              </MpTableRow>
+            </MpTableHead>
+            <MpTableBody>
+              <MpTableRow v-for="ret in relatedReturns" :key="ret.id">
+                <MpTableCell as="td">
+                  <MpTextlink as="button" variant="primary" :class="wrapInlineClass" @click="navigateTo(`/purchase/return/${ret.id}`)">
+                    {{ ret.number }}
+                  </MpTextlink>
+                </MpTableCell>
+                <MpTableCell as="td">{{ formatDisplayDate(ret.transactionDateSort) }}</MpTableCell>
+                <MpTableCell as="td">
+                  <MpBadge for="tableStatus" :type="PURCHASE_STATUS_TYPE[ret.status]">{{ PURCHASE_STATUS_LABEL[ret.status] }}</MpBadge>
+                </MpTableCell>
+                <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(ret.total) }}</MpTableCell>
+              </MpTableRow>
+            </MpTableBody>
+          </MpTable>
+        </MpTableContainer>
+      </template>
+
       <!-- Zone D — payment history (compact related list). -->
       <template v-if="invoice.payments.length">
         <MpDivider variant="dashed" :class="dividerClass" />
@@ -367,7 +402,15 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
-import { deleteTransactions, duplicateTransaction, formatCurrency, formatDisplayDate, getAdjacentTransactionIds, getPurchaseInvoiceById } from "~/data/purchase-transactions";
+import {
+  deleteTransactions,
+  duplicateTransaction,
+  formatCurrency,
+  formatDisplayDate,
+  getAdjacentTransactionIds,
+  getPurchaseInvoiceById,
+  getReturnsForInvoice,
+} from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
 // Cloned from jurnal-frontend-app src/pages/purchases/show.vue (the "pi" tab's
@@ -387,6 +430,9 @@ const route = useRoute();
 const id = computed(() => Number(route.params.id));
 const invoice = computed(() => getPurchaseInvoiceById(id.value));
 const adjacent = computed(() => getAdjacentTransactionIds(id.value));
+// Reverse of the return's own linkedInvoiceId — resolved by lookup so the link
+// is stored once, same as Order → Delivery.
+const relatedReturns = computed(() => (invoice.value ? getReturnsForInvoice(invoice.value.id) : []));
 
 useHead({ title: computed(() => (invoice.value ? `${invoice.value.number} — Mekari Jurnal` : "Invoice not found — Mekari Jurnal")) });
 
@@ -399,6 +445,13 @@ function goTo(nextId: number | null) {
 function onAction(action: string) {
   if (action === "duplicate") {
     onDuplicate();
+    return;
+  }
+  if (action === "create-return") {
+    // A return is always raised against a specific invoice, so this is its
+    // only entry point — the reference app has no Return list tab either.
+    // The id rides in the query so the form can pre-select and load its lines.
+    navigateTo(`/purchase/return/new?invoice=${invoice.value?.id}`);
     return;
   }
   void action; // wire the rest to the relevant modal/API call/detail page on a real screen
@@ -447,6 +500,8 @@ const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", text
 // On an inline child inside a cell (MpTag / MpTextlink) that ships its own
 // nowrap — these are not the cell, so an inline-block box is correct here.
 const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
+const relatedHeadingClass = css({ fontSize: "lg", mb: 4 });
+const relatedTableClass = css({ tableLayout: "auto", width: "full" });
 const lineCaptionClass = css({ mt: 3, mb: 3 });
 
 const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" });
