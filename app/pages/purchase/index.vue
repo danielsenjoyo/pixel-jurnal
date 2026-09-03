@@ -189,8 +189,22 @@
 
     <!-- Zone D/E — table + pager, OR the blank slate. -->
     <template v-if="filteredRows.length">
-      <MpTableContainer :class="scrollShadowClass">
-        <MpTable is-hoverable :class="tableFixedClass" :style="{ minWidth: tableMinWidth }">
+      <MpTableContainer ref="tableContainerRef" :class="scrollShadowClass">
+        <!-- width:100% + min-width:tableMinWidth lets the table fill a wide
+             viewport instead of stopping short and leaving a bare gap (its
+             previous min-width-only behaviour), while still scrolling
+             horizontally once the viewport drops below tableMinWidth.
+             table-layout:fixed hands any leftover space to whichever
+             <col> has no explicit width — every real column stays pinned
+             to its COLUMN_WIDTH/CHECKBOX_COLUMN_WIDTH px value (so the
+             checkbox never grows again) and only the trailing filler <col>
+             (matched by the blank <th>/<td> at the end of every row below)
+             stretches to soak it up. -->
+        <MpTable
+          is-hoverable
+          :class="tableFixedClass"
+          :style="{ minWidth: tableMinWidth, width: '100%' }"
+        >
           <colgroup>
             <col :style="{ width: '44px' }" />
             <col
@@ -198,6 +212,9 @@
               :key="col.key"
               :style="{ width: `${COLUMN_WIDTH[col.key]}px` }"
             />
+            <!-- Filler column — no width, so it's the one that absorbs
+                 leftover space on a wide viewport. -->
+            <col />
           </colgroup>
           <MpTableHead is-fixed :class="tableHeadClass">
             <!-- The bulk bar is its own row ABOVE the header — it must not
@@ -206,7 +223,7 @@
                  on, and leaves two adjacent money columns (Balance due /
                  Total) unlabelled. See docs/patterns/BulkActionBar.md. -->
             <MpTableRow v-if="selected.length && activeTabKey !== 'ap'">
-              <MpTableCell as="th" :colspan="columns.length + 1" :class="bulkCellClass">
+              <MpTableCell as="th" :colspan="columns.length + 2" :class="bulkCellClass">
                 <div :class="bulkBarClass">
                   <MpText size="label" weight="semiBold" color="dark"
                     >{{ selected.length }} selected</MpText
@@ -242,14 +259,25 @@
                   <MpIcon :name="sortIconFor(col.key)" size="sm" color="gray.400" />
                 </button>
               </MpTableCell>
+              <!-- Filler cell — matches the widthless trailing <col> above. -->
+              <MpTableCell as="th" />
             </MpTableRow>
           </MpTableHead>
 
           <MpTableBody v-if="isLoading">
             <MpTableRow v-for="n in 5" :key="`skeleton-${n}`">
-              <MpTableCell v-for="col in columns.length + 1" :key="col" as="td">
+              <!-- Matches checkboxCellClass's padding so the checkbox column
+                   doesn't shift once the skeleton swaps for the real row —
+                   a plain generic cell here sits with the default padding
+                   instead, landing the skeleton bar off from where the
+                   checkbox itself renders. -->
+              <MpTableCell as="td" :class="checkboxCellClass">
+                <MpSkeleton is-loading><span :class="skeletonCheckboxClass" /></MpSkeleton>
+              </MpTableCell>
+              <MpTableCell v-for="col in columns" :key="col.key" as="td">
                 <MpSkeleton is-loading><span :class="skeletonBarClass" /></MpSkeleton>
               </MpTableCell>
+              <MpTableCell as="td" />
             </MpTableRow>
           </MpTableBody>
 
@@ -303,6 +331,7 @@
                   ><span :class="wrapCellClass">{{ cellText(row, col.key) }}</span></template
                 >
               </MpTableCell>
+              <MpTableCell as="td" />
             </MpTableRow>
           </MpTableBody>
         </MpTable>
@@ -385,7 +414,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import {
   css,
   MpAutocomplete,
@@ -753,6 +782,7 @@ const searchTerm = computed(() => (search.value ?? "").trim());
 
 // Switching tabs resets page/selection/sort/status, same as the source
 // page's `@Watch('active_tab')`.
+const tableContainerRef = ref<{ $el?: HTMLElement } | HTMLElement | null>(null);
 watch(activeTabIndex, () => {
   page.value = 1;
   selected.value = [];
@@ -761,6 +791,17 @@ watch(activeTabIndex, () => {
   // fields differ per tab, so a filter carried across could be narrowing by a
   // control the new tab doesn't even show.
   filter.value = emptyPurchaseFilter();
+  // MpTableContainer is the horizontal-scroll element (see scrollShadowClass
+  // below) and it's NOT remounted on tab change, so a scroll position left
+  // over from the previous tab's (wider or narrower) table otherwise carries
+  // straight into the new one — the first column can open scrolled halfway
+  // out of view instead of sitting next to the checkbox. Snap it back to the
+  // left edge every time the active tab changes.
+  nextTick(() => {
+    const container = tableContainerRef.value as { $el?: HTMLElement } | HTMLElement | null;
+    const el = container && "$el" in container ? container.$el : container;
+    el?.scrollTo?.({ left: 0 });
+  });
 });
 
 function sortValue(row: Row, key: ColumnKey): string | number {
@@ -1005,7 +1046,10 @@ const COLUMN_WIDTH: Record<ColumnKey, number> = {
   depositAmount: 170,
   balanceDue: 180,
   totalAmount: 180,
-  totalItems: 110,
+  // 110px left only ~62px for the label next to the sort icon — exactly the
+  // "Total items" header's natural width, so it wrapped to 2 lines on any
+  // subpixel rounding. 130px gives it real breathing room.
+  totalItems: 130,
   urgency: 130,
   tags: 140
 };
@@ -1044,7 +1088,16 @@ const promoIconClass = css({
 });
 const promoTextClass = css({ display: "flex", flexDirection: "column", gap: 1, minWidth: "0" });
 const statsCaptionClass = css({ display: "flex", justifyContent: "flex-end", mt: 2, mb: 4 });
-const tabLabelClass = css({ display: "inline-flex", alignItems: "center", gap: 2 });
+// whiteSpace:nowrap keeps two-word labels ("Join invoice") and the badge
+// label ("Need approval 24") on one line — MpTab doesn't reserve enough
+// width for its content by default, so without this the text wraps to 2
+// lines instead of the tab simply sizing to fit it.
+const tabLabelClass = css({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 2,
+  whiteSpace: "nowrap"
+});
 
 const filterButtonWrapClass = css({ position: "relative", display: "inline-flex" });
 const filterDotClass = css({
@@ -1169,12 +1222,12 @@ const sortHeaderClass = css({
   font: "inherit",
   width: "full"
 });
-// Header labels wrap rather than clip too, but must NOT take width:full —
-// they sit next to the sort icon inside the header button's own flex row.
+// Header labels stay on one line — every column is sized to fit its label
+// next to the sort icon, so a wrap only ever meant a column was a few
+// pixels too tight (see totalItems below), never a genuinely long label.
 const headerLabelClass = css({
   minWidth: "0",
-  whiteSpace: "normal",
-  wordBreak: "break-word",
+  whiteSpace: "nowrap",
   textAlign: "left"
 });
 
@@ -1182,6 +1235,15 @@ const bulkBarClass = css({ display: "flex", alignItems: "center", gap: 3, flexWr
 const bulkCellClass = css({ py: "11px!" });
 
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
+// Sized to match MpCheckbox's own 18px control rather than stretching full
+// width like the other columns' skeleton bars — a full-width bar in a 44px
+// cell would render wider than the checkbox it stands in for.
+const skeletonCheckboxClass = css({
+  display: "block",
+  width: "18px",
+  height: "18px",
+  rounded: "sm"
+});
 
 const emptyStateClass = css({
   display: "flex",
