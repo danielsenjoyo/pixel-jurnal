@@ -47,19 +47,34 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ quote.vendorName }}</MpTextlink>
+          <MpTextlink
+            :class="textlinkAlignClass"
+            as="button"
+            variant="primary"
+            @click="onAction('view-vendor')"
+            >{{ quote.vendorName }}</MpTextlink
+          >
         </div>
 
         <div :class="metaFieldClass">
           <MpText color="gray.600">Email</MpText>
           <MpFlex v-if="quote.email.length" gap="2" flex-wrap="wrap">
-            <MpTag v-for="email in quote.email" :key="email" variant="gray" size="sm" :class="wrapInlineClass">{{ email }}</MpTag>
+            <MpTag
+              v-for="email in quote.email"
+              :key="email"
+              variant="gray"
+              size="sm"
+              :class="wrapInlineClass"
+              >{{ email }}</MpTag
+            >
           </MpFlex>
           <MpText v-else>—</MpText>
         </div>
 
         <div :class="balanceColClass">
-          <MpText weight="semiBold" color="dark">Balance due {{ formatCurrency(quote.balanceDue) }}</MpText>
+          <MpText weight="semiBold" color="dark"
+            >Balance due {{ formatCurrency(quote.balanceDue) }}</MpText
+          >
         </div>
       </div>
 
@@ -135,20 +150,34 @@
           <MpTableBody>
             <MpTableRow v-for="line in quote.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink
+                  as="button"
+                  variant="primary"
+                  :class="textlinkCellClass"
+                  @click="onAction('view-product')"
+                  >{{ line.product }}</MpTextlink
+                >
               </MpTableCell>
-              <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
+              <MpTableCell as="td" :class="wrapCellClass">{{
+                line.description || "—"
+              }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
               <MpTableCell as="td">{{ line.unit }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(line.unitPrice) }}</MpTableCell>
+              <MpTableCell as="td" :class="numCellClass">{{
+                formatCurrency(line.unitPrice)
+              }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.discountPercent }}%</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(line.amount) }}</MpTableCell>
+              <MpTableCell as="td" :class="numCellClass">{{
+                formatCurrency(line.amount)
+              }}</MpTableCell>
             </MpTableRow>
           </MpTableBody>
         </MpTable>
       </MpTableContainer>
       <MpText size="body-small" color="gray.600" :class="lineCaptionClass">
-        Showing {{ quote.lines.length }} from {{ quote.lines.length }} product{{ quote.lines.length === 1 ? "" : "s" }}
+        Showing {{ quote.lines.length }} from {{ quote.lines.length }} product{{
+          quote.lines.length === 1 ? "" : "s"
+        }}
       </MpText>
 
       <MpDivider variant="dashed" :class="dividerClass" />
@@ -193,8 +222,14 @@
         </div>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
-        Last updated by Rizal Candra on {{ formatDisplayDate(quote.transactionDateSort) }} 09:00:00 AM GMT +7
+      <MpTextlink
+        as="button"
+        variant="secondary"
+        :class="[lastUpdatedClass, textlinkAlignClass]"
+        @click="onAction('view-audit-log')"
+      >
+        Last updated by Rizal Candra on {{ formatDisplayDate(quote.transactionDateSort) }} 09:00:00
+        AM GMT +7
       </MpTextlink>
 
       <!-- Bottom action bar — Delete on the left (hidden once the quote is
@@ -203,10 +238,14 @@
            details-page-format.md — the reference screenshot shows one, but
            only Invoice has a real edit form so far). -->
       <div :class="bottomActionsClass">
-        <MpButton v-if="quote.status !== 'closed'" variant="ghost" @click="isDeleteModalOpen = true">Delete</MpButton>
+        <MpButton v-if="quote.status !== 'closed'" variant="ghost" @click="isDeleteModalOpen = true"
+          >Delete</MpButton
+        >
         <div v-else />
         <MpFlex gap="2">
-          <MpButton variant="secondary" @click="navigateTo(`/purchase/quote/edit/${quote.id}`)">Edit</MpButton>
+          <MpButton variant="secondary" @click="navigateTo(`/purchase/quote/edit/${quote.id}`)"
+            >Edit</MpButton
+          >
           <MpPopover placement="bottom-end" use-portal is-adaptive-width>
             <template #default>
               <MpPopoverTrigger>
@@ -214,8 +253,12 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onAction('print')">Preview &amp; print</MpPopoverListItem>
-                  <MpPopoverListItem role="menuitem" @click="onAction('share-email')">Share via email</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onAction('print')"
+                    >Preview &amp; print</MpPopoverListItem
+                  >
+                  <MpPopoverListItem role="menuitem" @click="onAction('share-email')"
+                    >Share via email</MpPopoverListItem
+                  >
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -227,8 +270,12 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onAction('duplicate')">Duplicate transaction</MpPopoverListItem>
-                  <MpPopoverListItem role="menuitem" @click="onAction('convert-to-order')">Convert to purchase order</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onAction('duplicate')"
+                    >Duplicate transaction</MpPopoverListItem
+                  >
+                  <MpPopoverListItem role="menuitem" @click="onAction('convert-to-order')"
+                    >Convert to purchase order</MpPopoverListItem
+                  >
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -247,7 +294,8 @@
         </MpModalHeader>
         <MpModalBody>
           <MpText size="body" color="gray.700">
-            This will permanently remove <strong>{{ quote?.number }}</strong>. This can't be undone.
+            This will permanently remove <strong>{{ quote?.number }}</strong
+            >. This can't be undone.
           </MpText>
         </MpModalBody>
         <MpModalFooter>
@@ -290,12 +338,19 @@ import {
   MpTag,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
-import { deleteTransactions, duplicateTransaction, formatCurrency, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById } from "~/data/purchase-transactions";
+import {
+  deleteTransactions,
+  duplicateTransaction,
+  formatCurrency,
+  formatDisplayDate,
+  getAdjacentTransactionIds,
+  getPurchaseTransactionById
+} from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
 // Fourth details page in this repo (after Invoice, Order, Request), built
@@ -317,7 +372,11 @@ const quote = computed(() => {
 });
 const adjacent = computed(() => getAdjacentTransactionIds(id.value));
 
-useHead({ title: computed(() => (quote.value ? `${quote.value.number} — Mekari Jurnal` : "Quote not found — Mekari Jurnal")) });
+useHead({
+  title: computed(() =>
+    quote.value ? `${quote.value.number} — Mekari Jurnal` : "Quote not found — Mekari Jurnal"
+  )
+});
 
 const isDeleteModalOpen = ref(false);
 
@@ -347,12 +406,28 @@ function onDelete() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const topRowClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start" });
-const balanceColClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right" });
+const topRowClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const balanceColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right"
+});
 
 const dividerClass = css({ my: 6 });
 
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, mb: 8 });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  mb: 8
+});
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 4 });
 // minWidth:0 — a grid/flex item's implicit min-width is its content's natural
 // width, which lets a long value (the email tag below, e.g.) overflow past
@@ -374,16 +449,46 @@ const lineCaptionClass = css({ mt: 3, mb: 3 });
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });
 // On an inline child inside a cell (MpTag / MpTextlink) that ships its own
 // nowrap — these are not the cell, so an inline-block box is correct here.
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
+const wrapInlineClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  maxWidth: "full",
+  display: "inline-block",
+  textAlign: "left"
+});
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "240px" });
-const totalsColClass = css({ display: "flex", flexDirection: "column", gap: 2, width: "40%", minWidth: "280px" });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap"
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "240px"
+});
+const totalsColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 2,
+  width: "40%",
+  minWidth: "280px"
+});
 const totalsRowClass = css({ display: "flex", justifyContent: "space-between", gap: 3 });
 
 const lastUpdatedClass = css({ display: "block", mt: 6, fontSize: "sm" });
 
-const notFoundClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const notFoundClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const notFoundTitleClass = css({ fontSize: "lg" });
 const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const notFoundDescClass = css({ maxWidth: "320px" });
@@ -398,6 +503,6 @@ const bottomActionsClass = css({
   mt: 8,
   pt: 6,
   borderTopWidth: "sm",
-  borderColor: "gray.100",
+  borderColor: "gray.100"
 });
 </script>

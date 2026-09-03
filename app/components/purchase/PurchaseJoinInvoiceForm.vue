@@ -3,7 +3,9 @@
     <template v-if="!isEdit" #actions>
       <div :class="typeSelectClass">
         <MpSelect :model-value="'join_invoice'" is-full-width @update:model-value="onTypeSwitch">
-          <option v-for="opt in TYPE_SWITCH_OPTIONS" :key="opt.type" :value="opt.type">{{ opt.label }}</option>
+          <option v-for="opt in TYPE_SWITCH_OPTIONS" :key="opt.type" :value="opt.type">
+            {{ opt.label }}
+          </option>
         </MpSelect>
       </div>
     </template>
@@ -55,11 +57,23 @@
       <div :class="metaColClass">
         <MpFormControl>
           <MpFormLabel>Transaction date</MpFormLabel>
-          <MpDatePicker v-model="form.transactionDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+          <MpDatePicker
+            v-model="form.transactionDateIso"
+            value-type="string"
+            :format="DATE_INPUT_FORMAT"
+            placeholder="DD/MM/YYYY"
+            use-portal
+          />
         </MpFormControl>
         <MpFormControl is-required :is-invalid="submitted && !form.dueDateIso">
           <MpFormLabel>Due date</MpFormLabel>
-          <MpDatePicker v-model="form.dueDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+          <MpDatePicker
+            v-model="form.dueDateIso"
+            value-type="string"
+            :format="DATE_INPUT_FORMAT"
+            placeholder="DD/MM/YYYY"
+            use-portal
+          />
         </MpFormControl>
       </div>
 
@@ -73,7 +87,11 @@
               </MpTooltip>
             </span>
           </MpFormLabel>
-          <MpInput v-model="form.transactionNo" :placeholder="isEdit ? '' : 'Join Invoice - [AUTO]'" is-full-width />
+          <MpInput
+            v-model="form.transactionNo"
+            :placeholder="isEdit ? '' : 'Join Invoice - [AUTO]'"
+            is-full-width
+          />
         </MpFormControl>
         <MpFormControl>
           <MpFormLabel>Terms of payment</MpFormLabel>
@@ -120,19 +138,36 @@
             <MpTableCell as="td" :class="wrapCellClass">{{ inv.memo || "—" }}</MpTableCell>
             <MpTableCell as="td">{{ formatDisplayDate(inv.dueDateSort) }}</MpTableCell>
             <MpTableCell as="td">
-              <MpBadge for="tableStatus" :type="PURCHASE_STATUS_TYPE[inv.status]">{{ PURCHASE_STATUS_LABEL[inv.status] }}</MpBadge>
+              <MpBadge for="tableStatus" :type="PURCHASE_STATUS_TYPE[inv.status]">{{
+                PURCHASE_STATUS_LABEL[inv.status]
+              }}</MpBadge>
             </MpTableCell>
             <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(inv.total) }}</MpTableCell>
-            <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(inv.balanceDue) }}</MpTableCell>
+            <MpTableCell as="td" :class="numCellClass">{{
+              formatCurrency(inv.balanceDue)
+            }}</MpTableCell>
             <MpTableCell as="td">
-              <MpButton variant="ghost" size="sm" left-icon="minus-circular" aria-label="Remove invoice" @click="removeInvoice(inv.id)" />
+              <MpButton
+                variant="ghost"
+                size="sm"
+                left-icon="minus-circular"
+                aria-label="Remove invoice"
+                @click="removeInvoice(inv.id)"
+              />
             </MpTableCell>
           </MpTableRow>
 
           <MpTableRow>
             <MpTableCell as="td" :class="lineCellClass">
-              <MpSelect :model-value="''" :is-disabled="!form.vendorName" is-full-width @update:model-value="addInvoice">
-                <option value="">{{ form.vendorName ? "Search or select invoice" : "Select a vendor first" }}</option>
+              <MpSelect
+                :model-value="''"
+                :is-disabled="!form.vendorName"
+                is-full-width
+                @update:model-value="addInvoice"
+              >
+                <option value="">
+                  {{ form.vendorName ? "Search or select invoice" : "Select a vendor first" }}
+                </option>
                 <option v-for="inv in selectableInvoices" :key="inv.id" :value="String(inv.id)">
                   {{ inv.number }} — {{ formatCurrency(inv.balanceDue) }} outstanding
                 </option>
@@ -144,10 +179,21 @@
       </MpTable>
     </MpTableContainer>
 
-    <MpText v-if="joinedInvoices.length" size="body-small" color="gray.600" :class="lineCaptionClass">
-      Showing {{ joinedInvoices.length }} of {{ joinedInvoices.length }} invoice{{ joinedInvoices.length === 1 ? "" : "s" }}
+    <MpText
+      v-if="joinedInvoices.length"
+      size="body-small"
+      color="gray.600"
+      :class="lineCaptionClass"
+    >
+      Showing {{ joinedInvoices.length }} of {{ joinedInvoices.length }} invoice{{
+        joinedInvoices.length === 1 ? "" : "s"
+      }}
     </MpText>
-    <MpFormControl v-if="submitted && !joinedInvoices.length" :is-invalid="true" :class="lineErrorClass">
+    <MpFormControl
+      v-if="submitted && !joinedInvoices.length"
+      :is-invalid="true"
+      :class="lineErrorClass"
+    >
       <MpFormErrorMessage>Join at least one invoice.</MpFormErrorMessage>
     </MpFormControl>
 
@@ -170,7 +216,10 @@
             is-full-width
             @change="onAttachmentChange"
           />
-          <MpFormHelpText>Files can be Excel, Word, PDF, JPG, PNG, or ZIP (maximum 5 files and 10 MB per file).</MpFormHelpText>
+          <MpFormHelpText
+            >Files can be Excel, Word, PDF, JPG, PNG, or ZIP (maximum 5 files and 10 MB per
+            file).</MpFormHelpText
+          >
         </MpFormControl>
       </div>
 
@@ -186,7 +235,11 @@
       <MpBanner variant="danger" is-inline>
         <MpBannerIcon />
         <MpBannerDescription>
-          {{ missingFields.length === 1 ? "One thing is still missing:" : `${missingFields.length} things are still missing:` }}
+          {{
+            missingFields.length === 1
+              ? "One thing is still missing:"
+              : `${missingFields.length} things are still missing:`
+          }}
           {{ missingFields.join(", ") }}.
         </MpBannerDescription>
       </MpBanner>
@@ -194,7 +247,9 @@
 
     <div :class="actionBarClass">
       <MpButton variant="ghost" @click="onCancel">Cancel</MpButton>
-      <MpButton variant="primary" @click="onSubmit()">{{ isEdit ? "Save changes" : "Save" }}</MpButton>
+      <MpButton variant="primary" @click="onSubmit()">{{
+        isEdit ? "Save changes" : "Save"
+      }}</MpButton>
     </div>
   </DefaultPageContent>
 </template>
@@ -225,7 +280,7 @@ import {
   MpTableRow,
   MpText,
   MpTextarea,
-  MpUpload,
+  MpUpload
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
@@ -245,7 +300,7 @@ import {
   updateTransaction,
   type PurchaseTransaction,
   type PurchaseTransactionInput,
-  type TransactionType,
+  type TransactionType
 } from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
@@ -260,7 +315,9 @@ import {
 const props = defineProps<{ recordId?: number }>();
 
 const isEdit = computed(() => props.recordId != null);
-const existing = computed(() => (props.recordId != null ? getTransactionOfType(props.recordId, "join_invoice") : undefined));
+const existing = computed(() =>
+  props.recordId != null ? getTransactionOfType(props.recordId, "join_invoice") : undefined
+);
 
 const TYPE_SWITCH_OPTIONS: { type: TransactionType; label: string }[] = [
   { type: "invoice", label: TRANSACTION_TYPE_LABEL.invoice },
@@ -268,7 +325,7 @@ const TYPE_SWITCH_OPTIONS: { type: TransactionType; label: string }[] = [
   { type: "order", label: TRANSACTION_TYPE_LABEL.order },
   { type: "quote", label: TRANSACTION_TYPE_LABEL.quote },
   { type: "request", label: TRANSACTION_TYPE_LABEL.request },
-  { type: "delivery", label: TRANSACTION_TYPE_LABEL.delivery },
+  { type: "delivery", label: TRANSACTION_TYPE_LABEL.delivery }
 ];
 function onTypeSwitch(next: unknown) {
   const type = String(next ?? "") as TransactionType;
@@ -285,7 +342,7 @@ const form = reactive({
   transactionNo: "",
   message: "",
   memo: "",
-  joinedInvoiceIds: [] as number[],
+  joinedInvoiceIds: [] as number[]
 });
 const emailText = ref("");
 const attachments = ref<string[]>([]);
@@ -334,7 +391,9 @@ watch(existing, loadFromExisting, { immediate: true });
 // phrase, unlike every other create form's "Create {Entity}". Joining is the
 // action, so "Create Join Invoice" would read as a double verb.
 const pageTitle = computed(() =>
-  isEdit.value ? `Edit ${existing.value?.number ?? "Join Purchase Invoice"}` : "Join Purchase Invoice",
+  isEdit.value
+    ? `Edit ${existing.value?.number ?? "Join Purchase Invoice"}`
+    : "Join Purchase Invoice"
 );
 
 // Changing vendor invalidates the selection — invoices from a different vendor
@@ -345,13 +404,13 @@ watch(
     const vendor = VENDOR_OPTIONS.find((v) => v.name === name);
     if (vendor) form.vendorAddress = vendor.address;
     if (previous && name !== previous) form.joinedInvoiceIds = [];
-  },
+  }
 );
 
 const joinedInvoices = computed<PurchaseTransaction[]>(() =>
   form.joinedInvoiceIds
     .map((id) => getPurchaseTransactionById(id))
-    .filter((t): t is PurchaseTransaction => Boolean(t)),
+    .filter((t): t is PurchaseTransaction => Boolean(t))
 );
 
 // Candidates: this vendor's invoices that still owe something and aren't
@@ -363,7 +422,7 @@ const selectableInvoices = computed<PurchaseTransaction[]>(() => {
       t.type === "invoice" &&
       t.vendorName === form.vendorName &&
       t.balanceDue > 0 &&
-      !form.joinedInvoiceIds.includes(t.id),
+      !form.joinedInvoiceIds.includes(t.id)
   );
 });
 
@@ -380,10 +439,12 @@ function removeInvoice(id: number) {
 // what gets saved.
 const totals = computed(() => ({
   total: joinedInvoices.value.reduce((sum, t) => sum + t.total, 0),
-  balanceDue: joinedInvoices.value.reduce((sum, t) => sum + t.balanceDue, 0),
+  balanceDue: joinedInvoices.value.reduce((sum, t) => sum + t.balanceDue, 0)
 }));
 
-const isValid = computed(() => Boolean(form.vendorName && form.dueDateIso) && joinedInvoices.value.length > 0);
+const isValid = computed(
+  () => Boolean(form.vendorName && form.dueDateIso) && joinedInvoices.value.length > 0
+);
 const missingFields = computed(() => {
   const missing: string[] = [];
   if (!form.vendorName) missing.push("Vendor");
@@ -397,7 +458,10 @@ function buildInput(): PurchaseTransactionInput {
     ...emptyTransactionInput(),
     vendorName: form.vendorName,
     vendorAddress: form.vendorAddress,
-    email: emailText.value.split(",").map((e) => e.trim()).filter(Boolean),
+    email: emailText.value
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean),
     transactionDateIso: dmyToIso(form.transactionDateIso),
     dueDateIso: dmyToIso(form.dueDateIso),
     term: form.term,
@@ -405,7 +469,7 @@ function buildInput(): PurchaseTransactionInput {
     message: form.message,
     memo: form.memo,
     attachments: attachments.value,
-    joinedInvoiceIds: [...form.joinedInvoiceIds],
+    joinedInvoiceIds: [...form.joinedInvoiceIds]
   };
 }
 
@@ -423,14 +487,27 @@ function onSubmit() {
 }
 
 function onCancel() {
-  if (isEdit.value && props.recordId != null) navigateTo(`/purchase/join-invoice/${props.recordId}`);
+  if (isEdit.value && props.recordId != null)
+    navigateTo(`/purchase/join-invoice/${props.recordId}`);
   else navigateTo("/purchase");
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
 const typeSelectClass = css({ width: "200px" });
-const topGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
-const totalPreviewClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right", mt: 6 });
+const topGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const totalPreviewClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right",
+  mt: 6
+});
 const dividerClass = css({ my: 6 });
 // FOUR columns, with the fourth deliberately left empty — not three stretched
 // across the full width. The reference keeps these fields exactly as wide as
@@ -438,13 +515,17 @@ const dividerClass = css({ my: 6 });
 // a `repeat(3, 1fr)` grid makes each field ~33% wider and the whole block runs
 // to the right edge, which reads as a different layout. Empty `<div />` cells
 // are how a row stops early.
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 // The billing-address box is noticeably taller than a single field in the
 // reference — it is expected to hold a multi-line address.
 const addressFieldClass = css({ "& textarea": { minHeight: "108px" } });
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 5 });
-
 
 const scrollShadowClass = css({
   backgroundImage:
@@ -452,7 +533,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const itemsTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "1040px", mt: 8 });
 const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
@@ -463,9 +544,27 @@ const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", text
 const lineCaptionClass = css({ display: "block", mt: 3 });
 const lineErrorClass = css({ mt: 2 });
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", mt: 8 });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 5, width: "25%", minWidth: "260px" });
-const totalsColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "320px" });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+  mt: 8
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 5,
+  width: "25%",
+  minWidth: "260px"
+});
+const totalsColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "320px"
+});
 const totalsCardClass = css({
   display: "flex",
   justifyContent: "space-between",
@@ -475,9 +574,15 @@ const totalsCardClass = css({
   borderColor: "gray.100",
   rounded: "md",
   px: 5,
-  py: 4,
+  py: 4
 });
 
 const validationSummaryClass = css({ display: "flex", justifyContent: "flex-end", mt: 8 });
-const actionBarClass = css({ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2, mt: 8 });
+const actionBarClass = css({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: 2,
+  mt: 8
+});
 </script>

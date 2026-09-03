@@ -3,7 +3,9 @@
     <template v-if="!isEdit" #actions>
       <div :class="typeSelectClass">
         <MpSelect :model-value="'request'" is-full-width @update:model-value="onTypeSwitch">
-          <option v-for="opt in TYPE_SWITCH_OPTIONS" :key="opt.type" :value="opt.type">{{ opt.label }}</option>
+          <option v-for="opt in TYPE_SWITCH_OPTIONS" :key="opt.type" :value="opt.type">
+            {{ opt.label }}
+          </option>
         </MpSelect>
       </div>
     </template>
@@ -63,19 +65,37 @@
 
       <MpFormControl is-required :is-invalid="submitted && !form.transactionDateIso">
         <MpFormLabel>Transaction date</MpFormLabel>
-        <MpDatePicker v-model="form.transactionDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+        <MpDatePicker
+          v-model="form.transactionDateIso"
+          value-type="string"
+          :format="DATE_INPUT_FORMAT"
+          placeholder="DD/MM/YYYY"
+          use-portal
+        />
       </MpFormControl>
 
       <MpFormControl>
         <MpFormLabel>Due date</MpFormLabel>
-        <MpDatePicker v-model="form.dueDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+        <MpDatePicker
+          v-model="form.dueDateIso"
+          value-type="string"
+          :format="DATE_INPUT_FORMAT"
+          placeholder="DD/MM/YYYY"
+          use-portal
+        />
       </MpFormControl>
 
       <MpFormControl is-required :is-invalid="submitted && !form.urgency">
         <MpFormLabel>Urgency level</MpFormLabel>
-        <MpSelect :model-value="form.urgency?.priority ?? ''" is-full-width @update:model-value="onUrgencyChange">
+        <MpSelect
+          :model-value="form.urgency?.priority ?? ''"
+          is-full-width
+          @update:model-value="onUrgencyChange"
+        >
           <option value="">Select urgency</option>
-          <option v-for="u in URGENCY_OPTIONS" :key="u.priority" :value="u.priority">{{ u.label }}</option>
+          <option v-for="u in URGENCY_OPTIONS" :key="u.priority" :value="u.priority">
+            {{ u.label }}
+          </option>
         </MpSelect>
         <MpFormErrorMessage>Urgency level is required.</MpFormErrorMessage>
       </MpFormControl>
@@ -106,7 +126,14 @@
           <option v-for="tag in availableTags" :key="tag" :value="tag">{{ tag }}</option>
         </MpSelect>
         <MpFlex v-if="form.tags.length" gap="2" wrap="wrap" :class="tagListClass">
-          <MpTag v-for="tag in form.tags" :key="tag" variant="gray" size="sm" is-closable @close="removeTag(tag)">
+          <MpTag
+            v-for="tag in form.tags"
+            :key="tag"
+            variant="gray"
+            size="sm"
+            is-closable
+            @close="removeTag(tag)"
+          >
             {{ tag }}
           </MpTag>
         </MpFlex>
@@ -138,11 +165,18 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpSelect v-model="line.product" is-full-width @change="applyProduct(index)">
                 <option value="">Select product</option>
-                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">{{ p.name }}</option>
+                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">
+                  {{ p.name }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
-              <MpTextarea v-model="line.description" placeholder="Enter description" rows="1" is-full-width />
+              <MpTextarea
+                v-model="line.description"
+                placeholder="Enter description"
+                rows="1"
+                is-full-width
+              />
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpInput v-model.number="line.quantity" type="number" is-full-width />
@@ -150,11 +184,19 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpSelect v-model="line.unit" :is-disabled="!line.product" is-full-width>
                 <option value="">Select unit</option>
-                <option v-for="u in unitOptionsFor(line.product)" :key="u" :value="u">{{ u }}</option>
+                <option v-for="u in unitOptionsFor(line.product)" :key="u" :value="u">
+                  {{ u }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
-              <MpButton variant="ghost" size="sm" left-icon="minus-circular" aria-label="Remove line" @click="removeLine(index)" />
+              <MpButton
+                variant="ghost"
+                size="sm"
+                left-icon="minus-circular"
+                aria-label="Remove line"
+                @click="removeLine(index)"
+              />
             </MpTableCell>
           </MpTableRow>
 
@@ -162,7 +204,9 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpSelect :model-value="''" is-full-width @update:model-value="addLineFromProduct">
                 <option value="">Select product</option>
-                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">{{ p.name }}</option>
+                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">
+                  {{ p.name }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell v-for="n in 4" :key="n" as="td" :class="lineCellClass" />
@@ -196,7 +240,10 @@
             is-full-width
             @change="onAttachmentChange"
           />
-          <MpFormHelpText>Files can be Excel, Word, PDF, JPG, PNG, or ZIP (maximum 5 files and 10 MB per file).</MpFormHelpText>
+          <MpFormHelpText
+            >Files can be Excel, Word, PDF, JPG, PNG, or ZIP (maximum 5 files and 10 MB per
+            file).</MpFormHelpText
+          >
         </MpFormControl>
       </div>
 
@@ -212,7 +259,11 @@
       <MpBanner variant="danger" is-inline>
         <MpBannerIcon />
         <MpBannerDescription>
-          {{ missingFields.length === 1 ? "One thing is still missing:" : `${missingFields.length} things are still missing:` }}
+          {{
+            missingFields.length === 1
+              ? "One thing is still missing:"
+              : `${missingFields.length} things are still missing:`
+          }}
           {{ missingFields.join(", ") }}.
         </MpBannerDescription>
       </MpBanner>
@@ -254,7 +305,7 @@ import {
   MpText,
   MpTextarea,
   MpTooltip,
-  MpUpload,
+  MpUpload
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
@@ -272,7 +323,7 @@ import {
   updateTransaction,
   type PurchaseTransaction,
   type PurchaseTransactionInput,
-  type TransactionType,
+  type TransactionType
 } from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
@@ -289,7 +340,9 @@ import {
 const props = defineProps<{ recordId?: number }>();
 
 const isEdit = computed(() => props.recordId != null);
-const existing = computed(() => (props.recordId != null ? getTransactionOfType(props.recordId, "request") : undefined));
+const existing = computed(() =>
+  props.recordId != null ? getTransactionOfType(props.recordId, "request") : undefined
+);
 
 const TYPE_SWITCH_OPTIONS: { type: TransactionType; label: string }[] = [
   { type: "invoice", label: TRANSACTION_TYPE_LABEL.invoice },
@@ -297,7 +350,7 @@ const TYPE_SWITCH_OPTIONS: { type: TransactionType; label: string }[] = [
   { type: "order", label: TRANSACTION_TYPE_LABEL.order },
   { type: "quote", label: TRANSACTION_TYPE_LABEL.quote },
   { type: "request", label: TRANSACTION_TYPE_LABEL.request },
-  { type: "delivery", label: TRANSACTION_TYPE_LABEL.delivery },
+  { type: "delivery", label: TRANSACTION_TYPE_LABEL.delivery }
 ];
 function onTypeSwitch(next: unknown) {
   const type = String(next ?? "") as TransactionType;
@@ -324,7 +377,9 @@ const form = reactive({
   // on the detail page (for records that came from elsewhere), so a request
   // created here leaves it blank rather than inventing a value.
   requestorEmail: "",
-  urgency: URGENCY_OPTIONS.find((u) => u.priority === "medium") ?? null as PurchaseTransaction["urgency"],
+  urgency:
+    URGENCY_OPTIONS.find((u) => u.priority === "medium") ??
+    (null as PurchaseTransaction["urgency"]),
   procurementStaff: "",
   vendorName: "",
   vendorAddress: "",
@@ -335,7 +390,7 @@ const form = reactive({
   tags: [] as string[],
   message: "",
   memo: "",
-  lines: [] as LineForm[],
+  lines: [] as LineForm[]
 });
 const emailText = ref("");
 const attachments = ref<string[]>([]);
@@ -377,7 +432,7 @@ function loadFromExisting() {
     product: l.product,
     description: l.description,
     quantity: l.quantity,
-    unit: l.unit,
+    unit: l.unit
   }));
   emailText.value = r.email.join(", ");
   attachments.value = [...r.attachments];
@@ -385,7 +440,9 @@ function loadFromExisting() {
 watch(existing, loadFromExisting, { immediate: true });
 
 const pageTitle = computed(() =>
-  isEdit.value ? `Edit ${existing.value?.number ?? TRANSACTION_TYPE_LABEL.request}` : `Create ${TRANSACTION_TYPE_LABEL.request}`,
+  isEdit.value
+    ? `Edit ${existing.value?.number ?? TRANSACTION_TYPE_LABEL.request}`
+    : `Create ${TRANSACTION_TYPE_LABEL.request}`
 );
 
 watch(
@@ -393,7 +450,7 @@ watch(
   (name) => {
     const vendor = VENDOR_OPTIONS.find((v) => v.name === name);
     if (vendor) form.vendorAddress = vendor.address;
-  },
+  }
 );
 
 function onUrgencyChange(next: unknown) {
@@ -438,10 +495,15 @@ function onAttachmentChange(event: Event) {
   attachments.value = files ? [...files].map((f) => f.name) : [];
 }
 
-const totalItems = computed(() => form.lines.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0));
+const totalItems = computed(() =>
+  form.lines.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0)
+);
 const hasValidLine = computed(() => form.lines.some((l) => l.product && l.quantity > 0));
 const isValid = computed(
-  () => Boolean(form.procurementStaff && form.requestorEmail && form.transactionDateIso && form.urgency) && hasValidLine.value,
+  () =>
+    Boolean(
+      form.procurementStaff && form.requestorEmail && form.transactionDateIso && form.urgency
+    ) && hasValidLine.value
 );
 const missingFields = computed(() => {
   const missing: string[] = [];
@@ -458,7 +520,10 @@ function buildInput(): PurchaseTransactionInput {
     ...emptyTransactionInput(),
     vendorName: form.vendorName,
     vendorAddress: form.vendorAddress,
-    email: emailText.value.split(",").map((e) => e.trim()).filter(Boolean),
+    email: emailText.value
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean),
     transactionDateIso: dmyToIso(form.transactionDateIso),
     dueDateIso: dmyToIso(form.dueDateIso),
     transactionNo: form.transactionNo,
@@ -473,7 +538,15 @@ function buildInput(): PurchaseTransactionInput {
     // Quantities only — createTransaction drops price/tax for a non-money type.
     lines: form.lines
       .filter((l) => l.product && l.quantity > 0)
-      .map((l) => ({ product: l.product, description: l.description, unit: l.unit, quantity: l.quantity, unitPrice: 0, discountPercent: 0, tax: "" })),
+      .map((l) => ({
+        product: l.product,
+        description: l.description,
+        unit: l.unit,
+        quantity: l.quantity,
+        unitPrice: 0,
+        discountPercent: 0,
+        tax: ""
+      }))
   };
 }
 
@@ -503,7 +576,12 @@ const typeSelectClass = css({ width: "200px" });
 // the ones above them; `repeat(3, 1fr)` makes each ~33% wider and runs the
 // block to the right edge, which reads as a different layout. Empty `<div />`
 // cells are how a row stops early.
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 const stackedPairClass = css({ display: "flex", flexDirection: "column", gap: 5 });
 const addressFieldClass = css({ "& textarea": { minHeight: "120px" } });
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
@@ -515,16 +593,34 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const itemsTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "760px", mt: 8 });
 const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const lineCellClass = css({ verticalAlign: "top" });
 const lineErrorClass = css({ mt: 2 });
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", mt: 8 });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 5, width: "25%", minWidth: "260px" });
-const totalsColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "320px" });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+  mt: 8
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 5,
+  width: "25%",
+  minWidth: "260px"
+});
+const totalsColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "320px"
+});
 const totalItemsCardClass = css({
   display: "flex",
   justifyContent: "space-between",
@@ -534,9 +630,15 @@ const totalItemsCardClass = css({
   borderColor: "gray.100",
   rounded: "md",
   px: 5,
-  py: 4,
+  py: 4
 });
 
 const validationSummaryClass = css({ display: "flex", justifyContent: "flex-end", mt: 8 });
-const actionBarClass = css({ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2, mt: 8 });
+const actionBarClass = css({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: 2,
+  mt: 8
+});
 </script>

@@ -35,7 +35,9 @@
 
     <div v-if="!record" :class="notFoundClass">
       <img src="/illustrations/search-not-found.png" alt="" :class="notFoundIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass">Purchase return not found</MpText>
+      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass"
+        >Purchase return not found</MpText
+      >
       <MpText size="body-small" color="gray.600" :class="notFoundDescClass">
         This purchase return may have been deleted, or the link you followed may be out of date.
       </MpText>
@@ -49,20 +51,41 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ record.vendorName }}</MpTextlink>
+          <MpTextlink
+            :class="textlinkAlignClass"
+            as="button"
+            variant="primary"
+            @click="onAction('view-vendor')"
+            >{{ record.vendorName }}</MpTextlink
+          >
         </div>
 
         <div :class="metaFieldClass">
           <MpText color="gray.600">Email</MpText>
           <MpFlex v-if="record.email.length" gap="2" flex-wrap="wrap">
-            <MpTag v-for="email in record.email" :key="email" variant="gray" size="sm" :class="wrapInlineClass">{{ email }}</MpTag>
+            <MpTag
+              v-for="email in record.email"
+              :key="email"
+              variant="gray"
+              size="sm"
+              :class="wrapInlineClass"
+              >{{ email }}</MpTag
+            >
           </MpFlex>
           <MpText v-else>—</MpText>
         </div>
 
         <div :class="balanceColClass">
-          <MpText weight="semiBold" color="dark">Total return {{ formatCurrency(record.total) }}</MpText>
-          <MpTextlink :class="textlinkAlignClass" as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
+          <MpText weight="semiBold" color="dark"
+            >Total return {{ formatCurrency(record.total) }}</MpText
+          >
+          <MpTextlink
+            :class="textlinkAlignClass"
+            as="button"
+            variant="secondary"
+            @click="onAction('journal-entry')"
+            >View journal entry</MpTextlink
+          >
         </div>
       </div>
 
@@ -94,7 +117,9 @@
           </div>
           <div :class="metaFieldClass">
             <MpText color="gray.600">Shipping date</MpText>
-            <MpText>{{ record.shippingDateSort ? formatDisplayDate(record.shippingDateSort) : "—" }}</MpText>
+            <MpText>{{
+              record.shippingDateSort ? formatDisplayDate(record.shippingDateSort) : "—"
+            }}</MpText>
           </div>
         </div>
 
@@ -114,16 +139,26 @@
           </div>
           <div :class="metaFieldClass">
             <MpText color="gray.600">Invoice date</MpText>
-            <MpText>{{ linkedInvoice ? formatDisplayDate(linkedInvoice.transactionDateSort) : "—" }}</MpText>
+            <MpText>{{
+              linkedInvoice ? formatDisplayDate(linkedInvoice.transactionDateSort) : "—"
+            }}</MpText>
           </div>
           <div v-if="record.warehouse" :class="metaFieldClass">
             <MpText color="gray.600">Warehouse</MpText>
-            <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-warehouse')">{{ record.warehouse }}</MpTextlink>
+            <MpTextlink
+              :class="textlinkAlignClass"
+              as="button"
+              variant="primary"
+              @click="onAction('view-warehouse')"
+              >{{ record.warehouse }}</MpTextlink
+            >
           </div>
           <div :class="metaFieldClass">
             <MpText color="gray.600">Tags</MpText>
             <MpFlex v-if="record.tags.length" gap="2" flex-wrap="wrap">
-              <MpTag v-for="tag in record.tags" :key="tag" variant="gray" size="sm">{{ tag }}</MpTag>
+              <MpTag v-for="tag in record.tags" :key="tag" variant="gray" size="sm">{{
+                tag
+              }}</MpTag>
             </MpFlex>
             <MpText v-else>—</MpText>
           </div>
@@ -156,20 +191,34 @@
           <MpTableBody>
             <MpTableRow v-for="line in record.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink
+                  as="button"
+                  variant="primary"
+                  :class="textlinkCellClass"
+                  @click="onAction('view-product')"
+                  >{{ line.product }}</MpTextlink
+                >
               </MpTableCell>
-              <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
+              <MpTableCell as="td" :class="wrapCellClass">{{
+                line.description || "—"
+              }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
               <MpTableCell as="td">{{ line.unit }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(line.unitPrice) }}</MpTableCell>
+              <MpTableCell as="td" :class="numCellClass">{{
+                formatCurrency(line.unitPrice)
+              }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.discountPercent }}%</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ formatCurrency(line.amount) }}</MpTableCell>
+              <MpTableCell as="td" :class="numCellClass">{{
+                formatCurrency(line.amount)
+              }}</MpTableCell>
             </MpTableRow>
           </MpTableBody>
         </MpTable>
       </MpTableContainer>
       <MpText size="body-small" color="gray.600" :class="lineCaptionClass">
-        Showing {{ record.lines.length }} from {{ record.lines.length }} product{{ record.lines.length === 1 ? "" : "s" }}
+        Showing {{ record.lines.length }} from {{ record.lines.length }} product{{
+          record.lines.length === 1 ? "" : "s"
+        }}
       </MpText>
 
       <MpDivider variant="dashed" :class="dividerClass" />
@@ -215,15 +264,28 @@
         </div>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
-        Last updated by Rizal Candra on {{ formatDisplayDate(record.transactionDateSort) }} 09:00:00 AM GMT +7
+      <MpTextlink
+        as="button"
+        variant="secondary"
+        :class="[lastUpdatedClass, textlinkAlignClass]"
+        @click="onAction('view-audit-log')"
+      >
+        Last updated by Rizal Candra on {{ formatDisplayDate(record.transactionDateSort) }} 09:00:00
+        AM GMT +7
       </MpTextlink>
 
       <div :class="bottomActionsClass">
-        <MpButton v-if="record.status !== 'closed'" variant="ghost" @click="isDeleteModalOpen = true">Delete</MpButton>
+        <MpButton
+          v-if="record.status !== 'closed'"
+          variant="ghost"
+          @click="isDeleteModalOpen = true"
+          >Delete</MpButton
+        >
         <div v-else />
         <MpFlex gap="2">
-          <MpButton variant="secondary" @click="navigateTo(`/purchase/return/edit/${record.id}`)">Edit</MpButton>
+          <MpButton variant="secondary" @click="navigateTo(`/purchase/return/edit/${record.id}`)"
+            >Edit</MpButton
+          >
           <MpPopover placement="bottom-end" use-portal is-adaptive-width>
             <template #default>
               <MpPopoverTrigger>
@@ -231,8 +293,12 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onAction('print')">Print</MpPopoverListItem>
-                  <MpPopoverListItem role="menuitem" @click="onAction('share')">Share</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onAction('print')"
+                    >Print</MpPopoverListItem
+                  >
+                  <MpPopoverListItem role="menuitem" @click="onAction('share')"
+                    >Share</MpPopoverListItem
+                  >
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -244,8 +310,14 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onDuplicate">Duplicate transaction</MpPopoverListItem>
-                  <MpPopoverListItem v-if="linkedInvoice" role="menuitem" @click="navigateTo(`/purchase/invoice/${linkedInvoice.id}`)">
+                  <MpPopoverListItem role="menuitem" @click="onDuplicate"
+                    >Duplicate transaction</MpPopoverListItem
+                  >
+                  <MpPopoverListItem
+                    v-if="linkedInvoice"
+                    role="menuitem"
+                    @click="navigateTo(`/purchase/invoice/${linkedInvoice.id}`)"
+                  >
                     View purchase invoice
                   </MpPopoverListItem>
                 </MpPopoverList>
@@ -306,7 +378,7 @@ import {
   MpTag,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
@@ -318,7 +390,7 @@ import {
   formatDisplayDate,
   getAdjacentTransactionIds,
   getPurchaseTransactionById,
-  getTransactionOfType,
+  getTransactionOfType
 } from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
@@ -338,13 +410,17 @@ const recordId = computed(() => Number(route.params.id));
 const record = computed(() => getTransactionOfType(recordId.value, "return"));
 
 const linkedInvoice = computed(() =>
-  record.value?.linkedInvoiceId != null ? getPurchaseTransactionById(record.value.linkedInvoiceId) : undefined,
+  record.value?.linkedInvoiceId != null
+    ? getPurchaseTransactionById(record.value.linkedInvoiceId)
+    : undefined
 );
 
 const adjacent = computed(() => getAdjacentTransactionIds(recordId.value));
 const isDeleteModalOpen = ref(false);
 
-useHead({ title: computed(() => `${record.value?.number ?? "Purchase return not found"} — Mekari Jurnal`) });
+useHead({
+  title: computed(() => `${record.value?.number ?? "Purchase return not found"} — Mekari Jurnal`)
+});
 
 function goTo(id: number | null) {
   if (id) navigateTo(`/purchase/return/${id}`);
@@ -367,10 +443,27 @@ function onDelete() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const topRowClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start" });
-const balanceColClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right" });
+const topRowClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const balanceColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right"
+});
 const dividerClass = css({ my: 6 });
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start", mb: 8 });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start",
+  mb: 8
+});
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 5 });
 const metaFieldClass = css({ display: "flex", flexDirection: "column", gap: 1, minWidth: "0" });
 
@@ -380,7 +473,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const tableFixedClass = css({ tableLayout: "fixed", width: "full", minWidth: "900px" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
@@ -390,12 +483,35 @@ const numCellClass = css({ textAlign: "right" });
 // rows render visibly ragged (see docs/patterns/details-page-format.md).
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });
 // On an inline child inside a cell (MpTag / MpTextlink) that ships its own nowrap.
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
+const wrapInlineClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  maxWidth: "full",
+  display: "inline-block",
+  textAlign: "left"
+});
 const lineCaptionClass = css({ display: "block", mt: 3 });
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 5, width: "50%", minWidth: "260px" });
-const totalsColClass = css({ display: "flex", flexDirection: "column", gap: 3, width: "40%", minWidth: "280px" });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap"
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 5,
+  width: "50%",
+  minWidth: "260px"
+});
+const totalsColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 3,
+  width: "40%",
+  minWidth: "280px"
+});
 const totalsRowClass = css({ display: "flex", justifyContent: "space-between", gap: 3 });
 
 const lastUpdatedClass = css({ display: "inline-block", mt: 8 });
@@ -407,10 +523,17 @@ const bottomActionsClass = css({
   mt: 8,
   pt: 5,
   borderTopWidth: "sm",
-  borderColor: "gray.100",
+  borderColor: "gray.100"
 });
 
-const notFoundClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const notFoundClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const notFoundTitleClass = css({ fontSize: "lg" });
 const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const notFoundDescClass = css({ maxWidth: "320px" });

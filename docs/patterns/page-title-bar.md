@@ -37,16 +37,16 @@ not optional — it is the frame the white `PageStage` hangs from.
 
 ## Props & slots
 
-| API             | Type     | Notes                                                                                    |
-| --------------- | -------- | ------------------------------------------------------------------------------------------ |
-| `title`         | `string` | Falls back to `activePageTitle` from the menu so stub pages stay short.                   |
-| `subtitle`      | `string` | Optional `body-small / gray.600` line under the heading.                                  |
-| `breadcrumb`    | `string` | Optional link label above the title (e.g. `"Purchases"`) — for a details page one level under a list page. Omit on a list page itself. |
-| `breadcrumbTo`  | `string` | Route the breadcrumb navigates to (e.g. `"/purchase"`).                                   |
-| `#title-badge`  | slot     | Renders inline right after the title text — a details page's [`StatusBadge`](./StatusBadge.md) goes here, not in the body. |
-| `#actions`      | slot     | Right-aligned action row (see rules).                                                     |
-| `#tabs`         | slot     | Page-level tab strip — see [`Tabs`](./Tabs.md).                                           |
-| _default_       | slot     | The page body, rendered inside the white `PageStage`.                                     |
+| API            | Type     | Notes                                                                                                                                  |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`        | `string` | Falls back to `activePageTitle` from the menu so stub pages stay short.                                                                |
+| `subtitle`     | `string` | Optional `body-small / gray.600` line under the heading.                                                                               |
+| `breadcrumb`   | `string` | Optional link label above the title (e.g. `"Purchases"`) — for a details page one level under a list page. Omit on a list page itself. |
+| `breadcrumbTo` | `string` | Route the breadcrumb navigates to (e.g. `"/purchase"`).                                                                                |
+| `#title-badge` | slot     | Renders inline right after the title text — a details page's [`StatusBadge`](./StatusBadge.md) goes here, not in the body.             |
+| `#actions`     | slot     | Right-aligned action row (see rules).                                                                                                  |
+| `#tabs`        | slot     | Page-level tab strip — see [`Tabs`](./Tabs.md).                                                                                        |
+| _default_      | slot     | The page body, rendered inside the white `PageStage`.                                                                                  |
 
 `breadcrumb`/`breadcrumbTo` and `#title-badge` make the title band taller than
 the standard height when used — it's a `min-height`, not a fixed `height`, so

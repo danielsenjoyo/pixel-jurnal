@@ -57,7 +57,7 @@ by a bulk-action bar: the select-all checkbox + `{n} selected` + a primary
   Total labels at exactly the moment the user is deciding which rows to act on,
   leaving two adjacent money columns unlabelled. The Purchase list shipped that
   way and it was caught in the design audit (`NNG · H6`); it now renders a
-  `colspan` bulk row *above* an intact header, so selection costs nothing.
+  `colspan` bulk row _above_ an intact header, so selection costs nothing.
 - **Give a destructive bulk action `variant="danger"`.** A plain ghost "Delete"
   beside a solid "Print PDF" inverts the visual hierarchy relative to risk — the
   irreversible action reads as the least prominent control. A confirm

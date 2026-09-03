@@ -85,7 +85,7 @@ counts by status, …). Omit entirely on pages with no headline numbers.
   millions while a search renders "not found" (`CHOICE · Contextual`, `reports/`).
   **Two ways out, and the reference picks the second.** Either scope the
   figures to the same query that feeds the table, or keep them global and
-  *say so in the caption*. Purchases does the latter: the boxes are always the
+  _say so in the caption_. Purchases does the latter: the boxes are always the
   all-time invoice figures and don't move when you change tab, filter or
   search, and the caption reads **"Balance is for all time period, unless
   stated otherwise"**. That works because the labels are themselves
@@ -95,6 +95,6 @@ counts by status, …). Omit entirely on pages with no headline numbers.
   undone: it forced every metric to be one that made sense for every type,
   which is how "Payments sent last 30 days" became a meaningless "Total value".
 - **A click on a scoped box should land you where the figure came from.** These
-  boxes describe invoices, so clicking one switches to the Invoice tab *and*
+  boxes describe invoices, so clicking one switches to the Invoice tab _and_
   applies that status. Filtering in place would contradict the number just
   clicked whenever another tab was open.

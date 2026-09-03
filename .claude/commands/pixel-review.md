@@ -48,7 +48,7 @@ already gave you:
 
 1. **`$ARGUMENTS`** — any URL found is the prototype URL (or the PRD/doc URL, if it looks like
    Confluence/Coda/Superhuman); non-URL text is the flow/feature instruction, e.g. `"create ticket
-   flow"` in `"create ticket flow https://prototype.example.com/tickets/all-tickets"`.
+flow"` in `"create ticket flow https://prototype.example.com/tickets/all-tickets"`.
 2. **The current conversation**, if `/pixel-review` is running in the same session as the "vibe
    coding" (implementing/iterating) work that came right before it — don't make the user restate
    context you already have from watching them build it:
@@ -76,10 +76,10 @@ If the user skips PRD URL, set `prd_skipped = true`.
 **Determine review mode:**
 
 | Condition                                           | Mode                  |
-| --------------------------------------------------- | ---------------------- |
-| PRD URL given                                       | **PRD mode**           |
-| No PRD URL, but a flow/feature instruction is given | **Instruction mode**   |
-| Neither PRD URL nor flow/feature instruction given  | **BFS fallback mode**  |
+| --------------------------------------------------- | --------------------- |
+| PRD URL given                                       | **PRD mode**          |
+| No PRD URL, but a flow/feature instruction is given | **Instruction mode**  |
+| Neither PRD URL nor flow/feature instruction given  | **BFS fallback mode** |
 
 BFS fallback mode crawls the entire app's top-level navigation and produces a broad, shallow report —
 only use it when the user has given no scope at all. Prefer instruction mode whenever any flow or
@@ -189,11 +189,11 @@ table, and mapping rules below.
 **`trigger` format** — comma-separated steps executed in order before the screenshot:
 
 | Step                      | Action                                                                                                                                                                                                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `null`                    | No interaction — just screenshot                                                                                                                                                                                            |
 | `click:<css-selector>`    | Click element by CSS selector                                                                                                                                                                                               |
 | `click-text:<label>`      | Click a `button`/`a`/`[role=button]`/`.mp-button` by exact text content                                                                                                                                                     |
-| `select-text:<label>`     | Click a dropdown/autocomplete option row by exact text — broader match than `click-text` (also matches `li`, `[role=option]`, popover/list items), use for autocomplete/popover-list options that aren't real buttons     |
+| `select-text:<label>`     | Click a dropdown/autocomplete option row by exact text — broader match than `click-text` (also matches `li`, `[role=option]`, popover/list items), use for autocomplete/popover-list options that aren't real buttons       |
 | `type:<selector>\|<text>` | Click `<selector>` to focus it, then type `<text>` via real keystrokes (fires input/autocomplete listeners). Omit `<selector>\|` to type into whatever already has focus (chain right after a `click:`/`select-text:` step) |
 | `wait:<ms>`               | Wait N milliseconds                                                                                                                                                                                                         |
 | `scroll`                  | Scroll to page bottom                                                                                                                                                                                                       |
@@ -360,10 +360,10 @@ The exact mechanism, so you understand what the report will show even though you
   points. Every **active** (not dismissed) finding tagged to a principle/heuristic deducts from it:
 
   | Severity | CHOICE (per principle, starts 100) | NNG (per heuristic, starts 10) |
-  | -------- | ----------------------------------- | -------------------------------- |
-  | Critical | −40                                  | −10                               |
-  | Major    | −20                                  | −5                                |
-  | Minor    | −8                                   | −2                                |
+  | -------- | ---------------------------------- | ------------------------------ |
+  | Critical | −40                                | −10                            |
+  | Major    | −20                                | −5                             |
+  | Minor    | −8                                 | −2                             |
 
   (Multiple findings on the same principle/heuristic sum their deductions, floored at 0. The CHOICE
   column is exactly 4× the NNG column — deliberate: NNG sums its 10 heuristics directly into
@@ -403,23 +403,23 @@ node /tmp/gen-pixel-report.mjs
 
 ### Placeholder reference
 
-| Placeholder                   | What to put                                                                                                                                                                       |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `{{TITLE}}`                   | `Pixel Review — <page-name> — branch: <branch>`                                                                                                                                   |
-| `{{HEADLINE}}`                | One punchy sentence summarising the overall finding — **no score number**, describe qualitatively   |
-| `{{SUBTITLE_HTML}}`           | 2–3 sentence executive summary; wrap key terms in `<strong>` — **no score number** either            |
-| `{{PROTOTYPE_URL}}`           | Full URL including path                                                                                                                                                           |
-| `{{REVIEW_DATE}}`             | ISO date e.g. `2026-08-12`                                                                                                                                                        |
-| `{{META_STATS}}`              | e.g. `3 rute · 7 states · 19 US dikaji`                                                                                                                                           |
-| `{{PRD_GAP_ROWS_HTML}}`       | Only the `<tr>` rows for each US; if PRD skipped, inject one row: `<tr><td colspan="4" style="text-align:center;color:var(--mp-text-placeholder)">PRD tidak disertakan</td></tr>` |
-| `{{WALKTHROUGH_STATES_HTML}}` | One card per state with a Minor+ finding only — skip Passed states, no card for them. Count is not fixed. See HTML comments in template for card markup structure.                |
-| `{{CROSSFLOW_TITLE}}`         | Section 02 heading e.g. `CHOICE & NNG — Keseluruhan Halaman`                                                                                                                      |
-| `{{CROSSFLOW_ANALYSIS_HTML}}` | Cross-flow prose paragraph                                                                                                                                                        |
-| `{{AI_UT_PERSONAS_HTML}}`     | All persona cards (see HTML comments in template)                                                                                                                                 |
-| `{{AI_UT_INSIGHT}}`           | 1–2 sentence aggregate insight across personas                                                                                                                                    |
+| Placeholder                   | What to put                                                                                                                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `{{TITLE}}`                   | `Pixel Review — <page-name> — branch: <branch>`                                                                                                                                              |
+| `{{HEADLINE}}`                | One punchy sentence summarising the overall finding — **no score number**, describe qualitatively                                                                                            |
+| `{{SUBTITLE_HTML}}`           | 2–3 sentence executive summary; wrap key terms in `<strong>` — **no score number** either                                                                                                    |
+| `{{PROTOTYPE_URL}}`           | Full URL including path                                                                                                                                                                      |
+| `{{REVIEW_DATE}}`             | ISO date e.g. `2026-08-12`                                                                                                                                                                   |
+| `{{META_STATS}}`              | e.g. `3 rute · 7 states · 19 US dikaji`                                                                                                                                                      |
+| `{{PRD_GAP_ROWS_HTML}}`       | Only the `<tr>` rows for each US; if PRD skipped, inject one row: `<tr><td colspan="4" style="text-align:center;color:var(--mp-text-placeholder)">PRD tidak disertakan</td></tr>`            |
+| `{{WALKTHROUGH_STATES_HTML}}` | One card per state with a Minor+ finding only — skip Passed states, no card for them. Count is not fixed. See HTML comments in template for card markup structure.                           |
+| `{{CROSSFLOW_TITLE}}`         | Section 02 heading e.g. `CHOICE & NNG — Keseluruhan Halaman`                                                                                                                                 |
+| `{{CROSSFLOW_ANALYSIS_HTML}}` | Cross-flow prose paragraph                                                                                                                                                                   |
+| `{{AI_UT_PERSONAS_HTML}}`     | All persona cards (see HTML comments in template)                                                                                                                                            |
+| `{{AI_UT_INSIGHT}}`           | 1–2 sentence aggregate insight across personas                                                                                                                                               |
 | `{{FD_JSON}}`                 | JS object: `{ fN: { d:'title', sc:'Screen/State', fw:'FW · Principle', sv:'Critical\|Major\|Minor' } }` — the report's JS computes CHOICE/NNG/Overall/verdict from this, see "Scoring" above |
-| `{{PRD_SCORE}}`               | Score integer or `N/A`                                                                                                                                                            |
-| `{{EXPORT_FILENAME}}`         | `<branch-slug>-<YYYYMMDD>[-N]-pixel-review.md`                                                                                                                                    |
+| `{{PRD_SCORE}}`               | Score integer or `N/A`                                                                                                                                                                       |
+| `{{EXPORT_FILENAME}}`         | `<branch-slug>-<YYYYMMDD>[-N]-pixel-review.md`                                                                                                                                               |
 
 `{{SCORE_OVERALL}}`, `{{SCORE_CHOICE}}`, `{{SCORE_NNG}}`, `{{VERDICT_BADGE}}`, `{{VERDICT_TEXT}}`, and
 `{{SCORE_LEGEND_HTML}}` **do not exist as placeholders** — the template computes and fills all of them

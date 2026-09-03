@@ -6,7 +6,12 @@
     <div :class="topGridClass">
       <MpFormControl :is-disabled="true">
         <MpFormLabel>Vendor</MpFormLabel>
-        <MpInput :model-value="form.vendorName" placeholder="Choose an invoice first" is-read-only is-full-width />
+        <MpInput
+          :model-value="form.vendorName"
+          placeholder="Choose an invoice first"
+          is-read-only
+          is-full-width
+        />
       </MpFormControl>
 
       <MpFormControl :is-disabled="true">
@@ -39,7 +44,9 @@
               {{ inv.number }} — {{ inv.vendorName }}
             </option>
           </MpSelect>
-          <MpFormHelpText v-if="isEdit">A return stays attached to the invoice it was raised from.</MpFormHelpText>
+          <MpFormHelpText v-if="isEdit"
+            >A return stays attached to the invoice it was raised from.</MpFormHelpText
+          >
           <MpFormErrorMessage>Choose the invoice this return credits.</MpFormErrorMessage>
         </MpFormControl>
 
@@ -52,15 +59,33 @@
       <div :class="metaColClass">
         <MpFormControl is-required :is-invalid="submitted && !form.transactionDateIso">
           <MpFormLabel>Transaction date</MpFormLabel>
-          <MpDatePicker v-model="form.transactionDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+          <MpDatePicker
+            v-model="form.transactionDateIso"
+            value-type="string"
+            :format="DATE_INPUT_FORMAT"
+            placeholder="DD/MM/YYYY"
+            use-portal
+          />
         </MpFormControl>
         <MpFormControl>
           <MpFormLabel>Due date</MpFormLabel>
-          <MpDatePicker v-model="form.dueDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+          <MpDatePicker
+            v-model="form.dueDateIso"
+            value-type="string"
+            :format="DATE_INPUT_FORMAT"
+            placeholder="DD/MM/YYYY"
+            use-portal
+          />
         </MpFormControl>
         <MpFormControl>
           <MpFormLabel>Shipping date</MpFormLabel>
-          <MpDatePicker v-model="form.shippingDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+          <MpDatePicker
+            v-model="form.shippingDateIso"
+            value-type="string"
+            :format="DATE_INPUT_FORMAT"
+            placeholder="DD/MM/YYYY"
+            use-portal
+          />
         </MpFormControl>
       </div>
 
@@ -74,7 +99,11 @@
               </MpTooltip>
             </span>
           </MpFormLabel>
-          <MpInput v-model="form.transactionNo" :placeholder="isEdit ? '' : '[Auto]'" is-full-width />
+          <MpInput
+            v-model="form.transactionNo"
+            :placeholder="isEdit ? '' : '[Auto]'"
+            is-full-width
+          />
         </MpFormControl>
         <MpFormControl>
           <MpFormLabel>Shipping address</MpFormLabel>
@@ -102,7 +131,14 @@
           </MpSelect>
         </div>
         <MpFlex v-if="form.tags.length" gap="2" wrap="wrap" :class="tagListClass">
-          <MpTag v-for="tag in form.tags" :key="tag" variant="gray" size="sm" is-closable @close="removeTag(tag)">
+          <MpTag
+            v-for="tag in form.tags"
+            :key="tag"
+            variant="gray"
+            size="sm"
+            is-closable
+            @close="removeTag(tag)"
+          >
             {{ tag }}
           </MpTag>
         </MpFlex>
@@ -146,7 +182,9 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpText>{{ line.product }}</MpText>
             </MpTableCell>
-            <MpTableCell as="td" :class="[lineCellClass, wrapCellClass]">{{ line.description || "—" }}</MpTableCell>
+            <MpTableCell as="td" :class="[lineCellClass, wrapCellClass]">{{
+              line.description || "—"
+            }}</MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpInput
                 v-model.number="line.quantity"
@@ -237,7 +275,9 @@
 
         <div :class="totalsRowClass">
           <MpText size="h3" weight="semiBold" color="dark">Total</MpText>
-          <MpText size="h3" weight="semiBold" color="dark">{{ formatCurrency(totals.total) }}</MpText>
+          <MpText size="h3" weight="semiBold" color="dark">{{
+            formatCurrency(totals.total)
+          }}</MpText>
         </div>
       </div>
     </div>
@@ -246,7 +286,11 @@
       <MpBanner variant="danger" is-inline>
         <MpBannerIcon />
         <MpBannerDescription>
-          {{ missingFields.length === 1 ? "One thing is still missing:" : `${missingFields.length} things are still missing:` }}
+          {{
+            missingFields.length === 1
+              ? "One thing is still missing:"
+              : `${missingFields.length} things are still missing:`
+          }}
           {{ missingFields.join(", ") }}.
         </MpBannerDescription>
       </MpBanner>
@@ -260,11 +304,18 @@
         <MpPopover placement="bottom-end" use-portal is-adaptive-width>
           <template #default>
             <MpPopoverTrigger>
-              <MpButton variant="primary" :class="saveCaretButtonClass" right-icon="caret-down" aria-label="More save options" />
+              <MpButton
+                variant="primary"
+                :class="saveCaretButtonClass"
+                right-icon="caret-down"
+                aria-label="More save options"
+              />
             </MpPopoverTrigger>
             <MpPopoverContent>
               <MpPopoverList>
-                <MpPopoverListItem role="menuitem" @click="onSubmit({ andNew: true })">Save and create another</MpPopoverListItem>
+                <MpPopoverListItem role="menuitem" @click="onSubmit({ andNew: true })"
+                  >Save and create another</MpPopoverListItem
+                >
               </MpPopoverList>
             </MpPopoverContent>
           </template>
@@ -309,7 +360,7 @@ import {
   MpTag,
   MpText,
   MpTextarea,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
@@ -328,7 +379,7 @@ import {
   returnableQuantities,
   updateTransaction,
   type PurchaseTransaction,
-  type PurchaseTransactionInput,
+  type PurchaseTransactionInput
 } from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
@@ -349,7 +400,9 @@ const props = defineProps<{ recordId?: number }>();
 
 const route = useRoute();
 const isEdit = computed(() => props.recordId != null);
-const existing = computed(() => (props.recordId != null ? getTransactionOfType(props.recordId, "return") : undefined));
+const existing = computed(() =>
+  props.recordId != null ? getTransactionOfType(props.recordId, "return") : undefined
+);
 
 interface LineForm {
   key: number;
@@ -379,7 +432,7 @@ const form = reactive({
   tags: [] as string[],
   message: "",
   memo: "",
-  lines: [] as LineForm[],
+  lines: [] as LineForm[]
 });
 const emailText = ref("");
 const priceIncludesTax = ref(false);
@@ -410,7 +463,7 @@ const returnableInvoices = computed<PurchaseTransaction[]>(() =>
     if (form.linkedInvoiceId === t.id) return true;
     const remaining = returnableQuantities(t.id);
     return [...remaining.values()].some((qty) => qty > 0);
-  }),
+  })
 );
 
 /** Rebuilds the line rows from an invoice, capping each at what's returnable.
@@ -433,7 +486,7 @@ function loadLinesFromInvoice(invoiceId: number, keep?: Map<string, number>) {
       unit: l.unit,
       unitPrice: l.unitPrice,
       discountPercent: l.discountPercent,
-      tax: l.tax,
+      tax: l.tax
     };
   });
 }
@@ -467,7 +520,9 @@ function loadFromExisting() {
   form.shippingAddress = r.shippingAddress;
   form.transactionDateIso = isoToDmy(r.transactionDateSort);
   form.dueDateIso = isoToDmy(r.dueDateSort);
-  form.shippingDateIso = r.shippingDateSort ? isoToDmy(r.shippingDateSort) : isoToDmy(r.transactionDateSort);
+  form.shippingDateIso = r.shippingDateSort
+    ? isoToDmy(r.shippingDateSort)
+    : isoToDmy(r.transactionDateSort);
   form.transactionNo = r.number;
   form.warehouse = r.warehouse;
   form.tags = [...r.tags];
@@ -494,11 +549,13 @@ watch(
     applyInvoice(invoice);
     loadLinesFromInvoice(invoice.id);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const pageTitle = computed(() =>
-  isEdit.value ? `Edit ${existing.value?.number ?? TRANSACTION_TYPE_LABEL.return}` : `Create ${TRANSACTION_TYPE_LABEL.return}`,
+  isEdit.value
+    ? `Edit ${existing.value?.number ?? TRANSACTION_TYPE_LABEL.return}`
+    : `Create ${TRANSACTION_TYPE_LABEL.return}`
 );
 
 const availableTags = computed(() => TAG_OPTIONS.filter((t) => !form.tags.includes(t)));
@@ -513,7 +570,9 @@ function removeTag(tag: string) {
 /** Lines whose entered quantity exceeds what's actually returnable. Surfaced
  *  as its own message because the number is per-line, so a generic "invalid"
  *  wouldn't say which product is over. */
-const overReturned = computed(() => form.lines.filter((l) => l.quantity > l.maxQuantity).map((l) => l.product));
+const overReturned = computed(() =>
+  form.lines.filter((l) => l.quantity > l.maxQuantity).map((l) => l.product)
+);
 
 const returnedLines = computed(() => form.lines.filter((l) => l.quantity > 0));
 
@@ -526,15 +585,22 @@ const totals = computed(() =>
       quantity: l.quantity,
       unitPrice: l.unitPrice,
       discountPercent: l.discountPercent,
-      tax: l.tax,
+      tax: l.tax
     })),
-    { discountType: "percent", discountValue: discountValue.value, priceIncludesTax: priceIncludesTax.value },
-  ),
+    {
+      discountType: "percent",
+      discountValue: discountValue.value,
+      priceIncludesTax: priceIncludesTax.value
+    }
+  )
 );
 
 const hasValidLine = computed(() => returnedLines.value.length > 0);
 const isValid = computed(
-  () => Boolean(form.linkedInvoiceId && form.transactionDateIso) && hasValidLine.value && overReturned.value.length === 0,
+  () =>
+    Boolean(form.linkedInvoiceId && form.transactionDateIso) &&
+    hasValidLine.value &&
+    overReturned.value.length === 0
 );
 const missingFields = computed(() => {
   const missing: string[] = [];
@@ -551,7 +617,10 @@ function buildInput(): PurchaseTransactionInput {
     linkedInvoiceId: form.linkedInvoiceId,
     vendorName: form.vendorName,
     vendorAddress: form.vendorAddress,
-    email: emailText.value.split(",").map((e) => e.trim()).filter(Boolean),
+    email: emailText.value
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean),
     transactionDateIso: dmyToIso(form.transactionDateIso),
     dueDateIso: dmyToIso(form.dueDateIso),
     shippingInfo: true,
@@ -572,8 +641,8 @@ function buildInput(): PurchaseTransactionInput {
       quantity: l.quantity,
       unitPrice: l.unitPrice,
       discountPercent: l.discountPercent,
-      tax: l.tax,
-    })),
+      tax: l.tax
+    }))
   };
 }
 
@@ -621,15 +690,39 @@ function onCancel() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const topGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
-const totalPreviewClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right", mt: 6 });
+const topGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const totalPreviewClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right",
+  mt: 6
+});
 const dividerClass = css({ my: 6 });
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 5 });
 const addressFieldClass = css({ "& textarea": { minHeight: "92px" } });
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
 
-const currencyRowClass = css({ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 6, mt: 8, mb: 4 });
+const currencyRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: 6,
+  mt: 8,
+  mb: 4
+});
 const tagFieldClass = css({ width: "240px" });
 const tagListClass = css({ mt: 2 });
 
@@ -639,7 +732,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const itemsTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "1100px" });
 const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
@@ -650,15 +743,48 @@ const numInputClass = css({ textAlign: "right" });
 const emptyCellClass = css({ textAlign: "center", py: "6!" });
 const lineErrorClass = css({ mt: 2 });
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", mt: 8 });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 5, width: "25%", minWidth: "260px" });
-const totalsColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "320px" });
-const totalsRowClass = css({ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 3 });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+  mt: 8
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 5,
+  width: "25%",
+  minWidth: "260px"
+});
+const totalsColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "320px"
+});
+const totalsRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 3
+});
 const totalsDividerClass = css({ my: 1 });
 const discountInputClass = css({ width: "130px" });
 
 const validationSummaryClass = css({ display: "flex", justifyContent: "flex-end", mt: 8 });
-const actionBarClass = css({ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2, mt: 8 });
+const actionBarClass = css({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: 2,
+  mt: 8
+});
 const saveButtonClass = css({ borderRightRadius: "0!" });
-const saveCaretButtonClass = css({ borderLeftRadius: "0!", borderLeftWidth: "sm!", borderLeftColor: "blue.600!" });
+const saveCaretButtonClass = css({
+  borderLeftRadius: "0!",
+  borderLeftWidth: "sm!",
+  borderLeftColor: "blue.600!"
+});
 </script>

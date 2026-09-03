@@ -90,7 +90,14 @@
         <div :class="metaColClass">
           <div :class="metaFieldClass">
             <MpText color="gray.600">Vendor name</MpText>
-            <MpTextlink v-if="request.vendorName" :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ request.vendorName }}</MpTextlink>
+            <MpTextlink
+              v-if="request.vendorName"
+              :class="textlinkAlignClass"
+              as="button"
+              variant="primary"
+              @click="onAction('view-vendor')"
+              >{{ request.vendorName }}</MpTextlink
+            >
             <MpText v-else>—</MpText>
           </div>
           <div :class="metaFieldClass">
@@ -111,7 +118,9 @@
           <div :class="metaFieldClass">
             <MpText color="gray.600">Tags</MpText>
             <MpFlex v-if="request.tags.length" gap="2" flex-wrap="wrap">
-              <MpTag v-for="tag in request.tags" :key="tag" variant="gray" size="sm">{{ tag }}</MpTag>
+              <MpTag v-for="tag in request.tags" :key="tag" variant="gray" size="sm">{{
+                tag
+              }}</MpTag>
             </MpFlex>
             <MpText v-else>—</MpText>
           </div>
@@ -140,9 +149,17 @@
           <MpTableBody>
             <MpTableRow v-for="line in request.lines" :key="line.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="onAction('view-product')">{{ line.product }}</MpTextlink>
+                <MpTextlink
+                  as="button"
+                  variant="primary"
+                  :class="textlinkCellClass"
+                  @click="onAction('view-product')"
+                  >{{ line.product }}</MpTextlink
+                >
               </MpTableCell>
-              <MpTableCell as="td" :class="wrapCellClass">{{ line.description || "—" }}</MpTableCell>
+              <MpTableCell as="td" :class="wrapCellClass">{{
+                line.description || "—"
+              }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
               <MpTableCell as="td">{{ line.unit }}</MpTableCell>
             </MpTableRow>
@@ -185,14 +202,26 @@
         <MpFlex align-items="center" gap="3">
           <MpIcon name="doc" size="md" color="gray.400" />
           <div :class="metaFieldClass">
-            <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('download-attachment')">Request_Attachment.pdf</MpTextlink>
+            <MpTextlink
+              :class="textlinkAlignClass"
+              as="button"
+              variant="primary"
+              @click="onAction('download-attachment')"
+              >Request_Attachment.pdf</MpTextlink
+            >
             <MpText size="body-small" color="gray.600">248.2 KB</MpText>
           </div>
         </MpFlex>
       </div>
 
-      <MpTextlink as="button" variant="secondary" :class="[lastUpdatedClass, textlinkAlignClass]" @click="onAction('view-audit-log')">
-        Last updated by {{ request.requestorName || "Rizal Candra" }} on {{ formatDisplayDate(request.transactionDateSort) }} 09:00:00 AM GMT +7
+      <MpTextlink
+        as="button"
+        variant="secondary"
+        :class="[lastUpdatedClass, textlinkAlignClass]"
+        @click="onAction('view-audit-log')"
+      >
+        Last updated by {{ request.requestorName || "Rizal Candra" }} on
+        {{ formatDisplayDate(request.transactionDateSort) }} 09:00:00 AM GMT +7
       </MpTextlink>
 
       <!-- Bottom action bar — Delete on the left (hidden once the request is
@@ -201,10 +230,17 @@
            details-page-format.md — the reference screenshot shows one, but
            only Invoice has a real edit form so far). -->
       <div :class="bottomActionsClass">
-        <MpButton v-if="request.status !== 'closed'" variant="ghost" @click="isDeleteModalOpen = true">Delete</MpButton>
+        <MpButton
+          v-if="request.status !== 'closed'"
+          variant="ghost"
+          @click="isDeleteModalOpen = true"
+          >Delete</MpButton
+        >
         <div v-else />
         <MpFlex gap="2">
-          <MpButton variant="secondary" @click="navigateTo(`/purchase/request/edit/${request.id}`)">Edit</MpButton>
+          <MpButton variant="secondary" @click="navigateTo(`/purchase/request/edit/${request.id}`)"
+            >Edit</MpButton
+          >
           <MpPopover placement="bottom-end" use-portal is-adaptive-width>
             <template #default>
               <MpPopoverTrigger>
@@ -212,8 +248,12 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onAction('print')">Preview &amp; print</MpPopoverListItem>
-                  <MpPopoverListItem role="menuitem" @click="onAction('share-email')">Share via email</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onAction('print')"
+                    >Preview &amp; print</MpPopoverListItem
+                  >
+                  <MpPopoverListItem role="menuitem" @click="onAction('share-email')"
+                    >Share via email</MpPopoverListItem
+                  >
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -225,8 +265,12 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onAction('duplicate')">Duplicate transaction</MpPopoverListItem>
-                  <MpPopoverListItem role="menuitem" @click="onAction('convert-to-order')">Convert to purchase order</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onAction('duplicate')"
+                    >Duplicate transaction</MpPopoverListItem
+                  >
+                  <MpPopoverListItem role="menuitem" @click="onAction('convert-to-order')"
+                    >Convert to purchase order</MpPopoverListItem
+                  >
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -245,7 +289,8 @@
         </MpModalHeader>
         <MpModalBody>
           <MpText size="body" color="gray.700">
-            This will permanently remove <strong>{{ request?.number }}</strong>. This can't be undone.
+            This will permanently remove <strong>{{ request?.number }}</strong
+            >. This can't be undone.
           </MpText>
         </MpModalBody>
         <MpModalFooter>
@@ -289,12 +334,18 @@ import {
   MpTag,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
-import { deleteTransactions, duplicateTransaction, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById } from "~/data/purchase-transactions";
+import {
+  deleteTransactions,
+  duplicateTransaction,
+  formatDisplayDate,
+  getAdjacentTransactionIds,
+  getPurchaseTransactionById
+} from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
 // Third details page in this repo (after Invoice, Order), built directly
@@ -318,7 +369,11 @@ const request = computed(() => {
 });
 const adjacent = computed(() => getAdjacentTransactionIds(id.value));
 
-useHead({ title: computed(() => (request.value ? `${request.value.number} — Mekari Jurnal` : "Request not found — Mekari Jurnal")) });
+useHead({
+  title: computed(() =>
+    request.value ? `${request.value.number} — Mekari Jurnal` : "Request not found — Mekari Jurnal"
+  )
+});
 
 const isDeleteModalOpen = ref(false);
 
@@ -348,11 +403,21 @@ function onDelete() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const topRowClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start" });
+const topRowClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 
 const dividerClass = css({ my: 6 });
 
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, mb: 8 });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  mb: 8
+});
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 4 });
 // minWidth:0 — a grid/flex item's implicit min-width is its content's natural
 // width, which lets a long value overflow past its column instead of
@@ -373,8 +438,19 @@ const lineCaptionClass = css({ mt: 3, mb: 3 });
 // staggered rows.
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "240px" });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap"
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "240px"
+});
 const totalItemsCardClass = css({
   display: "flex",
   justifyContent: "space-between",
@@ -385,7 +461,7 @@ const totalItemsCardClass = css({
   p: 4,
   borderWidth: "sm",
   borderColor: "gray.100",
-  rounded: "md",
+  rounded: "md"
 });
 
 const attachmentsClass = css({ mt: 6 });
@@ -393,7 +469,14 @@ const attachmentsHeadingClass = css({ mb: 3 });
 
 const lastUpdatedClass = css({ display: "block", mt: 6, fontSize: "sm" });
 
-const notFoundClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const notFoundClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const notFoundTitleClass = css({ fontSize: "lg" });
 const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const notFoundDescClass = css({ maxWidth: "320px" });
@@ -408,6 +491,6 @@ const bottomActionsClass = css({
   mt: 8,
   pt: 6,
   borderTopWidth: "sm",
-  borderColor: "gray.100",
+  borderColor: "gray.100"
 });
 </script>

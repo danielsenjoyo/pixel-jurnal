@@ -73,13 +73,19 @@
           <MpIcon name="wallet" size="md" color="blue.600" />
         </div>
         <div :class="promoTextClass">
-          <MpText size="body-small" weight="semiBold" color="dark">Verify your data to send payment soon</MpText>
-          <MpTextlink as="button" variant="primary" @click="onAction('check-mekari-pay')">Check Mekari Pay</MpTextlink>
+          <MpText size="body-small" weight="semiBold" color="dark"
+            >Verify your data to send payment soon</MpText
+          >
+          <MpTextlink as="button" variant="primary" @click="onAction('check-mekari-pay')"
+            >Check Mekari Pay</MpTextlink
+          >
         </div>
       </div>
     </div>
     <div :class="statsCaptionClass">
-      <MpText size="body-small" color="gray.600">Balance is for all time period, unless stated otherwise</MpText>
+      <MpText size="body-small" color="gray.600"
+        >Balance is for all time period, unless stated otherwise</MpText
+      >
     </div>
 
     <!-- Zone B — content tabs. Mirrors the 9 tabs of the source page's
@@ -109,14 +115,18 @@
         <div v-if="statusOptions.length" :class="quickFilterClass">
           <MpSelect v-model="quickStatus" placeholder="All status" is-full-width is-clearable>
             <option value="">All status</option>
-            <option v-for="opt in statusOptions" :key="opt" :value="opt">{{ STATUS_LABEL[opt] }}</option>
+            <option v-for="opt in statusOptions" :key="opt" :value="opt">
+              {{ STATUS_LABEL[opt] }}
+            </option>
           </MpSelect>
         </div>
       </div>
 
       <div :class="filterRightClass">
         <div :class="filterButtonWrapClass">
-          <MpButton variant="secondary" left-icon="filter" @click="isFilterDrawerOpen = true">Filter</MpButton>
+          <MpButton variant="secondary" left-icon="filter" @click="isFilterDrawerOpen = true"
+            >Filter</MpButton
+          >
           <!-- A staged drawer closes over its own settings, so the button is
                the only place the user can see that a filter is still on. -->
           <span v-if="hasActiveFilter" :class="filterDotClass" aria-hidden="true" />
@@ -183,7 +193,11 @@
         <MpTable is-hoverable :class="tableFixedClass" :style="{ minWidth: tableMinWidth }">
           <colgroup>
             <col :style="{ width: '44px' }" />
-            <col v-for="col in columns" :key="col.key" :style="{ width: `${COLUMN_WIDTH[col.key]}px` }" />
+            <col
+              v-for="col in columns"
+              :key="col.key"
+              :style="{ width: `${COLUMN_WIDTH[col.key]}px` }"
+            />
           </colgroup>
           <MpTableHead is-fixed :class="tableHeadClass">
             <!-- The bulk bar is its own row ABOVE the header — it must not
@@ -194,10 +208,16 @@
             <MpTableRow v-if="selected.length && activeTabKey !== 'ap'">
               <MpTableCell as="th" :colspan="columns.length + 1" :class="bulkCellClass">
                 <div :class="bulkBarClass">
-                  <MpText size="label" weight="semiBold" color="dark">{{ selected.length }} selected</MpText>
+                  <MpText size="label" weight="semiBold" color="dark"
+                    >{{ selected.length }} selected</MpText
+                  >
                   <MpButton size="sm" @click="showPrintModal = true">Print PDF</MpButton>
-                  <MpButton size="sm" variant="danger" @click="openDeleteModal(selected)">Delete</MpButton>
-                  <MpTextlink as="button" variant="secondary" @click="selected = []">Clear selection</MpTextlink>
+                  <MpButton size="sm" variant="danger" @click="openDeleteModal(selected)"
+                    >Delete</MpButton
+                  >
+                  <MpTextlink as="button" variant="secondary" @click="selected = []"
+                    >Clear selection</MpTextlink
+                  >
                 </div>
               </MpTableCell>
             </MpTableRow>
@@ -211,7 +231,12 @@
                 />
               </MpTableCell>
               <MpTableCell v-else as="th" :class="checkboxCellClass" />
-              <MpTableCell v-for="col in columns" :key="col.key" as="th" :class="col.numeric ? numCellClass : undefined">
+              <MpTableCell
+                v-for="col in columns"
+                :key="col.key"
+                as="th"
+                :class="col.numeric ? numCellClass : undefined"
+              >
                 <button type="button" :class="sortHeaderClass" @click="toggleSort(col.key)">
                   <span :class="headerLabelClass">{{ col.label }}</span>
                   <MpIcon :name="sortIconFor(col.key)" size="sm" color="gray.400" />
@@ -235,16 +260,37 @@
               </MpTableCell>
               <MpTableCell v-else as="td" :class="checkboxCellClass" />
 
-              <MpTableCell v-for="col in columns" :key="col.key" as="td" :class="col.numeric ? numCellClass : undefined">
+              <MpTableCell
+                v-for="col in columns"
+                :key="col.key"
+                as="td"
+                :class="col.numeric ? numCellClass : undefined"
+              >
                 <template v-if="col.key === 'number'">
-                  <MpTextlink as="button" variant="primary" :class="linkCellClass" @click="onOpen(row)">{{ row.number }}</MpTextlink>
-                  <MpText v-if="row.memo" size="body-small" color="gray.600" :class="wrapCellClass">{{ row.memo }}</MpText>
+                  <MpTextlink
+                    as="button"
+                    variant="primary"
+                    :class="linkCellClass"
+                    @click="onOpen(row)"
+                    >{{ row.number }}</MpTextlink
+                  >
+                  <MpText
+                    v-if="row.memo"
+                    size="body-small"
+                    color="gray.600"
+                    :class="wrapCellClass"
+                    >{{ row.memo }}</MpText
+                  >
                 </template>
                 <template v-else-if="col.key === 'status'">
-                  <MpBadge for="tableStatus" :type="STATUS_TYPE[row.status]">{{ STATUS_LABEL[row.status] }}</MpBadge>
+                  <MpBadge for="tableStatus" :type="STATUS_TYPE[row.status]">{{
+                    STATUS_LABEL[row.status]
+                  }}</MpBadge>
                 </template>
                 <template v-else-if="col.key === 'tags'">
-                  <MpText v-if="row.tags.length" size="body-small" :class="wrapCellClass">{{ row.tags.join(", ") }}</MpText>
+                  <MpText v-if="row.tags.length" size="body-small" :class="wrapCellClass">{{
+                    row.tags.join(", ")
+                  }}</MpText>
                   <MpText v-else size="body-small" color="gray.400">—</MpText>
                 </template>
                 <template v-else-if="col.key === 'urgency'">
@@ -253,7 +299,9 @@
                     <MpText size="body-small">{{ row.urgency.label }}</MpText>
                   </MpFlex>
                 </template>
-                <template v-else><span :class="wrapCellClass">{{ cellText(row, col.key) }}</span></template>
+                <template v-else
+                  ><span :class="wrapCellClass">{{ cellText(row, col.key) }}</span></template
+                >
               </MpTableCell>
             </MpTableRow>
           </MpTableBody>
@@ -265,29 +313,59 @@
           <MpText size="body-small" color="gray.600">Rows per page</MpText>
           <MpPopover use-portal is-adaptive-width>
             <MpPopoverTrigger>
-              <MpButton variant="ghost" size="sm" right-icon="chevrons-down">{{ perPage }}</MpButton>
+              <MpButton variant="ghost" size="sm" right-icon="chevrons-down">{{
+                perPage
+              }}</MpButton>
             </MpPopoverTrigger>
             <MpPopoverContent>
               <MpPopoverList>
-                <MpPopoverListItem v-for="opt in [10, 25, 50]" :key="opt" :is-active="perPage === opt" @click="setPerPage(opt)">
+                <MpPopoverListItem
+                  v-for="opt in [10, 25, 50]"
+                  :key="opt"
+                  :is-active="perPage === opt"
+                  @click="setPerPage(opt)"
+                >
                   {{ opt }}
                 </MpPopoverListItem>
               </MpPopoverList>
             </MpPopoverContent>
           </MpPopover>
-          <MpText size="body-small" color="gray.600">Showing {{ rangeStart }}-{{ rangeEnd }} of {{ filteredRows.length }}</MpText>
+          <MpText size="body-small" color="gray.600"
+            >Showing {{ rangeStart }}-{{ rangeEnd }} of {{ filteredRows.length }}</MpText
+          >
         </div>
 
         <div :class="pagerRightClass">
           <div :class="pageJumpClass">
-            <MpAutocomplete :class="pageJumpInnerClass" :data="pageOptions" :model-value="page" is-searchable is-full-width @change="onJumpPage" />
+            <MpAutocomplete
+              :class="pageJumpInnerClass"
+              :data="pageOptions"
+              :model-value="page"
+              is-searchable
+              is-full-width
+              @change="onJumpPage"
+            />
           </div>
           <MpText size="body-small" color="gray.600">of {{ pageCount }} page</MpText>
           <MpTooltip label="Previous page">
-            <MpButton variant="ghost" size="sm" left-icon="chevrons-left" :is-disabled="page <= 1" aria-label="Previous page" @click="page--" />
+            <MpButton
+              variant="ghost"
+              size="sm"
+              left-icon="chevrons-left"
+              :is-disabled="page <= 1"
+              aria-label="Previous page"
+              @click="page--"
+            />
           </MpTooltip>
           <MpTooltip label="Next page">
-            <MpButton variant="ghost" size="sm" left-icon="chevrons-right" :is-disabled="page >= pageCount" aria-label="Next page" @click="page++" />
+            <MpButton
+              variant="ghost"
+              size="sm"
+              left-icon="chevrons-right"
+              :is-disabled="page >= pageCount"
+              aria-label="Next page"
+              @click="page++"
+            />
           </MpTooltip>
         </div>
       </div>
@@ -296,8 +374,12 @@
     <div v-else :class="emptyStateClass">
       <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
       <MpText weight="semiBold" color="dark" :class="emptyTitleClass">{{ emptyTitle }}</MpText>
-      <MpText size="body-small" color="gray.600" :class="emptyDescClass">{{ emptyDescription }}</MpText>
-      <MpButton v-if="hasActiveFilter" variant="secondary" @click="resetFilters">Clear filters</MpButton>
+      <MpText size="body-small" color="gray.600" :class="emptyDescClass">{{
+        emptyDescription
+      }}</MpText>
+      <MpButton v-if="hasActiveFilter" variant="secondary" @click="resetFilters"
+        >Clear filters</MpButton
+      >
     </div>
   </DefaultPageContent>
 </template>
@@ -340,7 +422,7 @@ import {
   MpTabs,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import SummaryBox from "~/components/template/SummaryBox.vue";
@@ -349,9 +431,13 @@ import {
   emptyPurchaseFilter,
   isFilterActive,
   matchesPurchaseFilter,
-  type PurchaseFilter,
+  type PurchaseFilter
 } from "~/data/purchase-filter";
-import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE, type PurchaseStatus } from "~/data/purchase-status";
+import {
+  PURCHASE_STATUS_LABEL,
+  PURCHASE_STATUS_TYPE,
+  type PurchaseStatus
+} from "~/data/purchase-status";
 import {
   TYPE_CAPABILITIES,
   formatAmount,
@@ -359,7 +445,7 @@ import {
   deleteTransactions,
   getPurchaseTransactions,
   type PurchaseTransaction,
-  type TransactionType,
+  type TransactionType
 } from "~/data/purchase-transactions";
 
 useHead({ title: "Purchases — Mekari Jurnal" });
@@ -385,7 +471,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "pr", label: "Request" },
   { key: "ap", label: "Need approval" },
   { key: "rj", label: "Rejected" },
-  { key: "fi", label: "Financing" },
+  { key: "fi", label: "Financing" }
 ];
 
 // Labels + order match the real product's "Create new purchase" popover
@@ -397,7 +483,7 @@ const NEW_TRANSACTION_ITEMS: { key: TransactionType; label: string }[] = [
   { key: "join_invoice", label: "Join invoice" },
   { key: "order", label: "Purchase order" },
   { key: "quote", label: "Purchase quote" },
-  { key: "request", label: "Purchase request" },
+  { key: "request", label: "Purchase request" }
 ];
 
 // Status vocabulary + the Invoice tab's mock data now live in app/data/ so the
@@ -419,7 +505,7 @@ const STATUS_OPTIONS_BY_TAB: Record<TabKey, StatusValue[]> = {
   pr: ["open", "partial", "closed"],
   ap: [],
   rj: [],
-  fi: [],
+  fi: []
 };
 
 type ColumnKey =
@@ -454,7 +540,7 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "status", label: "Status" },
     { key: "balanceDue", label: "Balance due", numeric: true },
     { key: "totalAmount", label: "Total", numeric: true },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   jpi: [
     { key: "transactionDate", label: "Date" },
@@ -463,14 +549,14 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "dueDate", label: "Due date" },
     { key: "status", label: "Status" },
     { key: "balanceDue", label: "Balance due", numeric: true },
-    { key: "totalAmount", label: "Total", numeric: true },
+    { key: "totalAmount", label: "Total", numeric: true }
   ],
   pd: [
     { key: "transactionDate", label: "Date" },
     { key: "number", label: "Number" },
     { key: "vendor", label: "Vendor" },
     { key: "status", label: "Status" },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   po: [
     { key: "transactionDate", label: "Date" },
@@ -480,7 +566,7 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "status", label: "Status" },
     { key: "depositAmount", label: "Deposit", numeric: true },
     { key: "totalAmount", label: "Total", numeric: true },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   pq: [
     { key: "transactionDate", label: "Date" },
@@ -488,7 +574,7 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "vendor", label: "Vendor" },
     { key: "status", label: "Status" },
     { key: "totalAmount", label: "Total", numeric: true },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   pr: [
     { key: "transactionDate", label: "Date" },
@@ -498,7 +584,7 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "status", label: "Status" },
     { key: "totalItems", label: "Total items" },
     { key: "urgency", label: "Urgency" },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   ap: [
     { key: "transactionDate", label: "Date" },
@@ -507,7 +593,7 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "dueDate", label: "Expiry date" },
     { key: "status", label: "Status" },
     { key: "totalAmount", label: "Total", numeric: true },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   rj: [
     { key: "transactionDate", label: "Date" },
@@ -516,7 +602,7 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "dueDate", label: "Due date" },
     { key: "status", label: "Status" },
     { key: "totalAmount", label: "Total", numeric: true },
-    { key: "tags", label: "Tags" },
+    { key: "tags", label: "Tags" }
   ],
   fi: [
     { key: "transactionDate", label: "Date" },
@@ -525,8 +611,8 @@ const COLUMNS_BY_TAB: Record<TabKey, ColumnDef[]> = {
     { key: "dueDate", label: "Due date" },
     { key: "status", label: "Status" },
     { key: "totalAmount", label: "Total", numeric: true },
-    { key: "tags", label: "Tags" },
-  ],
+    { key: "tags", label: "Tags" }
+  ]
 };
 
 interface Row {
@@ -575,7 +661,7 @@ const TAB_TYPE: Partial<Record<TabKey, TransactionType>> = {
   po: "order",
   pq: "quote",
   pr: "request",
-  fi: "financing",
+  fi: "financing"
 };
 
 function toRow(t: PurchaseTransaction): Row {
@@ -600,7 +686,7 @@ function toRow(t: PurchaseTransaction): Row {
     totalAmount: t.total,
     totalItems: t.lines.length,
     urgency: t.urgency,
-    tags: t.tags,
+    tags: t.tags
   };
 }
 
@@ -616,7 +702,9 @@ function rowsForTab(tab: TabKey): Row[] {
   // A record that's pending approval or rejected lives only in its
   // cross-cutting tab, not also under its own type — see the module doc
   // comment on rowsForTab above.
-  return all.filter((t) => t.type === type && t.status !== "rejected" && !t.needsApproval).map(toRow);
+  return all
+    .filter((t) => t.type === type && t.status !== "rejected" && !t.needsApproval)
+    .map(toRow);
 }
 
 const approvalCount = computed(() => {
@@ -640,11 +728,11 @@ const isFilterDrawerOpen = ref(false);
 const filter = ref<PurchaseFilter>(emptyPurchaseFilter());
 const search = computed({
   get: () => filter.value.key,
-  set: (value: string) => (filter.value.key = value),
+  set: (value: string) => (filter.value.key = value)
 });
 const quickStatus = computed({
   get: () => filter.value.status,
-  set: (value: string) => (filter.value.status = value),
+  set: (value: string) => (filter.value.status = value)
 });
 const hasActiveFilter = computed(() => isFilterActive(filter.value));
 const page = ref(1);
@@ -715,7 +803,9 @@ function cellText(row: Row, key: ColumnKey): string {
 
 const filteredRows = computed(() => {
   void refreshTick.value;
-  let result = rowsForTab(activeTabKey.value).filter((row) => matchesPurchaseFilter(row, filter.value));
+  let result = rowsForTab(activeTabKey.value).filter((row) =>
+    matchesPurchaseFilter(row, filter.value)
+  );
 
   if (sortKey.value) {
     const key = sortKey.value;
@@ -744,17 +834,21 @@ const summary = computed(() => {
   return {
     unpaid: { count: unpaid.length, amount: unpaid.reduce((sum, t) => sum + t.balanceDue, 0) },
     overdue: { count: overdue.length, amount: overdue.reduce((sum, t) => sum + t.balanceDue, 0) },
-    payments: { count: paid.length, amount: paid.reduce((sum, t) => sum + t.amountReceived, 0) },
+    payments: { count: paid.length, amount: paid.reduce((sum, t) => sum + t.amountReceived, 0) }
   };
 });
 
 const pageCount = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / perPage.value)));
-const pageOptions = computed(() => Array.from({ length: pageCount.value }, (_, i) => ({ label: String(i + 1), value: i + 1 })));
+const pageOptions = computed(() =>
+  Array.from({ length: pageCount.value }, (_, i) => ({ label: String(i + 1), value: i + 1 }))
+);
 const pagedRows = computed(() => {
   const start = (page.value - 1) * perPage.value;
   return filteredRows.value.slice(start, start + perPage.value);
 });
-const rangeStart = computed(() => (filteredRows.value.length === 0 ? 0 : (page.value - 1) * perPage.value + 1));
+const rangeStart = computed(() =>
+  filteredRows.value.length === 0 ? 0 : (page.value - 1) * perPage.value + 1
+);
 const rangeEnd = computed(() => Math.min(page.value * perPage.value, filteredRows.value.length));
 
 watch([page, pageCount], () => {
@@ -762,15 +856,23 @@ watch([page, pageCount], () => {
   else if (page.value > pageCount.value) page.value = pageCount.value;
 });
 
-const allOnPageSelected = computed(() => pagedRows.value.length > 0 && pagedRows.value.every((r) => selected.value.includes(r.id)));
-const someOnPageSelected = computed(() => pagedRows.value.some((r) => selected.value.includes(r.id)));
+const allOnPageSelected = computed(
+  () => pagedRows.value.length > 0 && pagedRows.value.every((r) => selected.value.includes(r.id))
+);
+const someOnPageSelected = computed(() =>
+  pagedRows.value.some((r) => selected.value.includes(r.id))
+);
 
 function toggleRow(id: number) {
-  selected.value = selected.value.includes(id) ? selected.value.filter((x) => x !== id) : [...selected.value, id];
+  selected.value = selected.value.includes(id)
+    ? selected.value.filter((x) => x !== id)
+    : [...selected.value, id];
 }
 function toggleAllOnPage() {
   const ids = pagedRows.value.map((r) => r.id);
-  selected.value = allOnPageSelected.value ? selected.value.filter((x) => !ids.includes(x)) : [...new Set([...selected.value, ...ids])];
+  selected.value = allOnPageSelected.value
+    ? selected.value.filter((x) => !ids.includes(x))
+    : [...new Set([...selected.value, ...ids])];
 }
 function toggleSort(key: ColumnKey) {
   if (sortKey.value === key) {
@@ -809,7 +911,8 @@ const emptyTitle = computed(() => {
 });
 const emptyDescription = computed(() => {
   if (searchTerm.value) return "Check the keywords you entered and try your search again.";
-  if (hasActiveFilter.value) return "No items match your filters. Try adjusting them, or clear all filters to start over.";
+  if (hasActiveFilter.value)
+    return "No items match your filters. Try adjusting them, or clear all filters to start over.";
   return "There's nothing here yet.";
 });
 
@@ -829,7 +932,6 @@ function onApplyFilter(next: PurchaseFilter) {
   selected.value = [];
   isFilterDrawerOpen.value = false;
 }
-
 
 // Route by the ROW's type, not the tab's. "Need approval" and "Rejected" cut
 // across every type and so have no type of their own — keying off the tab left
@@ -905,15 +1007,20 @@ const COLUMN_WIDTH: Record<ColumnKey, number> = {
   totalAmount: 180,
   totalItems: 110,
   urgency: 130,
-  tags: 140,
+  tags: 140
 };
 const CHECKBOX_COLUMN_WIDTH = 44;
 const tableMinWidth = computed(
-  () => `${columns.value.reduce((sum, col) => sum + COLUMN_WIDTH[col.key], CHECKBOX_COLUMN_WIDTH)}px`,
+  () =>
+    `${columns.value.reduce((sum, col) => sum + COLUMN_WIDTH[col.key], CHECKBOX_COLUMN_WIDTH)}px`
 );
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const statsGridClass = css({ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 4 });
+const statsGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  gap: 4
+});
 const promoCardClass = css({
   display: "flex",
   alignItems: "center",
@@ -923,7 +1030,7 @@ const promoCardClass = css({
   borderColor: "gray.100",
   rounded: "md",
   px: 5,
-  py: 4,
+  py: 4
 });
 const promoIconClass = css({
   display: "flex",
@@ -933,7 +1040,7 @@ const promoIconClass = css({
   height: "40px",
   flexShrink: 0,
   rounded: "full",
-  bg: "blue.100",
+  bg: "blue.100"
 });
 const promoTextClass = css({ display: "flex", flexDirection: "column", gap: 1, minWidth: "0" });
 const statsCaptionClass = css({ display: "flex", justifyContent: "flex-end", mt: 2, mb: 4 });
@@ -949,9 +1056,17 @@ const filterDotClass = css({
   borderRadius: "full",
   bg: "red.400",
   borderWidth: "2px",
-  borderColor: "white",
+  borderColor: "white"
 });
-const filterBarClass = css({ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 3, flexWrap: "wrap", mt: 5, mb: 5 });
+const filterBarClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 3,
+  flexWrap: "wrap",
+  mt: 5,
+  mb: 5
+});
 const filterLeftClass = css({ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap" });
 const filterRightClass = css({ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" });
 
@@ -959,7 +1074,7 @@ const searchGroupClass = css({
   position: "relative",
   width: "280px",
   "& [data-search-clear]": { opacity: 0, transition: "opacity 0.12s ease" },
-  "&:hover [data-search-clear], &:focus-within [data-search-clear]": { opacity: 1 },
+  "&:hover [data-search-clear], &:focus-within [data-search-clear]": { opacity: 1 }
 });
 const searchClearClass = css({
   position: "absolute",
@@ -973,7 +1088,7 @@ const searchClearClass = css({
   bg: "transparent",
   p: 0,
   cursor: "pointer",
-  lineHeight: "0",
+  lineHeight: "0"
 });
 const quickFilterClass = css({ width: "180px" });
 
@@ -992,7 +1107,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const tableFixedClass = css({ tableLayout: "fixed" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
@@ -1023,7 +1138,7 @@ const wrapCellBase = {
   whiteSpace: "normal!",
   wordBreak: "break-word",
   textAlign: "left!",
-  justifyContent: "flex-start!",
+  justifyContent: "flex-start!"
 } as const;
 const wrapCellClass = css(wrapCellBase);
 // The Number cell stacks a link over a description, and the link is the only
@@ -1042,27 +1157,56 @@ const wrapCellClass = css(wrapCellBase);
 // so nothing overflows.
 const linkCellClass = css({ ...wrapCellBase, ml: "-2px", mr: "-2px" });
 
-const sortHeaderClass = css({ display: "flex", alignItems: "center", gap: 1, border: "0", bg: "transparent", p: 0, cursor: "pointer", color: "inherit", font: "inherit", width: "full" });
+const sortHeaderClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 1,
+  border: "0",
+  bg: "transparent",
+  p: 0,
+  cursor: "pointer",
+  color: "inherit",
+  font: "inherit",
+  width: "full"
+});
 // Header labels wrap rather than clip too, but must NOT take width:full —
 // they sit next to the sort icon inside the header button's own flex row.
-const headerLabelClass = css({ minWidth: "0", whiteSpace: "normal", wordBreak: "break-word", textAlign: "left" });
+const headerLabelClass = css({
+  minWidth: "0",
+  whiteSpace: "normal",
+  wordBreak: "break-word",
+  textAlign: "left"
+});
 
 const bulkBarClass = css({ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap" });
 const bulkCellClass = css({ py: "11px!" });
 
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
 
-const emptyStateClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const emptyStateClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const emptyIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const emptyTitleClass = css({ fontSize: "lg" });
 const emptyDescClass = css({ maxWidth: "320px" });
 
-const paginationClass = css({ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 3, py: 3 });
+const paginationClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  flexWrap: "wrap",
+  gap: 3,
+  py: 3
+});
 const pagerLeftClass = css({ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" });
 const pagerRightClass = css({ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" });
 const pageJumpClass = css({ width: "100px" });
 const pageJumpInnerClass = css({ h: "7.5" });
-
 
 const modalTitleClass = css({ fontSize: "lg" });
 const modalFooterClass = css({ display: "flex", justifyContent: "flex-end", gap: 2 });

@@ -57,7 +57,7 @@ a different time against a different reference.
 
 The Purchase audit found both drifting inside one module — `21 Aug 2026` on the
 list versus `21/08/2026` on the detail page, and `Rp 1.810.965` on the detail
-page versus `Rp9.024.000,00` in the form (different decimals *and* different
+page versus `Rp9.024.000,00` in the form (different decimals _and_ different
 spacing). Each was locally defensible and collectively wrong: the user compares
 these values across screens.
 

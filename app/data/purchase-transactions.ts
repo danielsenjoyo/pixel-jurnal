@@ -23,7 +23,15 @@
 // into its own type's tab, because there's only one place it can be.
 import type { PurchaseStatus } from "./purchase-status";
 
-export type TransactionType = "invoice" | "join_invoice" | "delivery" | "order" | "quote" | "request" | "financing" | "return";
+export type TransactionType =
+  | "invoice"
+  | "join_invoice"
+  | "delivery"
+  | "order"
+  | "quote"
+  | "request"
+  | "financing"
+  | "return";
 
 // Display label used in both the record's `number` ("Purchase Invoice
 // #14026") and the tab title — matches the real Jurnal product's naming
@@ -40,7 +48,7 @@ export const TRANSACTION_TYPE_LABEL: Record<TransactionType, string> = {
   quote: "Purchase Quote",
   request: "Purchase Request",
   financing: "Purchase Financing",
-  return: "Purchase Return",
+  return: "Purchase Return"
 };
 
 // Real Jurnal ids are large sequential database ids, not small per-type
@@ -194,7 +202,7 @@ export const VENDOR_OPTIONS = [
   { name: "UD Berkah Abadi", address: "Jl. Malioboro No. 3, Yogyakarta" },
   { name: "PT Nusantara Logistik", address: "Jl. Ahmad Yani No. 67, Semarang" },
   { name: "CV Mitra Sejahtera", address: "Jl. Pahlawan No. 19, Surabaya" },
-  { name: "PT Sinar Terang", address: "Jl. Thamrin No. 88, Jakarta Pusat" },
+  { name: "PT Sinar Terang", address: "Jl. Thamrin No. 88, Jakarta Pusat" }
 ];
 
 export const PRODUCT_OPTIONS = [
@@ -205,7 +213,7 @@ export const PRODUCT_OPTIONS = [
   { name: "Whiteboard Marker Set", price: 68_000, unit: "set" },
   { name: "Steel Filing Cabinet", price: 2_100_000, unit: "pcs" },
   { name: "LED Desk Lamp", price: 175_000, unit: "pcs" },
-  { name: "Ethernet Cable 10m", price: 95_000, unit: "roll" },
+  { name: "Ethernet Cable 10m", price: 95_000, unit: "roll" }
 ];
 
 export const TERM_OPTIONS = ["Net 15", "Net 30", "Due on receipt"];
@@ -214,14 +222,14 @@ export const CURRENCY_OPTIONS = ["IDR", "USD", "SGD"];
 export const TAX_OPTIONS: { label: string; rate: number }[] = [
   { label: "PPN 11%", rate: 11 },
   { label: "PPN 12%", rate: 12 },
-  { label: "Non-taxable", rate: 0 },
+  { label: "Non-taxable", rate: 0 }
 ];
 export const TRANSACTION_TYPE_FORM_OPTIONS = [
   "Purchase Invoice",
   "Purchase Order",
   "Purchase Quote",
   "Purchase Request",
-  "Purchase Delivery",
+  "Purchase Delivery"
 ];
 export const TAG_OPTIONS = ["Q3 Restock", "Priority", "Recurring", "Import", "Consignment"];
 export const WAREHOUSE_OPTIONS = ["Main Warehouse", "Secondary Warehouse"];
@@ -230,11 +238,17 @@ export const STAFF = ["Dewi Lestari", "Budi Santoso", "Rina Wulandari", "Agus Pr
 export const REQUESTORS = ["Imam Prasojo", "Sari Handayani", "Fajar Nugroho", "Lestari Wibowo"];
 export const BUDGET_YEARS = ["2026", "2027"];
 export const SHIP_VIA_OPTIONS = ["JNE Trucking", "Internal Fleet", "Gojek Instant"];
-const MEMOS = ["Office supplies restock", "Raw material batch", "Monthly service contract", "Equipment maintenance", ""];
+const MEMOS = [
+  "Office supplies restock",
+  "Raw material batch",
+  "Monthly service contract",
+  "Equipment maintenance",
+  ""
+];
 export const URGENCY_OPTIONS: NonNullable<PurchaseTransaction["urgency"]>[] = [
   { priority: "high", label: "High" },
   { priority: "medium", label: "Medium" },
-  { priority: "low", label: "Low" },
+  { priority: "low", label: "Low" }
 ];
 
 function pad(n: number) {
@@ -265,7 +279,10 @@ export function formatDate(d: Date) {
 // call site. See docs/patterns/page-recipes.md § "one format per value type".
 // ---------------------------------------------------------------------------
 
-const MONEY_FORMAT = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const MONEY_FORMAT = new Intl.NumberFormat("id-ID", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
 
 /** Money, for reading: `Rp10.016.640,00`. Indonesian convention — `.` groups
  *  thousands, `,` separates the two decimals, and no space after `Rp`. */
@@ -356,7 +373,7 @@ function buildLines(seq: number): PurchaseTransactionLine[] {
       // Generated records are all on the standard rate; the form can set any
       // of TAX_OPTIONS per line.
       tax: "PPN 11%",
-      amount: lineAmount(quantity, product.price, discountPercent),
+      amount: lineAmount(quantity, product.price, discountPercent)
     };
   });
 }
@@ -374,7 +391,7 @@ const STATUS_POOL: Record<TransactionType, PurchaseStatus[]> = {
   request: ["open", "partial", "closed"],
   financing: ["open", "overdue", "paid"],
   // A return is open until the credit is settled against the invoice.
-  return: ["open", "closed"],
+  return: ["open", "closed"]
 };
 
 function buildTransaction(type: TransactionType, i: number, seq: number): PurchaseTransaction {
@@ -396,10 +413,22 @@ function buildTransaction(type: TransactionType, i: number, seq: number): Purcha
   const payments: PurchaseTransactionPayment[] = [];
   if (status === "paid") {
     amountReceived = total;
-    payments.push({ id: 1, date: formatDate(dateAt(-i * 3 + 5)), number: `PAY/2026/09/${pad(seq)}`, method: "Bank transfer", amount: total });
+    payments.push({
+      id: 1,
+      date: formatDate(dateAt(-i * 3 + 5)),
+      number: `PAY/2026/09/${pad(seq)}`,
+      method: "Bank transfer",
+      amount: total
+    });
   } else if (status === "partial") {
     amountReceived = Math.round(total * 0.4);
-    payments.push({ id: 1, date: formatDate(dateAt(-i * 3 + 5)), number: `PAY/2026/09/${pad(seq)}`, method: "Bank transfer", amount: amountReceived });
+    payments.push({
+      id: 1,
+      date: formatDate(dateAt(-i * 3 + 5)),
+      number: `PAY/2026/09/${pad(seq)}`,
+      method: "Bank transfer",
+      amount: amountReceived
+    });
   }
   const balanceDue = total - amountReceived;
 
@@ -423,8 +452,12 @@ function buildTransaction(type: TransactionType, i: number, seq: number): Purcha
     procurementStaff: type === "request" ? STAFF[i % STAFF.length]! : "",
     urgency: type === "request" ? URGENCY_OPTIONS[i % URGENCY_OPTIONS.length]! : null,
     requestorName: type === "request" ? REQUESTORS[i % REQUESTORS.length]! : "",
-    requestorEmail: type === "request" ? `${REQUESTORS[i % REQUESTORS.length]!.toLowerCase().replace(/[^a-z]+/g, ".")}@mekari.com` : "",
-    relatedBudgetYear: type === "request" && i % 4 === 0 ? BUDGET_YEARS[i % BUDGET_YEARS.length]! : "",
+    requestorEmail:
+      type === "request"
+        ? `${REQUESTORS[i % REQUESTORS.length]!.toLowerCase().replace(/[^a-z]+/g, ".")}@mekari.com`
+        : "",
+    relatedBudgetYear:
+      type === "request" && i % 4 === 0 ? BUDGET_YEARS[i % BUDGET_YEARS.length]! : "",
     // Generated records carry shipping details only on a Delivery — no other
     // type opts into the shipping block unless the form turns it on.
     shippingInfo: type === "delivery",
@@ -462,11 +495,20 @@ function buildTransaction(type: TransactionType, i: number, seq: number): Purcha
     payments,
     linkedDeliveryId: null,
     linkedInvoiceId: null,
-    joinedInvoiceIds: [],
+    joinedInvoiceIds: []
   };
 }
 
-const TYPES: TransactionType[] = ["invoice", "join_invoice", "delivery", "order", "quote", "request", "financing", "return"];
+const TYPES: TransactionType[] = [
+  "invoice",
+  "join_invoice",
+  "delivery",
+  "order",
+  "quote",
+  "request",
+  "financing",
+  "return"
+];
 const COUNT_PER_TYPE = 13;
 
 // Links roughly a third of the Order records to a real Delivery record in
@@ -495,7 +537,10 @@ function linkJoinInvoicesToInvoices(all: PurchaseTransaction[]): void {
   const joinInvoices = all.filter((t) => t.type === "join_invoice");
   joinInvoices.forEach((joinInvoice, i) => {
     const count = 2 + (i % 2); // 2-3 linked invoices
-    const linked = Array.from({ length: count }, (_, k) => invoices[(i * 2 + k) % invoices.length]!);
+    const linked = Array.from(
+      { length: count },
+      (_, k) => invoices[(i * 2 + k) % invoices.length]!
+    );
     joinInvoice.joinedInvoiceIds = linked.map((inv) => inv.id);
     joinInvoice.subtotal = linked.reduce((sum, inv) => sum + inv.total, 0);
     joinInvoice.total = joinInvoice.subtotal;
@@ -523,7 +568,12 @@ function linkReturnsToInvoices(all: PurchaseTransaction[]): void {
       // Return the first line or two, at a quantity no greater than invoiced.
       const returned = invoice.lines.slice(0, 1 + (i % 2)).map((l, idx) => {
         const quantity = Math.max(1, Math.ceil(l.quantity / 2));
-        return { ...l, id: idx + 1, quantity, amount: lineAmount(quantity, l.unitPrice, l.discountPercent) };
+        return {
+          ...l,
+          id: idx + 1,
+          quantity,
+          amount: lineAmount(quantity, l.unitPrice, l.discountPercent)
+        };
       });
       ret.lines = returned;
       ret.subtotal = returned.reduce((sum, l) => sum + l.amount, 0);
@@ -573,7 +623,10 @@ export function getPurchaseTransactionById(id: number): PurchaseTransaction | un
 // Neighbour ids for a detail page's prev/next chevrons — scoped to records of
 // the same type (browsing invoices only skips past orders, etc.), in list
 // order.
-export function getAdjacentTransactionIds(id: number): { prevId: number | null; nextId: number | null } {
+export function getAdjacentTransactionIds(id: number): {
+  prevId: number | null;
+  nextId: number | null;
+} {
   const record = getPurchaseTransactionById(id);
   if (!record) return { prevId: null, nextId: null };
   const sameType = getPurchaseTransactions().filter((t) => t.type === record.type);
@@ -581,7 +634,7 @@ export function getAdjacentTransactionIds(id: number): { prevId: number | null; 
   if (index === -1) return { prevId: null, nextId: null };
   return {
     prevId: sameType[index - 1]?.id ?? null,
-    nextId: sameType[index + 1]?.id ?? null,
+    nextId: sameType[index + 1]?.id ?? null
   };
 }
 
@@ -634,7 +687,7 @@ export function duplicateTransaction(id: number): PurchaseTransaction | undefine
     // invoices (there's nothing billed yet to bundle).
     linkedDeliveryId: null,
     linkedInvoiceId: null,
-    joinedInvoiceIds: [],
+    joinedInvoiceIds: []
   };
 
   transactions.unshift(duplicate);
@@ -735,7 +788,7 @@ export function computeInvoiceTotals(
     shippingFee?: number;
     withholdingPercent?: number;
     depositAmount?: number;
-  } = {},
+  } = {}
 ): PurchaseInvoiceTotals {
   const {
     discountType = "percent",
@@ -743,14 +796,15 @@ export function computeInvoiceTotals(
     priceIncludesTax = false,
     shippingFee = 0,
     withholdingPercent = 0,
-    depositAmount = 0,
+    depositAmount = 0
   } = options;
 
   const gross = lines.reduce((sum, l) => sum + lineGrossAmount(l), 0);
   const net = lines.reduce((sum, l) => sum + lineNetAmount(l), 0);
   const discountPerLines = gross - net;
 
-  const discount = discountType === "percent" ? Math.round(net * (num(discountValue) / 100)) : num(discountValue);
+  const discount =
+    discountType === "percent" ? Math.round(net * (num(discountValue) / 100)) : num(discountValue);
   const afterDiscount = Math.max(0, net - discount);
 
   // One row per distinct tax label, each line contributing its share of the
@@ -760,7 +814,10 @@ export function computeInvoiceTotals(
     const option = TAX_OPTIONS.find((t) => t.label === line.tax);
     if (!option || option.rate === 0) continue;
     const share = net === 0 ? 0 : lineNetAmount(line) / net;
-    byLabel.set(option.label, (byLabel.get(option.label) ?? 0) + Math.round(afterDiscount * share * (option.rate / 100)));
+    byLabel.set(
+      option.label,
+      (byLabel.get(option.label) ?? 0) + Math.round(afterDiscount * share * (option.rate / 100))
+    );
   }
   const taxes = [...byLabel].map(([label, amount]) => ({ label, amount }));
   const taxAmount = taxes.reduce((sum, t) => sum + t.amount, 0);
@@ -779,22 +836,28 @@ export function computeInvoiceTotals(
     total,
     withholding,
     deposit,
-    balanceDue: Math.max(0, total - withholding - deposit),
+    balanceDue: Math.max(0, total - withholding - deposit)
   };
 }
 
 function num(value: number): number {
   return Number(value) || 0;
 }
-function lineGrossAmount(line: Pick<PurchaseTransactionLineInput, "quantity" | "unitPrice">): number {
+function lineGrossAmount(
+  line: Pick<PurchaseTransactionLineInput, "quantity" | "unitPrice">
+): number {
   return num(line.quantity) * num(line.unitPrice);
 }
-function lineNetAmount(line: Pick<PurchaseTransactionLineInput, "quantity" | "unitPrice" | "discountPercent">): number {
+function lineNetAmount(
+  line: Pick<PurchaseTransactionLineInput, "quantity" | "unitPrice" | "discountPercent">
+): number {
   return Math.round(lineGrossAmount(line) * (1 - num(line.discountPercent) / 100));
 }
 /** A single line's payable amount — exported so the form's Amount cell and the
  *  persisted line.amount are computed the same way. */
-export function computeLineAmount(line: Pick<PurchaseTransactionLineInput, "quantity" | "unitPrice" | "discountPercent">): number {
+export function computeLineAmount(
+  line: Pick<PurchaseTransactionLineInput, "quantity" | "unitPrice" | "discountPercent">
+): number {
   return lineNetAmount(line);
 }
 
@@ -809,10 +872,9 @@ function toLines(lines: PurchaseTransactionLineInput[]): PurchaseTransactionLine
     unitPrice: l.unitPrice,
     discountPercent: num(l.discountPercent),
     tax: l.tax,
-    amount: lineNetAmount(l),
+    amount: lineNetAmount(l)
   }));
 }
-
 
 // ---------------------------------------------------------------------------
 // What each transaction type is allowed to carry. The create/edit forms use
@@ -845,37 +907,152 @@ export interface TransactionTypeCapabilities {
 }
 
 export const TYPE_CAPABILITIES: Record<TransactionType, TransactionTypeCapabilities> = {
-  invoice:      { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: true,  shipping: "toggle", deposit: true,  withholding: true,  requestFields: false, bundlesInvoices: false, route: "invoice" },
-  order:        { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: true,  shipping: "toggle", deposit: true,  withholding: false, requestFields: false, bundlesInvoices: false, route: "order" },
-  quote:        { money: true,  term: true,  dueDateLabel: "Expiry date", warehouse: false, shipping: "toggle", deposit: false, withholding: false, requestFields: false, bundlesInvoices: false, route: "quote" },
-  request:      { money: false, term: true,  dueDateLabel: "Due date",    warehouse: false, shipping: "never",  deposit: false, withholding: false, requestFields: true,  bundlesInvoices: false, route: "request" },
-  delivery:     { money: false, term: false, dueDateLabel: "Due date",    warehouse: true,  shipping: "always", deposit: false, withholding: false, requestFields: false, bundlesInvoices: false, route: "delivery" },
-  join_invoice: { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: false, shipping: "never",  deposit: false, withholding: false, requestFields: false, bundlesInvoices: true,  route: "join-invoice" },
+  invoice: {
+    money: true,
+    term: true,
+    dueDateLabel: "Due date",
+    warehouse: true,
+    shipping: "toggle",
+    deposit: true,
+    withholding: true,
+    requestFields: false,
+    bundlesInvoices: false,
+    route: "invoice"
+  },
+  order: {
+    money: true,
+    term: true,
+    dueDateLabel: "Due date",
+    warehouse: true,
+    shipping: "toggle",
+    deposit: true,
+    withholding: false,
+    requestFields: false,
+    bundlesInvoices: false,
+    route: "order"
+  },
+  quote: {
+    money: true,
+    term: true,
+    dueDateLabel: "Expiry date",
+    warehouse: false,
+    shipping: "toggle",
+    deposit: false,
+    withholding: false,
+    requestFields: false,
+    bundlesInvoices: false,
+    route: "quote"
+  },
+  request: {
+    money: false,
+    term: true,
+    dueDateLabel: "Due date",
+    warehouse: false,
+    shipping: "never",
+    deposit: false,
+    withholding: false,
+    requestFields: true,
+    bundlesInvoices: false,
+    route: "request"
+  },
+  delivery: {
+    money: false,
+    term: false,
+    dueDateLabel: "Due date",
+    warehouse: true,
+    shipping: "always",
+    deposit: false,
+    withholding: false,
+    requestFields: false,
+    bundlesInvoices: false,
+    route: "delivery"
+  },
+  join_invoice: {
+    money: true,
+    term: true,
+    dueDateLabel: "Due date",
+    warehouse: false,
+    shipping: "never",
+    deposit: false,
+    withholding: false,
+    requestFields: false,
+    bundlesInvoices: true,
+    route: "join-invoice"
+  },
   // Financing is a list-only tab in the reference app — no detail or form
   // route exists for it there either, so nothing here can create one.
-  financing:    { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: false, shipping: "never",  deposit: false, withholding: false, requestFields: false, bundlesInvoices: false, route: "" },
+  financing: {
+    money: true,
+    term: true,
+    dueDateLabel: "Due date",
+    warehouse: false,
+    shipping: "never",
+    deposit: false,
+    withholding: false,
+    requestFields: false,
+    bundlesInvoices: false,
+    route: ""
+  },
   // A return carries shipping unconditionally (the goods are going back), and
   // has no deposit or withholding of its own — it credits against an invoice.
-  return:       { money: true,  term: true,  dueDateLabel: "Due date",    warehouse: true,  shipping: "always", deposit: false, withholding: false, requestFields: false, bundlesInvoices: false, route: "return" },
+  return: {
+    money: true,
+    term: true,
+    dueDateLabel: "Due date",
+    warehouse: true,
+    shipping: "always",
+    deposit: false,
+    withholding: false,
+    requestFields: false,
+    bundlesInvoices: false,
+    route: "return"
+  }
 };
 
 export function emptyTransactionInput(): PurchaseTransactionInput {
   return {
-    vendorName: "", vendorAddress: "", email: [],
-    transactionDateIso: "", dueDateIso: "", term: "",
-    transactionNo: "", referenceNo: "", warehouse: "", tags: [],
-    currency: "IDR", priceIncludesTax: false,
-    shippingInfo: false, shippingAddress: "", shippingDateIso: "", shipVia: "", trackingNo: "", shippingFee: 0,
-    discountType: "percent", discountValue: 0, withholdingPercent: 0, depositAmount: 0,
-    attachments: [], message: "", memo: "", lines: [],
-    procurementStaff: "", requestorName: "", requestorEmail: "", urgency: null, relatedBudgetYear: "",
-    joinedInvoiceIds: [], linkedInvoiceId: null,
+    vendorName: "",
+    vendorAddress: "",
+    email: [],
+    transactionDateIso: "",
+    dueDateIso: "",
+    term: "",
+    transactionNo: "",
+    referenceNo: "",
+    warehouse: "",
+    tags: [],
+    currency: "IDR",
+    priceIncludesTax: false,
+    shippingInfo: false,
+    shippingAddress: "",
+    shippingDateIso: "",
+    shipVia: "",
+    trackingNo: "",
+    shippingFee: 0,
+    discountType: "percent",
+    discountValue: 0,
+    withholdingPercent: 0,
+    depositAmount: 0,
+    attachments: [],
+    message: "",
+    memo: "",
+    lines: [],
+    procurementStaff: "",
+    requestorName: "",
+    requestorEmail: "",
+    urgency: null,
+    relatedBudgetYear: "",
+    joinedInvoiceIds: [],
+    linkedInvoiceId: null
   };
 }
 
 /** A record by id, but only if it is of the expected type — so an edit route
  *  for one type can't open a record of another. */
-export function getTransactionOfType(id: number, type: TransactionType): PurchaseTransaction | undefined {
+export function getTransactionOfType(
+  id: number,
+  type: TransactionType
+): PurchaseTransaction | undefined {
   const t = getPurchaseTransactionById(id);
   return t && t.type === type ? t : undefined;
 }
@@ -883,13 +1060,18 @@ export function getTransactionOfType(id: number, type: TransactionType): Purchas
 /** Every Return raised against a given invoice — the reverse of
  *  `linkedInvoiceId`, resolved by lookup rather than stored twice. */
 export function getReturnsForInvoice(invoiceId: number): PurchaseTransaction[] {
-  return getPurchaseTransactions().filter((t) => t.type === "return" && t.linkedInvoiceId === invoiceId);
+  return getPurchaseTransactions().filter(
+    (t) => t.type === "return" && t.linkedInvoiceId === invoiceId
+  );
 }
 
 /** How much of each invoice line is still returnable: the invoiced quantity
  *  less whatever earlier returns already sent back. Keyed by line product,
  *  which is what identifies a line across the two records here. */
-export function returnableQuantities(invoiceId: number, excludeReturnId?: number): Map<string, number> {
+export function returnableQuantities(
+  invoiceId: number,
+  excludeReturnId?: number
+): Map<string, number> {
   const invoice = getPurchaseTransactionById(invoiceId);
   const remaining = new Map<string, number>();
   if (!invoice) return remaining;
@@ -911,13 +1093,18 @@ export function getPurchaseInvoiceById(id: number): PurchaseTransaction | undefi
 
 // Creates a new draft invoice (status "open", no payments yet) and appends it
 // to the shared in-memory list — a real screen would POST to the API instead.
-export function createTransaction(type: TransactionType, input: PurchaseTransactionInput): PurchaseTransaction {
+export function createTransaction(
+  type: TransactionType,
+  input: PurchaseTransactionInput
+): PurchaseTransaction {
   const cap = TYPE_CAPABILITIES[type];
   const transactions = getPurchaseTransactions();
   const nextId = transactions.reduce((max, t) => Math.max(max, t.id), 0) + 1;
   const lines = toLines(input.lines);
   const totals = totalsFor(input, type);
-  const txDate = input.transactionDateIso ? parseLocalIsoDate(input.transactionDateIso) : new Date();
+  const txDate = input.transactionDateIso
+    ? parseLocalIsoDate(input.transactionDateIso)
+    : new Date();
   const due = input.dueDateIso ? parseLocalIsoDate(input.dueDateIso) : txDate;
   const shipDate = input.shippingDateIso ? parseLocalIsoDate(input.shippingDateIso) : txDate;
 
@@ -970,7 +1157,7 @@ export function createTransaction(type: TransactionType, input: PurchaseTransact
     payments: [],
     linkedDeliveryId: null,
     linkedInvoiceId: type === "return" ? input.linkedInvoiceId : null,
-    joinedInvoiceIds: cap.bundlesInvoices ? input.joinedInvoiceIds : [],
+    joinedInvoiceIds: cap.bundlesInvoices ? input.joinedInvoiceIds : []
   };
 
   if (cap.bundlesInvoices) applyBundledInvoiceTotals(record);
@@ -989,7 +1176,7 @@ function shippingFields(
   cap: TransactionTypeCapabilities,
   input: PurchaseTransactionInput,
   shipDate: Date,
-  shippingFee: number,
+  shippingFee: number
 ) {
   const on = cap.shipping === "always" || (cap.shipping === "toggle" && input.shippingInfo);
   return {
@@ -999,7 +1186,7 @@ function shippingFields(
     shippingDateSort: on ? toLocalIsoDate(shipDate) : "",
     shipVia: on ? input.shipVia : "",
     trackingNo: on ? input.trackingNo : "",
-    shippingFee: on ? shippingFee : 0,
+    shippingFee: on ? shippingFee : 0
   };
 }
 
@@ -1026,7 +1213,18 @@ function totalsFor(input: PurchaseTransactionInput, type: TransactionType): Purc
   // carry quantities only, so summing prices would invent a total its own
   // screens never show.
   if (!cap.money) {
-    return { subtotal: 0, discountPerLines: 0, discount: 0, taxes: [], taxAmount: 0, shippingFee: 0, total: 0, withholding: 0, deposit: 0, balanceDue: 0 };
+    return {
+      subtotal: 0,
+      discountPerLines: 0,
+      discount: 0,
+      taxes: [],
+      taxAmount: 0,
+      shippingFee: 0,
+      total: 0,
+      withholding: 0,
+      deposit: 0,
+      balanceDue: 0
+    };
   }
   const shippingOn = cap.shipping === "always" || (cap.shipping === "toggle" && input.shippingInfo);
   return computeInvoiceTotals(input.lines, {
@@ -1035,21 +1233,28 @@ function totalsFor(input: PurchaseTransactionInput, type: TransactionType): Purc
     priceIncludesTax: input.priceIncludesTax,
     shippingFee: shippingOn ? input.shippingFee : 0,
     withholdingPercent: cap.withholding ? input.withholdingPercent : 0,
-    depositAmount: cap.deposit ? input.depositAmount : 0,
+    depositAmount: cap.deposit ? input.depositAmount : 0
   });
 }
 
 // Merges form input into an existing invoice in place (keeps its id/number/
 // status/payments) and recomputes totals — a real screen would PATCH/PUT.
-export function updateTransaction(id: number, input: PurchaseTransactionInput): PurchaseTransaction | undefined {
+export function updateTransaction(
+  id: number,
+  input: PurchaseTransactionInput
+): PurchaseTransaction | undefined {
   const record = getPurchaseTransactionById(id);
   if (!record) return undefined;
   const cap = TYPE_CAPABILITIES[record.type];
 
   const lines = toLines(input.lines);
   const totals = totalsFor(input, record.type);
-  const txDate = input.transactionDateIso ? parseLocalIsoDate(input.transactionDateIso) : parseLocalIsoDate(record.transactionDateSort);
-  const due = input.dueDateIso ? parseLocalIsoDate(input.dueDateIso) : parseLocalIsoDate(record.dueDateSort);
+  const txDate = input.transactionDateIso
+    ? parseLocalIsoDate(input.transactionDateIso)
+    : parseLocalIsoDate(record.transactionDateSort);
+  const due = input.dueDateIso
+    ? parseLocalIsoDate(input.dueDateIso)
+    : parseLocalIsoDate(record.dueDateSort);
   const shipDate = input.shippingDateIso ? parseLocalIsoDate(input.shippingDateIso) : txDate;
 
   Object.assign(record, {
@@ -1091,7 +1296,7 @@ export function updateTransaction(id: number, input: PurchaseTransactionInput): 
     attachments: input.attachments,
     // amountReceived is payment history, not form input — the balance still
     // has to net it off.
-    balanceDue: Math.max(0, totals.balanceDue - record.amountReceived),
+    balanceDue: Math.max(0, totals.balanceDue - record.amountReceived)
   });
 
   if (cap.bundlesInvoices) applyBundledInvoiceTotals(record);
@@ -1099,6 +1304,9 @@ export function updateTransaction(id: number, input: PurchaseTransactionInput): 
 }
 
 /** @deprecated Use updateTransaction(id, input). */
-export function updatePurchaseInvoice(id: number, input: PurchaseTransactionInput): PurchaseTransaction | undefined {
+export function updatePurchaseInvoice(
+  id: number,
+  input: PurchaseTransactionInput
+): PurchaseTransaction | undefined {
   return updateTransaction(id, input);
 }

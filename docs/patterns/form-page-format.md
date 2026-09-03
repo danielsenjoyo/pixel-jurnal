@@ -45,16 +45,16 @@ a handful of fields inside a panel — that's a [`Drawer`](./Drawer.md) or a
 
 ## Zone → pattern map
 
-| Zone | Piece                             | Pattern                                                        | Optional? |
-| ---- | --------------------------------- | -------------------------------------------------------------- | --------- |
-| —    | Breadcrumb + title                | [`page-title-bar`](./page-title-bar.md)                        | required  |
-| —    | `#actions` = **record-type switch** | [`page-title-bar`](./page-title-bar.md)                       | optional  |
-| A    | Identity row + running total      | [`Form`](./Form.md) fields, total as plain `MpText`            | required  |
-| B    | Meta grid                         | [`Form`](./Form.md)                                            | required  |
-| C    | Document-wide switches            | [`Form`](./Form.md) (`MpSelect` + `MpCheckbox`)                | optional  |
-| D    | Editable line items               | [`TablePage`](./TablePage.md) (inputs in cells)                | when the record has lines |
-| E    | Notes / attachments / totals      | [`Form`](./Form.md) + `MpUpload`                               | optional  |
-| F    | Action bar                        | Bottom action row (below) + [`Modal`](./Modal.md) for discard  | required  |
+| Zone | Piece                               | Pattern                                                       | Optional?                 |
+| ---- | ----------------------------------- | ------------------------------------------------------------- | ------------------------- |
+| —    | Breadcrumb + title                  | [`page-title-bar`](./page-title-bar.md)                       | required                  |
+| —    | `#actions` = **record-type switch** | [`page-title-bar`](./page-title-bar.md)                       | optional                  |
+| A    | Identity row + running total        | [`Form`](./Form.md) fields, total as plain `MpText`           | required                  |
+| B    | Meta grid                           | [`Form`](./Form.md)                                           | required                  |
+| C    | Document-wide switches              | [`Form`](./Form.md) (`MpSelect` + `MpCheckbox`)               | optional                  |
+| D    | Editable line items                 | [`TablePage`](./TablePage.md) (inputs in cells)               | when the record has lines |
+| E    | Notes / attachments / totals        | [`Form`](./Form.md) + `MpUpload`                              | optional                  |
+| F    | Action bar                          | Bottom action row (below) + [`Modal`](./Modal.md) for discard | required                  |
 
 ## Rules
 
@@ -83,8 +83,8 @@ a handful of fields inside a panel — that's a [`Drawer`](./Drawer.md) or a
   modal.
 - **Totals stack order is fixed**, because it mirrors how the amount is actually
   derived: `Subtotal → per-line discount → transaction discount → tax rows →
-  shipping → ── divider ── → Total → withholding → deposit → ── divider ──
-  → Balance due`. The two dashed dividers are what make it readable as three
+shipping → ── divider ── → Total → withholding → deposit → ── divider ──
+→ Balance due`. The two dashed dividers are what make it readable as three
   groups (what's charged / what it totals / what's owed).
 - **Styling uses Panda `css()` with Pixel token shortcuts only** — no `<style>`
   blocks, no inline `style` (except genuinely dynamic values like a computed
@@ -95,10 +95,10 @@ a handful of fields inside a panel — that's a [`Drawer`](./Drawer.md) or a
 Both, and the split is a judgement call worth making explicitly.
 
 **Share one component** across types whose field sets differ only by
-*presence* — invoice, order and quote are the same document with a few zones
+_presence_ — invoice, order and quote are the same document with a few zones
 toggled, so they share `PurchaseTransactionForm.vue` and a `type` prop.
 
-**Write a separate component** when the field set differs in *kind*. Request has
+**Write a separate component** when the field set differs in _kind_. Request has
 no money anywhere and adds requestor/urgency/budget-year; Delivery makes
 shipping unconditional and drops pricing; Join Invoice has no line items at all
 — its "items" are other invoice records. Forcing those through the shared form
@@ -109,7 +109,7 @@ reference app makes, which is a good sign it's the natural seam.
 the template.** `TYPE_CAPABILITIES` in
 [`purchase-transactions.ts`](../../app/data/purchase-transactions.ts) declares
 what each type carries (`money`, `term`, `dueDateLabel`, `warehouse`,
-`shipping`, `deposit`, `withholding`, …), and both the form *and* the
+`shipping`, `deposit`, `withholding`, …), and both the form _and_ the
 create/update writers read it — so a type can never persist a value its own
 screens never showed. A Request can't end up with a deposit.
 
@@ -121,7 +121,7 @@ hidden entirely in edit mode — an existing record's type is fixed.
 
 ## Two layout rules the Purchase screenshots corrected
 
-- **Keep one column rhythm down the whole page.** The meta grid uses the *same*
+- **Keep one column rhythm down the whole page.** The meta grid uses the _same_
   `repeat(4, 1fr)` as the identity row above it, and simply leaves its unused
   columns empty — it does not re-divide the width among however many fields the
   section happens to have. Dropping to `repeat(3, 1fr)` because a section only
@@ -147,7 +147,7 @@ hidden entirely in edit mode — an existing record's type is fixed.
 
 Not every line-items table is built from scratch. A Purchase Return's rows are
 whatever the invoice it credits already has, and the only editable figure per
-row is *how many come back*. So that form has **no product picker and no
+row is _how many come back_. So that form has **no product picker and no
 trailing add row** — the two affordances every other form here relies on.
 
 - **Load the rows from the parent record, and cap each one.** The cap is the
@@ -156,7 +156,7 @@ trailing add row** — the two affordances every other form here relies on.
   bought. Show the cap next to the field ("of 3") rather than only enforcing it
   on submit.
 - **Surface an over-limit as its own message naming the line.** A generic
-  "invalid" can't say *which* product is over, and the number differs per row.
+  "invalid" can't say _which_ product is over, and the number differs per row.
 - **The parent is the entry point.** The reference app reaches this form from
   the invoice's Actions menu, passing the id in the query — there is no Return
   list tab, there or here. Add the reverse link on the parent (the invoice
@@ -173,13 +173,13 @@ one.
 
 - **Show the running figures, not just the verdict.** Total expense / Allocated
   / Remaining sit under the table, updating as you type. A form that only tells
-  you the sum is wrong *after* you press Save makes you hunt for the shortfall.
+  you the sum is wrong _after_ you press Save makes you hunt for the shortfall.
 - **State the shortfall as an amount, not a condition.** The banner reads
   "Rp15.290,00 still to allocate", not "allocation must balance". The number is
   the thing the user has to act on.
 - **Block the save, don't warn after it.** An unallocated remainder would
   silently drop out of the costing — there is no sensible record to write. This
-  is the one place validation is about a *relationship between* rows rather
+  is the one place validation is about a _relationship between_ rows rather
   than a field, so it lives in `isValid` alongside the field checks and feeds
   the same `missingFields` banner (buttons still never disable — see
   [Validation](#validation)).
@@ -237,13 +237,13 @@ The table from [`TablePage`](./TablePage.md), with form controls in the cells.
   `:is-invalid` to `submitted && !value` so errors appear only after a commit
   attempt, never while the user is still typing.
 - **Never disable the commit button on validity.** If the submit button is
-  `:is-disabled="!isValid"` *and* the `submitted` flag is only set inside the
+  `:is-disabled="!isValid"` _and_ the `submitted` flag is only set inside the
   submit handler, the error messages become unreachable: a disabled button can't
   fire the handler that would reveal what's missing, so the user just sees dead
   controls. (This exact dead end shipped and was caught in the Purchase audit.)
   **The pattern:** leave commit buttons always enabled; `onSubmit()` sets
   `submitted = true`, returns early when invalid, and the page shows both the
-  per-field `MpFormErrorMessage`s *and* a danger `MpBanner` naming what is
+  per-field `MpFormErrorMessage`s _and_ a danger `MpBanner` naming what is
   outstanding — driven by a `missingFields` computed. The banner matters because
   some failures (e.g. "no line items") have no single field to mark red.
 - Cancel from a dirty form should confirm via a [`Modal`](./Modal.md) before
@@ -300,9 +300,9 @@ Every page built in this module, and the archetype it follows.
 | `/purchase/delivery/new` + `edit/[id]` | **form**  | `PurchaseDeliveryForm` — shipping intrinsic, shipping fee only |
 | `/purchase/join-invoice/new` + `edit`  | **form**  | `PurchaseJoinInvoiceForm` — bundles invoice records            |
 | `/purchase/return/[id]`                | details   | Credits one invoice; links back to it                          |
-| `/purchase/return/new` + `edit/[id]`   | **form**  | `PurchaseReturnForm` — quantities off a chosen invoice          |
-| `/purchase/landed-cost/[id]`           | details   | Two tables; no vendor/status; Delete + Edit                     |
-| `/purchase/landed-cost/new` + `edit`   | **form**  | `LandedCostForm` — must balance to zero before saving           |
+| `/purchase/return/new` + `edit/[id]`   | **form**  | `PurchaseReturnForm` — quantities off a chosen invoice         |
+| `/purchase/landed-cost/[id]`           | details   | Two tables; no vendor/status; Delete + Edit                    |
+| `/purchase/landed-cost/new` + `edit`   | **form**  | `LandedCostForm` — must balance to zero before saving          |
 
 **Financing** is a list-only tab: the reference app has no detail or form route
 for it either, so neither does this clone. `TYPE_CAPABILITIES.financing.route`

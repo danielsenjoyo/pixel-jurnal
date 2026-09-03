@@ -12,7 +12,9 @@
            while creating — an existing record's type is fixed. -->
       <div v-if="!isEdit" :class="typeSelectClass">
         <MpSelect :model-value="props.type" is-full-width @update:model-value="onTypeSwitch">
-          <option v-for="opt in TYPE_SWITCH_OPTIONS" :key="opt.type" :value="opt.type">{{ opt.label }}</option>
+          <option v-for="opt in TYPE_SWITCH_OPTIONS" :key="opt.type" :value="opt.type">
+            {{ opt.label }}
+          </option>
         </MpSelect>
       </div>
     </template>
@@ -39,13 +41,19 @@
       </MpFormControl>
 
       <div :class="shippingToggleClass">
-        <MpCheckbox v-if="cap.shipping === 'toggle'" :is-checked="shippingInfo" @change="shippingInfo = !shippingInfo">
+        <MpCheckbox
+          v-if="cap.shipping === 'toggle'"
+          :is-checked="shippingInfo"
+          @change="shippingInfo = !shippingInfo"
+        >
           Shipping info
         </MpCheckbox>
       </div>
 
       <div :class="totalPreviewClass">
-        <MpText size="h3" weight="semiBold" color="dark">Total {{ formatCurrency(totals.total) }}</MpText>
+        <MpText size="h3" weight="semiBold" color="dark"
+          >Total {{ formatCurrency(totals.total) }}</MpText
+        >
       </div>
     </div>
 
@@ -57,7 +65,11 @@
       <div :class="metaColClass">
         <MpFormControl>
           <MpFormLabel>Billing address</MpFormLabel>
-          <MpTextarea v-model="form.vendorAddress" placeholder="e.g. Jalan Indonesia Blok C No. 22" is-full-width />
+          <MpTextarea
+            v-model="form.vendorAddress"
+            placeholder="e.g. Jalan Indonesia Blok C No. 22"
+            is-full-width
+          />
         </MpFormControl>
 
         <MpFormControl v-if="shippingInfo">
@@ -68,7 +80,11 @@
             placeholder="e.g. Jalan Indonesia Blok C No. 22"
             is-full-width
           />
-          <MpCheckbox :class="sameAddressClass" :is-checked="sameAddress" @change="sameAddress = !sameAddress">
+          <MpCheckbox
+            :class="sameAddressClass"
+            :is-checked="sameAddress"
+            @change="sameAddress = !sameAddress"
+          >
             Same as billing address
           </MpCheckbox>
         </MpFormControl>
@@ -135,7 +151,11 @@
               </MpTooltip>
             </span>
           </MpFormLabel>
-          <MpInput v-model="form.transactionNo" :placeholder="isEdit ? '' : '[Auto]'" is-full-width />
+          <MpInput
+            v-model="form.transactionNo"
+            :placeholder="isEdit ? '' : '[Auto]'"
+            is-full-width
+          />
         </MpFormControl>
         <MpFormControl>
           <MpFormLabel>Vendor reference number</MpFormLabel>
@@ -155,7 +175,9 @@
           <MpFormLabel>
             <span :class="labelWithIconClass">
               Tag
-              <MpText v-if="form.tags.length" as="span" size="body-small" color="gray.600">({{ form.tags.length }})</MpText>
+              <MpText v-if="form.tags.length" as="span" size="body-small" color="gray.600"
+                >({{ form.tags.length }})</MpText
+              >
             </span>
           </MpFormLabel>
           <MpSelect :model-value="''" is-full-width @update:model-value="addTag">
@@ -163,7 +185,14 @@
             <option v-for="tag in availableTags" :key="tag" :value="tag">{{ tag }}</option>
           </MpSelect>
           <MpFlex v-if="form.tags.length" gap="2" wrap="wrap" :class="tagListClass">
-            <MpTag v-for="tag in form.tags" :key="tag" variant="gray" size="sm" is-closable @close="removeTag(tag)">
+            <MpTag
+              v-for="tag in form.tags"
+              :key="tag"
+              variant="gray"
+              size="sm"
+              is-closable
+              @close="removeTag(tag)"
+            >
               {{ tag }}
             </MpTag>
           </MpFlex>
@@ -229,11 +258,18 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpSelect v-model="line.product" is-full-width @change="onLineProductChange(index)">
                 <option value="">Select product</option>
-                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">{{ p.name }}</option>
+                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">
+                  {{ p.name }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
-              <MpTextarea v-model="line.description" placeholder="Enter description" rows="1" is-full-width />
+              <MpTextarea
+                v-model="line.description"
+                placeholder="Enter description"
+                rows="1"
+                is-full-width
+              />
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpInput v-model.number="line.quantity" type="number" is-full-width />
@@ -244,7 +280,9 @@
                    is chosen, since the unit list comes from the product. -->
               <MpSelect v-model="line.unit" :is-disabled="!line.product" is-full-width>
                 <option value="">Select unit</option>
-                <option v-for="u in unitOptionsFor(line.product)" :key="u" :value="u">{{ u }}</option>
+                <option v-for="u in unitOptionsFor(line.product)" :key="u" :value="u">
+                  {{ u }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
@@ -278,13 +316,19 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpInputGroup>
                 <MpInputLeftAddon>%</MpInputLeftAddon>
-                <MpInput v-model.number="line.discountPercent" type="number" :class="numInputClass" />
+                <MpInput
+                  v-model.number="line.discountPercent"
+                  type="number"
+                  :class="numInputClass"
+                />
               </MpInputGroup>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpSelect v-model="line.tax" is-full-width>
                 <option value="">Select tax</option>
-                <option v-for="t in TAX_OPTIONS" :key="t.label" :value="t.label">{{ t.label }}</option>
+                <option v-for="t in TAX_OPTIONS" :key="t.label" :value="t.label">
+                  {{ t.label }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
@@ -292,7 +336,11 @@
                    Rp-addon field so the column lines up with Unit price. -->
               <MpInputGroup>
                 <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                <MpInput :model-value="formatAmount(computeLineAmount(line))" :class="numInputClass" is-read-only />
+                <MpInput
+                  :model-value="formatAmount(computeLineAmount(line))"
+                  :class="numInputClass"
+                  is-read-only
+                />
               </MpInputGroup>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
@@ -314,7 +362,9 @@
             <MpTableCell as="td" :class="lineCellClass">
               <MpSelect :model-value="''" is-full-width @update:model-value="addLineFromProduct">
                 <option value="">Select product</option>
-                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">{{ p.name }}</option>
+                <option v-for="p in PRODUCT_OPTIONS" :key="p.name" :value="p.name">
+                  {{ p.name }}
+                </option>
               </MpSelect>
             </MpTableCell>
             <MpTableCell v-for="n in 8" :key="n" as="td" :class="lineCellClass" />
@@ -324,7 +374,9 @@
     </MpTableContainer>
 
     <MpFormControl v-if="submitted && !hasValidLine" :is-invalid="true" :class="lineErrorClass">
-      <MpFormErrorMessage>Add at least one line with a product, quantity, and unit price.</MpFormErrorMessage>
+      <MpFormErrorMessage
+        >Add at least one line with a product, quantity, and unit price.</MpFormErrorMessage
+      >
     </MpFormControl>
 
     <!-- Zone 5 — notes + attachments (left, 25%) / totals (right, 50%). -->
@@ -373,16 +425,24 @@
                   <MpPopover use-portal is-adaptive-width>
                     <MpPopoverTrigger>
                       <button type="button" :class="discountTypeButtonClass">
-                        <MpText weight="semiBold">{{ discountType === "percent" ? "%" : "Rp" }}</MpText>
+                        <MpText weight="semiBold">{{
+                          discountType === "percent" ? "%" : "Rp"
+                        }}</MpText>
                         <MpIcon name="chevrons-down" size="sm" />
                       </button>
                     </MpPopoverTrigger>
                     <MpPopoverContent>
                       <MpPopoverList>
-                        <MpPopoverListItem :is-active="discountType === 'percent'" @click="discountType = 'percent'">
+                        <MpPopoverListItem
+                          :is-active="discountType === 'percent'"
+                          @click="discountType = 'percent'"
+                        >
                           %
                         </MpPopoverListItem>
-                        <MpPopoverListItem :is-active="discountType === 'value'" @click="discountType = 'value'">
+                        <MpPopoverListItem
+                          :is-active="discountType === 'value'"
+                          @click="discountType = 'value'"
+                        >
                           Rp
                         </MpPopoverListItem>
                       </MpPopoverList>
@@ -404,7 +464,12 @@
         <div v-if="shippingInfo" :class="totalsRowClass">
           <MpText>Shipping fee</MpText>
           <div :class="shippingFeeInputClass">
-            <MpInput v-model.number="shippingFee" type="number" :class="numInputClass" is-full-width />
+            <MpInput
+              v-model.number="shippingFee"
+              type="number"
+              :class="numInputClass"
+              is-full-width
+            />
           </div>
         </div>
 
@@ -419,7 +484,13 @@
           <MpCheckbox :is-checked="withholdingCheck" @change="withholdingCheck = !withholdingCheck">
             Withholding
           </MpCheckbox>
-          <MpFlex v-if="withholdingCheck" align="center" justify="space-between" gap="3" :class="totalsCheckFieldClass">
+          <MpFlex
+            v-if="withholdingCheck"
+            align="center"
+            justify="space-between"
+            gap="3"
+            :class="totalsCheckFieldClass"
+          >
             <div :class="discountInputClass">
               <MpInputGroup>
                 <MpInputLeftAddon>%</MpInputLeftAddon>
@@ -431,9 +502,16 @@
         </div>
 
         <div v-if="cap.deposit" :class="totalsCheckRowClass">
-          <MpCheckbox :is-checked="depositCheck" @change="depositCheck = !depositCheck">Deposit</MpCheckbox>
+          <MpCheckbox :is-checked="depositCheck" @change="depositCheck = !depositCheck"
+            >Deposit</MpCheckbox
+          >
           <div v-if="depositCheck" :class="[shippingFeeInputClass, totalsCheckFieldClass]">
-            <MpInput v-model.number="depositAmount" type="number" :class="numInputClass" is-full-width />
+            <MpInput
+              v-model.number="depositAmount"
+              type="number"
+              :class="numInputClass"
+              is-full-width
+            />
           </div>
         </div>
 
@@ -441,7 +519,9 @@
 
         <div :class="totalsRowClass">
           <MpText size="h3" weight="semiBold" color="dark">Balance due</MpText>
-          <MpText size="h3" weight="semiBold" color="dark">{{ formatCurrency(totals.balanceDue) }}</MpText>
+          <MpText size="h3" weight="semiBold" color="dark">{{
+            formatCurrency(totals.balanceDue)
+          }}</MpText>
         </div>
       </div>
     </div>
@@ -458,7 +538,11 @@
       <MpBanner variant="danger" is-inline>
         <MpBannerIcon />
         <MpBannerDescription>
-          {{ missingFields.length === 1 ? "One thing is still missing:" : `${missingFields.length} things are still missing:` }}
+          {{
+            missingFields.length === 1
+              ? "One thing is still missing:"
+              : `${missingFields.length} things are still missing:`
+          }}
           {{ missingFields.join(", ") }}.
         </MpBannerDescription>
       </MpBanner>
@@ -489,7 +573,9 @@
               </MpPopoverTrigger>
               <MpPopoverContent>
                 <MpPopoverList>
-                  <MpPopoverListItem role="menuitem" @click="onSubmit({ andNew: true })">Create and new</MpPopoverListItem>
+                  <MpPopoverListItem role="menuitem" @click="onSubmit({ andNew: true })"
+                    >Create and new</MpPopoverListItem
+                  >
                 </MpPopoverList>
               </MpPopoverContent>
             </template>
@@ -538,7 +624,7 @@ import {
   MpText,
   MpTextarea,
   MpTooltip,
-  MpUpload,
+  MpUpload
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
@@ -563,7 +649,7 @@ import {
   updateTransaction,
   type DiscountType,
   type PurchaseTransactionInput,
-  type TransactionType,
+  type TransactionType
 } from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
@@ -619,7 +705,7 @@ const TYPE_SWITCH_OPTIONS: { type: TransactionType; label: string }[] = [
   { type: "order", label: TRANSACTION_TYPE_LABEL.order },
   { type: "quote", label: TRANSACTION_TYPE_LABEL.quote },
   { type: "request", label: TRANSACTION_TYPE_LABEL.request },
-  { type: "delivery", label: TRANSACTION_TYPE_LABEL.delivery },
+  { type: "delivery", label: TRANSACTION_TYPE_LABEL.delivery }
 ];
 function onTypeSwitch(next: unknown) {
   const type = String(next ?? "") as TransactionType;
@@ -629,7 +715,9 @@ function onTypeSwitch(next: unknown) {
 const typeLabel = computed(() => TRANSACTION_TYPE_LABEL[props.type]);
 
 const isEdit = computed(() => props.recordId != null);
-const existing = computed(() => (props.recordId != null ? getTransactionOfType(props.recordId, props.type) : undefined));
+const existing = computed(() =>
+  props.recordId != null ? getTransactionOfType(props.recordId, props.type) : undefined
+);
 
 const currency = ref("IDR");
 const priceIncludesTax = ref(false);
@@ -664,7 +752,17 @@ interface LineForm {
 let lineKeySeq = 0;
 function blankLine(): LineForm {
   lineKeySeq += 1;
-  return { key: lineKeySeq, product: "", description: "", quantity: 1, unit: "", unitPrice: 0, unitPriceText: "", discountPercent: 0, tax: "" };
+  return {
+    key: lineKeySeq,
+    product: "",
+    description: "",
+    quantity: 1,
+    unit: "",
+    unitPrice: 0,
+    unitPriceText: "",
+    discountPercent: 0,
+    tax: ""
+  };
 }
 
 // Dates are held as "DD/MM/YYYY" strings — that's MpDatePicker's `format` with
@@ -686,7 +784,7 @@ const form = reactive({
   tags: [] as string[],
   message: "",
   memo: "",
-  lines: [] as LineForm[],
+  lines: [] as LineForm[]
 });
 const emailText = ref("");
 const submitted = ref(false);
@@ -736,7 +834,7 @@ function loadFromExisting() {
     unitPrice: l.unitPrice,
     unitPriceText: formatAmount(l.unitPrice),
     discountPercent: l.discountPercent,
-    tax: l.tax,
+    tax: l.tax
   }));
   emailText.value = inv.email.join(", ");
 
@@ -760,7 +858,7 @@ function loadFromExisting() {
 watch(existing, loadFromExisting, { immediate: true });
 
 const pageTitle = computed(() =>
-  isEdit.value ? `Edit ${existing.value?.number ?? typeLabel.value}` : `Create ${typeLabel.value}`,
+  isEdit.value ? `Edit ${existing.value?.number ?? typeLabel.value}` : `Create ${typeLabel.value}`
 );
 
 // Prefill the vendor address whenever the vendor selection changes — the
@@ -770,7 +868,7 @@ watch(
   (name) => {
     const vendor = VENDOR_OPTIONS.find((v) => v.name === name);
     if (vendor) form.vendorAddress = vendor.address;
-  },
+  }
 );
 
 const availableTags = computed(() => TAG_OPTIONS.filter((t) => !form.tags.includes(t)));
@@ -842,12 +940,16 @@ const totals = computed(() =>
     priceIncludesTax: priceIncludesTax.value,
     shippingFee: shippingInfo.value ? shippingFee.value : 0,
     withholdingPercent: withholdingCheck.value ? withholdingPercent.value : 0,
-    depositAmount: depositCheck.value ? depositAmount.value : 0,
-  }),
+    depositAmount: depositCheck.value ? depositAmount.value : 0
+  })
 );
 
-const hasValidLine = computed(() => form.lines.some((l) => l.product && l.quantity > 0 && l.unitPrice > 0));
-const isValid = computed(() => Boolean(form.vendorName && form.transactionDateIso) && hasValidLine.value);
+const hasValidLine = computed(() =>
+  form.lines.some((l) => l.product && l.quantity > 0 && l.unitPrice > 0)
+);
+const isValid = computed(
+  () => Boolean(form.vendorName && form.transactionDateIso) && hasValidLine.value
+);
 
 // Named so the validation summary can say what is actually outstanding rather
 // than just "the form is invalid" — the summary is the only feedback a user
@@ -856,7 +958,8 @@ const missingFields = computed(() => {
   const missing: string[] = [];
   if (!form.vendorName) missing.push("Vendor");
   if (!form.transactionDateIso) missing.push("Transaction date");
-  if (!hasValidLine.value) missing.push("at least one line with a product, quantity and unit price");
+  if (!hasValidLine.value)
+    missing.push("at least one line with a product, quantity and unit price");
   return missing;
 });
 
@@ -904,8 +1007,8 @@ function buildInput(): PurchaseTransactionInput {
         quantity: l.quantity,
         unitPrice: l.unitPrice,
         discountPercent: l.discountPercent,
-        tax: l.tax,
-      })),
+        tax: l.tax
+      }))
   };
 }
 
@@ -974,20 +1077,43 @@ function onCancel() {
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
 const typeSelectClass = css({ width: "200px" });
 
-const topGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
+const topGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 const shippingToggleClass = css({ display: "flex", alignItems: "center", height: "10", mt: 6 });
-const totalPreviewClass = css({ display: "flex", justifyContent: "flex-end", alignItems: "center", height: "10", mt: 6 });
+const totalPreviewClass = css({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  height: "10",
+  mt: 6
+});
 
 const dividerClass = css({ my: 6 });
 
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 const metaGridShippingClass = css({ gridTemplateColumns: "repeat(5, 1fr)!" });
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 5 });
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
 const sameAddressClass = css({ mt: 2 });
 const tagListClass = css({ mt: 2 });
 
-const currencyRowClass = css({ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 6, mt: 8, mb: 4 });
+const currencyRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: 6,
+  mt: 8,
+  mb: 4
+});
 const currencyFieldClass = css({ width: "160px" });
 
 // Floor raised from 1080px: below ~1240px the money columns start clipping
@@ -1006,7 +1132,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const itemsTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "1320px" });
 const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
@@ -1015,11 +1141,39 @@ const numCellClass = css({ textAlign: "right" });
 const numInputClass = css({ textAlign: "right" });
 const lineErrorClass = css({ mt: 2 });
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", mt: 8 });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 5, width: "25%", minWidth: "260px" });
-const totalsColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "320px" });
-const totalsRowClass = css({ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 3 });
-const totalsCheckRowClass = css({ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 3 });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+  mt: 8
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 5,
+  width: "25%",
+  minWidth: "260px"
+});
+const totalsColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "320px"
+});
+const totalsRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 3
+});
+const totalsCheckRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 3
+});
 const totalsCheckFieldClass = css({ flex: "1 1 auto", maxWidth: "320px" });
 const totalsDividerClass = css({ my: 1 });
 const discountInputClass = css({ width: "150px" });
@@ -1030,12 +1184,18 @@ const discountTypeButtonClass = css({
   px: 2,
   border: "0",
   bg: "transparent",
-  cursor: "pointer",
+  cursor: "pointer"
 });
 const shippingFeeInputClass = css({ width: "200px" });
 
 const validationSummaryClass = css({ display: "flex", justifyContent: "flex-end", mt: 8 });
-const actionBarClass = css({ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2, mt: 8 });
+const actionBarClass = css({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: 2,
+  mt: 8
+});
 
 // Split "Create" button: primary body + a narrow caret segment opening the
 // "Create and new" popover, matching the source page's split action button.

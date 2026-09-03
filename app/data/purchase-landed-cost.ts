@@ -16,7 +16,7 @@ import {
   getPurchaseTransactions,
   parseLocalIsoDate,
   toLocalIsoDate,
-  type PurchaseTransaction,
+  type PurchaseTransaction
 } from "./purchase-transactions";
 
 /** One cost being allocated. `amount` is what the expense account holds in
@@ -59,7 +59,7 @@ export const EXPENSE_OPTIONS = [
   "Import duty",
   "Insurance",
   "Customs clearance",
-  "Handling & storage",
+  "Handling & storage"
 ];
 
 const LANDED_COST_NUMBER_OFFSET = 3_000;
@@ -89,7 +89,10 @@ export function totalAllocated(allocations: LandedCostAllocation[]): number {
 }
 /** What's still to be assigned. Must reach 0 before a landed cost can be
  *  saved — an unallocated remainder would silently vanish from the costing. */
-export function remainingToAllocate(expenses: LandedCostExpense[], allocations: LandedCostAllocation[]): number {
+export function remainingToAllocate(
+  expenses: LandedCostExpense[],
+  allocations: LandedCostAllocation[]
+): number {
   return totalExpense(expenses) - totalAllocated(allocations);
 }
 
@@ -101,7 +104,7 @@ export function allocationsForPurchase(purchase: PurchaseTransaction): LandedCos
     quantity: l.quantity,
     unitPrice: l.unitPrice,
     amount: l.amount,
-    allocated: 0,
+    allocated: 0
   }));
 }
 
@@ -110,7 +113,9 @@ export function allocationsForPurchase(purchase: PurchaseTransaction): LandedCos
 // mutated in place, with pages bumping a refresh counter to re-read it.
 
 function buildSeed(): LandedCost[] {
-  const invoices = getPurchaseTransactions().filter((t) => t.type === "invoice" && t.lines.length >= 2);
+  const invoices = getPurchaseTransactions().filter(
+    (t) => t.type === "invoice" && t.lines.length >= 2
+  );
   return invoices.slice(0, 3).map((invoice, i) => {
     const allocations = allocationsForPurchase(invoice);
     const freight = 250_000 * (i + 1);
@@ -121,7 +126,10 @@ function buildSeed(): LandedCost[] {
     const lineTotal = allocations.reduce((sum, a) => sum + a.amount, 0) || 1;
     let assigned = 0;
     allocations.forEach((a, idx) => {
-      const share = idx === allocations.length - 1 ? total - assigned : Math.round((a.amount / lineTotal) * total);
+      const share =
+        idx === allocations.length - 1
+          ? total - assigned
+          : Math.round((a.amount / lineTotal) * total);
       a.allocated = share;
       assigned += share;
     });
@@ -133,11 +141,17 @@ function buildSeed(): LandedCost[] {
       createdDateSort: invoice.transactionDateSort,
       tags: invoice.tags.slice(0, 1),
       expenses: [
-        { id: 1, expense: "Freight in", description: "Sea freight", amount: freight * 2, amountUsed: freight },
-        { id: 2, expense: "Import duty", description: "", amount: duty * 2, amountUsed: duty },
+        {
+          id: 1,
+          expense: "Freight in",
+          description: "Sea freight",
+          amount: freight * 2,
+          amountUsed: freight
+        },
+        { id: 2, expense: "Import duty", description: "", amount: duty * 2, amountUsed: duty }
       ],
       allocations,
-      total,
+      total
     };
   });
 }
@@ -181,7 +195,7 @@ export function createLandedCost(input: LandedCostInput): LandedCost {
     tags: [...input.tags],
     expenses: input.expenses.map((e, i) => ({ ...e, id: i + 1 })),
     allocations: input.allocations.map((a) => ({ ...a })),
-    total: totalExpense(input.expenses),
+    total: totalExpense(input.expenses)
   };
   all.unshift(record);
   return record;
@@ -190,7 +204,9 @@ export function createLandedCost(input: LandedCostInput): LandedCost {
 export function updateLandedCost(id: number, input: LandedCostInput): LandedCost | undefined {
   const record = getLandedCostById(id);
   if (!record) return undefined;
-  const created = input.createdDateIso ? parseLocalIsoDate(input.createdDateIso) : parseLocalIsoDate(record.createdDateSort);
+  const created = input.createdDateIso
+    ? parseLocalIsoDate(input.createdDateIso)
+    : parseLocalIsoDate(record.createdDateSort);
   Object.assign(record, {
     // The number stays the record's identity — an edit never renumbers it.
     createdDate: formatDate(created),
@@ -198,7 +214,7 @@ export function updateLandedCost(id: number, input: LandedCostInput): LandedCost
     tags: [...input.tags],
     expenses: input.expenses.map((e, i) => ({ ...e, id: i + 1 })),
     allocations: input.allocations.map((a) => ({ ...a })),
-    total: totalExpense(input.expenses),
+    total: totalExpense(input.expenses)
   });
   return record;
 }

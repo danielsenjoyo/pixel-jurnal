@@ -35,7 +35,9 @@
 
     <div v-if="!joinInvoice" :class="notFoundClass">
       <img src="/illustrations/search-not-found.png" alt="" :class="notFoundIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass">Join invoice not found</MpText>
+      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass"
+        >Join invoice not found</MpText
+      >
       <MpText size="body-small" color="gray.600" :class="notFoundDescClass">
         This join invoice may have been deleted, or the link you followed may be out of date.
       </MpText>
@@ -45,7 +47,9 @@
     <template v-else>
       <!-- Section heading — unique to this page in the reference
            screenshot; no other type has one. -->
-      <MpText weight="semiBold" color="dark" :class="sectionHeadingClass">Join Invoice Detail</MpText>
+      <MpText weight="semiBold" color="dark" :class="sectionHeadingClass"
+        >Join Invoice Detail</MpText
+      >
 
       <!-- Zone A — vendor / email / total. No balance-due block: the label
            is "Total join invoice", not "Balance due" — this record's
@@ -54,20 +58,35 @@
       <div :class="topRowClass">
         <div :class="metaFieldClass">
           <MpText color="gray.600">Vendor</MpText>
-          <MpTextlink :class="textlinkAlignClass" as="button" variant="primary" @click="onAction('view-vendor')">{{ joinInvoice.vendorName }}</MpTextlink>
+          <MpTextlink
+            :class="textlinkAlignClass"
+            as="button"
+            variant="primary"
+            @click="onAction('view-vendor')"
+            >{{ joinInvoice.vendorName }}</MpTextlink
+          >
         </div>
 
         <div :class="metaFieldClass">
           <MpText color="gray.600">Email</MpText>
           <MpFlex v-if="joinInvoice.email.length" gap="2" flex-wrap="wrap">
-            <MpTag v-for="email in joinInvoice.email" :key="email" variant="gray" size="sm" :class="wrapInlineClass">{{ email }}</MpTag>
+            <MpTag
+              v-for="email in joinInvoice.email"
+              :key="email"
+              variant="gray"
+              size="sm"
+              :class="wrapInlineClass"
+              >{{ email }}</MpTag
+            >
           </MpFlex>
           <MpText v-else>—</MpText>
         </div>
 
         <div :class="balanceColClass">
           <MpText color="gray.600">Total join invoice</MpText>
-          <MpText size="h3" weight="semiBold" color="dark">{{ formatCurrency(joinInvoice.total) }}</MpText>
+          <MpText size="h3" weight="semiBold" color="dark">{{
+            formatCurrency(joinInvoice.total)
+          }}</MpText>
         </div>
       </div>
 
@@ -130,16 +149,27 @@
           <MpTableBody>
             <MpTableRow v-for="invoice in joinedInvoices" :key="invoice.id">
               <MpTableCell as="td">
-                <MpTextlink as="button" variant="primary" :class="textlinkCellClass" @click="navigateTo(`/purchase/invoice/${invoice.id}`)">
+                <MpTextlink
+                  as="button"
+                  variant="primary"
+                  :class="textlinkCellClass"
+                  @click="navigateTo(`/purchase/invoice/${invoice.id}`)"
+                >
                   {{ invoice.number }}
                 </MpTextlink>
               </MpTableCell>
               <MpTableCell as="td">{{ formatDisplayDate(invoice.dueDateSort) }}</MpTableCell>
               <MpTableCell as="td">
-                <MpBadge for="tableStatus" :type="PURCHASE_STATUS_TYPE[invoice.status]">{{ PURCHASE_STATUS_LABEL[invoice.status] }}</MpBadge>
+                <MpBadge for="tableStatus" :type="PURCHASE_STATUS_TYPE[invoice.status]">{{
+                  PURCHASE_STATUS_LABEL[invoice.status]
+                }}</MpBadge>
               </MpTableCell>
-              <MpTableCell as="td" :class="numWrapCellClass">{{ formatCurrency(invoice.total) }}</MpTableCell>
-              <MpTableCell as="td" :class="numWrapCellClass">{{ formatCurrency(invoice.balanceDue) }}</MpTableCell>
+              <MpTableCell as="td" :class="numWrapCellClass">{{
+                formatCurrency(invoice.total)
+              }}</MpTableCell>
+              <MpTableCell as="td" :class="numWrapCellClass">{{
+                formatCurrency(invoice.balanceDue)
+              }}</MpTableCell>
             </MpTableRow>
           </MpTableBody>
         </MpTable>
@@ -147,7 +177,9 @@
       <!-- "of"/"invoice", not "from"/"products" — matches the reference
            screenshot's copy exactly for this type. -->
       <MpText size="body-small" color="gray.600" :class="lineCaptionClass">
-        Showing {{ joinedInvoices.length }} of {{ joinedInvoices.length }} invoice{{ joinedInvoices.length === 1 ? "" : "s" }}
+        Showing {{ joinedInvoices.length }} of {{ joinedInvoices.length }} invoice{{
+          joinedInvoices.length === 1 ? "" : "s"
+        }}
       </MpText>
 
       <MpDivider variant="dashed" :class="dividerClass" />
@@ -182,7 +214,11 @@
       </div>
 
       <div :class="bottomActionsClass">
-        <MpButton variant="secondary" @click="navigateTo(`/purchase/join-invoice/edit/${joinInvoice.id}`)">Edit</MpButton>
+        <MpButton
+          variant="secondary"
+          @click="navigateTo(`/purchase/join-invoice/edit/${joinInvoice.id}`)"
+          >Edit</MpButton
+        >
       </div>
     </template>
   </DefaultPageContent>
@@ -205,12 +241,18 @@ import {
   MpTag,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
-import { formatCurrency, formatDisplayDate, getAdjacentTransactionIds, getPurchaseTransactionById, type PurchaseTransaction } from "~/data/purchase-transactions";
+import {
+  formatCurrency,
+  formatDisplayDate,
+  getAdjacentTransactionIds,
+  getPurchaseTransactionById,
+  type PurchaseTransaction
+} from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
 // Sixth details page in this repo (after Invoice, Order, Request, Quote,
@@ -241,11 +283,19 @@ const joinInvoice = computed(() => {
 });
 const joinedInvoices = computed<PurchaseTransaction[]>(() => {
   if (!joinInvoice.value) return [];
-  return joinInvoice.value.joinedInvoiceIds.map((invId) => getPurchaseTransactionById(invId)).filter((inv): inv is PurchaseTransaction => Boolean(inv));
+  return joinInvoice.value.joinedInvoiceIds
+    .map((invId) => getPurchaseTransactionById(invId))
+    .filter((inv): inv is PurchaseTransaction => Boolean(inv));
 });
 const adjacent = computed(() => getAdjacentTransactionIds(id.value));
 
-useHead({ title: computed(() => (joinInvoice.value ? `${joinInvoice.value.number} — Mekari Jurnal` : "Join invoice not found — Mekari Jurnal")) });
+useHead({
+  title: computed(() =>
+    joinInvoice.value
+      ? `${joinInvoice.value.number} — Mekari Jurnal`
+      : "Join invoice not found — Mekari Jurnal"
+  )
+});
 
 function goTo(nextId: number | null) {
   if (nextId) navigateTo(`/purchase/join-invoice/${nextId}`);
@@ -258,12 +308,28 @@ function onAction(action: string) {
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
 const sectionHeadingClass = css({ mb: 4 });
 
-const topRowClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start" });
-const balanceColClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right" });
+const topRowClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const balanceColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right"
+});
 
 const dividerClass = css({ my: 6 });
 
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, mb: 8 });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  mb: 8
+});
 const metaColClass = css({ display: "flex", flexDirection: "column", gap: 4 });
 // minWidth:0 — a grid/flex item's implicit min-width is its content's natural
 // width, which lets a long value (the email tag below, e.g.) overflow past
@@ -275,7 +341,11 @@ const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" }
 const numCellClass = css({ textAlign: "right" });
 // Same nowrap-overflow fix as wrapCellClass below, but right-aligned — for
 // currency cells, which can overflow their column just as easily as text.
-const numWrapCellClass = css({ textAlign: "right", whiteSpace: "normal!", wordBreak: "break-word" });
+const numWrapCellClass = css({
+  textAlign: "right",
+  whiteSpace: "normal!",
+  wordBreak: "break-word"
+});
 const lineCaptionClass = css({ mt: 3, mb: 3 });
 // MpTableCell/MpTextlink/MpTag default to white-space:nowrap + overflow:visible,
 // so text longer than its column spills into the next cell instead of
@@ -284,10 +354,27 @@ const lineCaptionClass = css({ mt: 3, mb: 3 });
 // nowrap. NEVER put `display: inline-block` on the <td> itself — a table cell
 // must stay `display: table-cell`, or it drops out of the table's column model
 // and the row borders render ragged against each cell's content width.
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
+const wrapInlineClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  maxWidth: "full",
+  display: "inline-block",
+  textAlign: "left"
+});
 
-const bottomRowClass = css({ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" });
-const notesColClass = css({ display: "flex", flexDirection: "column", gap: 4, width: "50%", minWidth: "240px" });
+const bottomRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap"
+});
+const notesColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  width: "50%",
+  minWidth: "240px"
+});
 const bottomActionsClass = css({
   display: "flex",
   justifyContent: "flex-end",
@@ -295,7 +382,7 @@ const bottomActionsClass = css({
   mt: 8,
   pt: 5,
   borderTopWidth: "sm",
-  borderColor: "gray.100",
+  borderColor: "gray.100"
 });
 const totalCardClass = css({
   display: "flex",
@@ -307,10 +394,17 @@ const totalCardClass = css({
   p: 4,
   borderWidth: "sm",
   borderColor: "gray.100",
-  rounded: "md",
+  rounded: "md"
 });
 
-const notFoundClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const notFoundClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const notFoundTitleClass = css({ fontSize: "lg" });
 const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const notFoundDescClass = css({ maxWidth: "320px" });

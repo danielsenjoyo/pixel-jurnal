@@ -2,9 +2,12 @@
   <DefaultPageContent :title="pageTitle" breadcrumb="Purchases" breadcrumb-to="/purchase">
     <div v-if="!purchase" :class="notFoundClass">
       <img src="/illustrations/search-not-found.png" alt="" :class="notFoundIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass">No purchase selected</MpText>
+      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass"
+        >No purchase selected</MpText
+      >
       <MpText size="body-small" color="gray.600" :class="notFoundDescClass">
-        A landed cost is always calculated against a purchase. Open one and choose Landed cost from its Actions menu.
+        A landed cost is always calculated against a purchase. Open one and choose Landed cost from
+        its Actions menu.
       </MpText>
       <MpButton variant="secondary" @click="navigateTo('/purchase')">Back to Purchases</MpButton>
     </div>
@@ -14,7 +17,11 @@
       <div :class="topRowClass">
         <MpFormControl>
           <MpFormLabel>Purchase no.</MpFormLabel>
-          <MpTextlink as="button" variant="primary" @click="navigateTo(`/purchase/invoice/${purchase.id}`)">
+          <MpTextlink
+            as="button"
+            variant="primary"
+            @click="navigateTo(`/purchase/invoice/${purchase.id}`)"
+          >
             {{ purchase.number }}
           </MpTextlink>
         </MpFormControl>
@@ -22,7 +29,9 @@
         <div />
 
         <div :class="totalColClass">
-          <MpText size="h3" weight="semiBold" color="dark">Total landed cost {{ formatCurrency(expenseTotal) }}</MpText>
+          <MpText size="h3" weight="semiBold" color="dark"
+            >Total landed cost {{ formatCurrency(expenseTotal) }}</MpText
+          >
         </div>
       </div>
 
@@ -31,7 +40,13 @@
       <div :class="metaGridClass">
         <MpFormControl>
           <MpFormLabel>Created date</MpFormLabel>
-          <MpDatePicker v-model="form.createdDateIso" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="DD/MM/YYYY" use-portal />
+          <MpDatePicker
+            v-model="form.createdDateIso"
+            value-type="string"
+            :format="DATE_INPUT_FORMAT"
+            placeholder="DD/MM/YYYY"
+            use-portal
+          />
         </MpFormControl>
 
         <MpFormControl :is-disabled="true">
@@ -43,12 +58,20 @@
               </MpTooltip>
             </span>
           </MpFormLabel>
-          <MpInput :model-value="formatDisplayDate(purchase.transactionDateSort)" is-read-only is-full-width />
+          <MpInput
+            :model-value="formatDisplayDate(purchase.transactionDateSort)"
+            is-read-only
+            is-full-width
+          />
         </MpFormControl>
 
         <MpFormControl :is-disabled="isEdit">
           <MpFormLabel>Transaction no.</MpFormLabel>
-          <MpInput v-model="form.transactionNo" :placeholder="isEdit ? '' : '[Auto]'" is-full-width />
+          <MpInput
+            v-model="form.transactionNo"
+            :placeholder="isEdit ? '' : '[Auto]'"
+            is-full-width
+          />
         </MpFormControl>
 
         <MpFormControl>
@@ -58,7 +81,14 @@
             <option v-for="tag in availableTags" :key="tag" :value="tag">{{ tag }}</option>
           </MpSelect>
           <MpFlex v-if="form.tags.length" gap="2" wrap="wrap" :class="tagListClass">
-            <MpTag v-for="tag in form.tags" :key="tag" variant="gray" size="sm" is-closable @close="removeTag(tag)">
+            <MpTag
+              v-for="tag in form.tags"
+              :key="tag"
+              variant="gray"
+              size="sm"
+              is-closable
+              @close="removeTag(tag)"
+            >
               {{ tag }}
             </MpTag>
           </MpFlex>
@@ -94,13 +124,22 @@
                 </MpSelect>
               </MpTableCell>
               <MpTableCell as="td" :class="lineCellClass">
-                <MpInput v-model="expense.description" placeholder="Enter description" is-full-width />
+                <MpInput
+                  v-model="expense.description"
+                  placeholder="Enter description"
+                  is-full-width
+                />
               </MpTableCell>
               <MpTableCell as="td" :class="lineCellClass">
                 <div @focusout="onMoneyBlur(expense, 'amount')">
                   <MpInputGroup>
                     <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                    <MpInput v-model="expense.amountText" type="text" inputmode="decimal" @update:model-value="onMoneyInput(expense, 'amount')" />
+                    <MpInput
+                      v-model="expense.amountText"
+                      type="text"
+                      inputmode="decimal"
+                      @update:model-value="onMoneyInput(expense, 'amount')"
+                    />
                   </MpInputGroup>
                 </div>
               </MpTableCell>
@@ -119,7 +158,13 @@
                 </div>
               </MpTableCell>
               <MpTableCell as="td" :class="lineCellClass">
-                <MpButton variant="ghost" size="sm" left-icon="minus-circular" aria-label="Remove expense" @click="removeExpense(index)" />
+                <MpButton
+                  variant="ghost"
+                  size="sm"
+                  left-icon="minus-circular"
+                  aria-label="Remove expense"
+                  @click="removeExpense(index)"
+                />
               </MpTableCell>
             </MpTableRow>
 
@@ -138,7 +183,9 @@
 
       <!-- Zone C — spreading it across the purchase's products. The allocated
            column is the only editable one; the last two are derived. -->
-      <MpText weight="semiBold" color="dark" :class="sectionHeadingClass">Landed cost calculation</MpText>
+      <MpText weight="semiBold" color="dark" :class="sectionHeadingClass"
+        >Landed cost calculation</MpText
+      >
       <MpTableContainer :class="scrollShadowClass">
         <MpTable :class="landedTableClass">
           <colgroup>
@@ -163,20 +210,35 @@
           </MpTableHead>
           <MpTableBody>
             <MpTableRow v-for="alloc in form.allocations" :key="alloc.product">
-              <MpTableCell as="td" :class="[lineCellClass, wrapCellClass]">{{ alloc.product }}</MpTableCell>
+              <MpTableCell as="td" :class="[lineCellClass, wrapCellClass]">{{
+                alloc.product
+              }}</MpTableCell>
               <MpTableCell as="td" :class="lineCellClass">{{ alloc.quantity }}</MpTableCell>
-              <MpTableCell as="td" :class="lineCellClass">{{ formatCurrency(alloc.unitPrice) }}</MpTableCell>
-              <MpTableCell as="td" :class="lineCellClass">{{ formatCurrency(alloc.amount) }}</MpTableCell>
+              <MpTableCell as="td" :class="lineCellClass">{{
+                formatCurrency(alloc.unitPrice)
+              }}</MpTableCell>
+              <MpTableCell as="td" :class="lineCellClass">{{
+                formatCurrency(alloc.amount)
+              }}</MpTableCell>
               <MpTableCell as="td" :class="lineCellClass">
                 <div @focusout="onMoneyBlur(alloc, 'allocated')">
                   <MpInputGroup>
                     <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                    <MpInput v-model="alloc.allocatedText" type="text" inputmode="decimal" @update:model-value="onMoneyInput(alloc, 'allocated')" />
+                    <MpInput
+                      v-model="alloc.allocatedText"
+                      type="text"
+                      inputmode="decimal"
+                      @update:model-value="onMoneyInput(alloc, 'allocated')"
+                    />
                   </MpInputGroup>
                 </div>
               </MpTableCell>
-              <MpTableCell as="td" :class="lineCellClass">{{ formatCurrency(landedUnitPrice(alloc)) }}</MpTableCell>
-              <MpTableCell as="td" :class="lineCellClass">{{ formatCurrency(landedAmount(alloc)) }}</MpTableCell>
+              <MpTableCell as="td" :class="lineCellClass">{{
+                formatCurrency(landedUnitPrice(alloc))
+              }}</MpTableCell>
+              <MpTableCell as="td" :class="lineCellClass">{{
+                formatCurrency(landedAmount(alloc))
+              }}</MpTableCell>
             </MpTableRow>
           </MpTableBody>
         </MpTable>
@@ -186,7 +248,12 @@
            an unallocated remainder would silently drop out of the costing, so
            it blocks saving rather than warning after the fact. -->
       <div :class="balanceRowClass">
-        <MpButton variant="secondary" size="sm" :is-disabled="!expenseTotal || !form.allocations.length" @click="distributeByValue">
+        <MpButton
+          variant="secondary"
+          size="sm"
+          :is-disabled="!expenseTotal || !form.allocations.length"
+          @click="distributeByValue"
+        >
           Distribute by value
         </MpButton>
         <div :class="balanceFiguresClass">
@@ -199,8 +266,12 @@
             <MpText>{{ formatCurrency(allocatedTotal) }}</MpText>
           </div>
           <div :class="balanceLineClass">
-            <MpText weight="semiBold" :color="remaining === 0 ? 'dark' : undefined">Remaining</MpText>
-            <MpText weight="semiBold" :color="remaining === 0 ? 'dark' : undefined">{{ formatCurrency(remaining) }}</MpText>
+            <MpText weight="semiBold" :color="remaining === 0 ? 'dark' : undefined"
+              >Remaining</MpText
+            >
+            <MpText weight="semiBold" :color="remaining === 0 ? 'dark' : undefined">{{
+              formatCurrency(remaining)
+            }}</MpText>
           </div>
         </div>
       </div>
@@ -209,7 +280,11 @@
         <MpBanner variant="danger" is-inline>
           <MpBannerIcon />
           <MpBannerDescription>
-            {{ missingFields.length === 1 ? "One thing is still missing:" : `${missingFields.length} things are still missing:` }}
+            {{
+              missingFields.length === 1
+                ? "One thing is still missing:"
+                : `${missingFields.length} things are still missing:`
+            }}
             {{ missingFields.join(", ") }}.
           </MpBannerDescription>
         </MpBanner>
@@ -217,7 +292,9 @@
 
       <div :class="actionBarClass">
         <MpButton variant="ghost" @click="onCancel">Cancel</MpButton>
-        <MpButton variant="primary" @click="onSubmit()">{{ isEdit ? "Save changes" : "Save" }}</MpButton>
+        <MpButton variant="primary" @click="onSubmit()">{{
+          isEdit ? "Save changes" : "Save"
+        }}</MpButton>
       </div>
     </template>
   </DefaultPageContent>
@@ -250,7 +327,7 @@ import {
   MpTag,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
@@ -262,7 +339,7 @@ import {
   landedUnitPrice as calcLandedUnitPrice,
   updateLandedCost,
   type LandedCostAllocation,
-  type LandedCostExpense,
+  type LandedCostExpense
 } from "~/data/purchase-landed-cost";
 import {
   DATE_INPUT_FORMAT,
@@ -271,7 +348,7 @@ import {
   formatCurrency,
   formatDisplayDate,
   getPurchaseTransactionById,
-  parseAmount,
+  parseAmount
 } from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
@@ -292,7 +369,9 @@ const props = defineProps<{ recordId?: number }>();
 
 const route = useRoute();
 const isEdit = computed(() => props.recordId != null);
-const existing = computed(() => (props.recordId != null ? getLandedCostById(props.recordId) : undefined));
+const existing = computed(() =>
+  props.recordId != null ? getLandedCostById(props.recordId) : undefined
+);
 
 /** Editing rows carry a grouped-string mirror beside each numeric field, the
  *  same pattern the money forms use (see docs/patterns/page-recipes.md). */
@@ -305,11 +384,13 @@ const form = reactive({
   transactionNo: "",
   tags: [] as string[],
   expenses: [] as ExpenseRow[],
-  allocations: [] as AllocationRow[],
+  allocations: [] as AllocationRow[]
 });
 const submitted = ref(false);
 
-const purchase = computed(() => (form.purchaseId != null ? getPurchaseTransactionById(form.purchaseId) : undefined));
+const purchase = computed(() =>
+  form.purchaseId != null ? getPurchaseTransactionById(form.purchaseId) : undefined
+);
 
 function toDmy(date: Date): string {
   return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
@@ -325,7 +406,15 @@ function isoToDmy(iso: string): string {
 
 let expenseKeySeq = 0;
 function blankExpense(name = ""): ExpenseRow {
-  return { id: ++expenseKeySeq, expense: name, description: "", amount: 0, amountText: "", amountUsed: 0, amountUsedText: "" };
+  return {
+    id: ++expenseKeySeq,
+    expense: name,
+    description: "",
+    amount: 0,
+    amountText: "",
+    amountUsed: 0,
+    amountUsedText: ""
+  };
 }
 
 function loadFromPurchase(purchaseId: number) {
@@ -346,9 +435,12 @@ function loadFromExisting() {
     ...e,
     id: ++expenseKeySeq,
     amountText: e.amount ? formatAmount(e.amount) : "",
-    amountUsedText: e.amountUsed ? formatAmount(e.amountUsed) : "",
+    amountUsedText: e.amountUsed ? formatAmount(e.amountUsed) : ""
   }));
-  form.allocations = lc.allocations.map((a) => ({ ...a, allocatedText: a.allocated ? formatAmount(a.allocated) : "" }));
+  form.allocations = lc.allocations.map((a) => ({
+    ...a,
+    allocatedText: a.allocated ? formatAmount(a.allocated) : ""
+  }));
 }
 watch(existing, loadFromExisting, { immediate: true });
 
@@ -360,10 +452,12 @@ watch(
     const id = Number(q);
     if (id) loadFromPurchase(id);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
-const pageTitle = computed(() => (isEdit.value ? `Edit ${existing.value?.number ?? "landed cost"}` : "Create Landed Cost"));
+const pageTitle = computed(() =>
+  isEdit.value ? `Edit ${existing.value?.number ?? "landed cost"}` : "Create Landed Cost"
+);
 
 const availableTags = computed(() => TAG_OPTIONS.filter((t) => !form.tags.includes(t)));
 function addTag(tag: unknown) {
@@ -395,8 +489,12 @@ function onMoneyBlur(row: MoneyRow, field: string) {
   row[`${field}Text`] = value ? formatAmount(value) : "";
 }
 
-const expenseTotal = computed(() => form.expenses.reduce((sum, e) => sum + (Number(e.amountUsed) || 0), 0));
-const allocatedTotal = computed(() => form.allocations.reduce((sum, a) => sum + (Number(a.allocated) || 0), 0));
+const expenseTotal = computed(() =>
+  form.expenses.reduce((sum, e) => sum + (Number(e.amountUsed) || 0), 0)
+);
+const allocatedTotal = computed(() =>
+  form.allocations.reduce((sum, a) => sum + (Number(a.allocated) || 0), 0)
+);
 const remaining = computed(() => expenseTotal.value - allocatedTotal.value);
 
 function landedUnitPrice(a: AllocationRow) {
@@ -415,27 +513,35 @@ function distributeByValue() {
   if (!total || !lineTotal) return;
   let assigned = 0;
   form.allocations.forEach((a, i) => {
-    const share = i === form.allocations.length - 1 ? total - assigned : Math.round((a.amount / lineTotal) * total);
+    const share =
+      i === form.allocations.length - 1
+        ? total - assigned
+        : Math.round((a.amount / lineTotal) * total);
     a.allocated = share;
     a.allocatedText = share ? formatAmount(share) : "";
     assigned += share;
   });
 }
 
-const overUsed = computed(() => form.expenses.filter((e) => e.amountUsed > e.amount).map((e) => e.expense || "an expense"));
+const overUsed = computed(() =>
+  form.expenses.filter((e) => e.amountUsed > e.amount).map((e) => e.expense || "an expense")
+);
 const isValid = computed(
   () =>
     Boolean(form.purchaseId && form.createdDateIso) &&
     form.expenses.some((e) => e.expense && e.amountUsed > 0) &&
     remaining.value === 0 &&
-    overUsed.value.length === 0,
+    overUsed.value.length === 0
 );
 const missingFields = computed(() => {
   const missing: string[] = [];
   if (!form.createdDateIso) missing.push("Created date");
-  if (!form.expenses.some((e) => e.expense && e.amountUsed > 0)) missing.push("at least one expense with an amount used");
-  if (remaining.value !== 0) missing.push(`${formatCurrency(Math.abs(remaining.value))} still to allocate`);
-  if (overUsed.value.length) missing.push(`an amount used within what's available (${overUsed.value.join(", ")})`);
+  if (!form.expenses.some((e) => e.expense && e.amountUsed > 0))
+    missing.push("at least one expense with an amount used");
+  if (remaining.value !== 0)
+    missing.push(`${formatCurrency(Math.abs(remaining.value))} still to allocate`);
+  if (overUsed.value.length)
+    missing.push(`an amount used within what's available (${overUsed.value.join(", ")})`);
   return missing;
 });
 
@@ -447,8 +553,20 @@ function onSubmit() {
     createdDateIso: dmyToIso(form.createdDateIso),
     transactionNo: form.transactionNo,
     tags: form.tags,
-    expenses: form.expenses.map(({ id, expense, description, amount, amountUsed }) => ({ id, expense, description, amount, amountUsed })),
-    allocations: form.allocations.map(({ product, quantity, unitPrice, amount, allocated }) => ({ product, quantity, unitPrice, amount, allocated })),
+    expenses: form.expenses.map(({ id, expense, description, amount, amountUsed }) => ({
+      id,
+      expense,
+      description,
+      amount,
+      amountUsed
+    })),
+    allocations: form.allocations.map(({ product, quantity, unitPrice, amount, allocated }) => ({
+      product,
+      quantity,
+      unitPrice,
+      amount,
+      allocated
+    }))
   };
   if (isEdit.value && props.recordId != null) {
     const updated = updateLandedCost(props.recordId, input);
@@ -466,10 +584,27 @@ function onCancel() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const topRowClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start" });
-const totalColClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right", mt: 6 });
+const topRowClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const totalColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right",
+  mt: 6
+});
 const dividerClass = css({ my: 6 });
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start" });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
 const tagListClass = css({ mt: 2 });
 const sectionHeadingClass = css({ fontSize: "lg", mb: 4, mt: 8, display: "block" });
@@ -480,7 +615,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const expenseTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "900px" });
@@ -488,14 +623,39 @@ const landedTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "1
 const lineCellClass = css({ verticalAlign: "top" });
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });
 
-const balanceRowClass = css({ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 6, mt: 6, flexWrap: "wrap" });
-const balanceFiguresClass = css({ display: "flex", flexDirection: "column", gap: 2, minWidth: "280px" });
+const balanceRowClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: 6,
+  mt: 6,
+  flexWrap: "wrap"
+});
+const balanceFiguresClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: 2,
+  minWidth: "280px"
+});
 const balanceLineClass = css({ display: "flex", justifyContent: "space-between", gap: 6 });
 
 const validationSummaryClass = css({ display: "flex", justifyContent: "flex-end", mt: 8 });
-const actionBarClass = css({ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2, mt: 8 });
+const actionBarClass = css({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: 2,
+  mt: 8
+});
 
-const notFoundClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const notFoundClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const notFoundTitleClass = css({ fontSize: "lg" });
 const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const notFoundDescClass = css({ maxWidth: "360px" });

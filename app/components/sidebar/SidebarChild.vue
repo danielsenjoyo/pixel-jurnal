@@ -38,9 +38,7 @@
             transitionDelay: isSidebarChildCollapsed ? 'fast' : '0ms',
             transitionTimingFunction: 'var(--motion-ease-in-out)',
             opacity: isSidebarChildCollapsed ? '1' : '0',
-            transform: isSidebarChildCollapsed
-              ? '[translateX(2rem)]'
-              : '[translateX(-1rem)]'
+            transform: isSidebarChildCollapsed ? '[translateX(2rem)]' : '[translateX(-1rem)]'
           })
         "
       >

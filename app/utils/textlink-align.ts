@@ -47,5 +47,5 @@ export const textlinkCellClass = css({
   display: "inline-block",
   textAlign: "left",
   ml: "-2px",
-  mr: "-2px",
+  mr: "-2px"
 });

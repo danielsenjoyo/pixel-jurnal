@@ -71,9 +71,9 @@ const actionBorderClass = css({ boxShadow: "inset 2px 0 0 0 var(--mp-colors-gray
   ```
 
   **A negative margin, not `padding: 0`.** The recipe declares that padding
-  `!important` and *unlayered*, which outranks a Panda `pl: "0!"` utility
+  `!important` and _unlayered_, which outranks a Panda `pl: "0!"` utility
   (layered — its `!important` loses the reversed layer order) and outranks an
-  inline `style.paddingLeft = "0"` too. Both fail *silently*: the class lands on
+  inline `style.paddingLeft = "0"` too. Both fail _silently_: the class lands on
   the element, computed padding stays `2px`. Margin has no competing
   declaration, so it simply applies, and the 2px still holds the focus ring off
   the glyphs. The box moves into the cell's own 8px padding, so nothing
@@ -88,6 +88,7 @@ const actionBorderClass = css({ boxShadow: "inset 2px 0 0 0 var(--mp-colors-gray
   also need the wrap rules — replaces `wrapInlineClass` **on `MpTextlink`
   only**; that class is shared with `MpTag`, which is not a button, carries its
   own deliberate padding, and would be pulled out of line by the margin).
+
 - Status cell uses an [`StatusBadge`](./StatusBadge.md) (`MpBadge for="tableStatus"`).
 - Last cell = row actions: an `MpPopover` (`placement="bottom-end"`) → secondary `Actions` dropdown → `MpPopoverList` of `role="menuitem"` items.
 
@@ -110,7 +111,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 ```
 

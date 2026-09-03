@@ -20,7 +20,7 @@ export const PURCHASE_STATUS_LABEL: Record<PurchaseStatus, string> = {
   unpaid: "Unpaid",
   closed: "Closed",
   partially_sent: "Partially sent",
-  rejected: "Rejected",
+  rejected: "Rejected"
 };
 
 export const PURCHASE_STATUS_TYPE: Record<
@@ -34,5 +34,5 @@ export const PURCHASE_STATUS_TYPE: Record<
   unpaid: "critical",
   closed: "announcement",
   partially_sent: "warning",
-  rejected: "critical",
+  rejected: "critical"
 };

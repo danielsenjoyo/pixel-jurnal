@@ -23,7 +23,9 @@
           <MpFormControl>
             <MpFormLabel>Column option</MpFormLabel>
             <MpSelect v-model="form.searchColumn" is-full-width>
-              <option v-for="col in columnOptions" :key="col.value" :value="col.value">{{ col.label }}</option>
+              <option v-for="col in columnOptions" :key="col.value" :value="col.value">
+                {{ col.label }}
+              </option>
             </MpSelect>
           </MpFormControl>
 
@@ -31,18 +33,42 @@
           <MpFormControl v-if="showTransactionDate">
             <MpFormLabel>Transaction date</MpFormLabel>
             <div :class="rangeRowClass">
-              <MpDatePicker v-model="form.startDate" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="Start date" use-portal />
+              <MpDatePicker
+                v-model="form.startDate"
+                value-type="string"
+                :format="DATE_INPUT_FORMAT"
+                placeholder="Start date"
+                use-portal
+              />
               <MpText color="gray.600" :class="dashClass">-</MpText>
-              <MpDatePicker v-model="form.endDate" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="End date" use-portal />
+              <MpDatePicker
+                v-model="form.endDate"
+                value-type="string"
+                :format="DATE_INPUT_FORMAT"
+                placeholder="End date"
+                use-portal
+              />
             </div>
           </MpFormControl>
 
           <MpFormControl v-if="showMoneyFields">
             <MpFormLabel>Due date</MpFormLabel>
             <div :class="rangeRowClass">
-              <MpDatePicker v-model="form.dueDateStart" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="Start date" use-portal />
+              <MpDatePicker
+                v-model="form.dueDateStart"
+                value-type="string"
+                :format="DATE_INPUT_FORMAT"
+                placeholder="Start date"
+                use-portal
+              />
               <MpText color="gray.600" :class="dashClass">-</MpText>
-              <MpDatePicker v-model="form.dueDateEnd" value-type="string" :format="DATE_INPUT_FORMAT" placeholder="End date" use-portal />
+              <MpDatePicker
+                v-model="form.dueDateEnd"
+                value-type="string"
+                :format="DATE_INPUT_FORMAT"
+                placeholder="End date"
+                use-portal
+              />
             </div>
           </MpFormControl>
 
@@ -50,7 +76,9 @@
             <MpFormLabel>Status</MpFormLabel>
             <MpSelect v-model="form.status" is-full-width>
               <option value="">All status</option>
-              <option v-for="opt in statusOptions" :key="opt" :value="opt">{{ statusLabel(opt) }}</option>
+              <option v-for="opt in statusOptions" :key="opt" :value="opt">
+                {{ statusLabel(opt) }}
+              </option>
             </MpSelect>
           </MpFormControl>
 
@@ -69,17 +97,37 @@
               </MpRadio>
             </div>
             <div :class="rangeRowClass">
-              <div v-if="showLowerBound(form.remainingMode)" :class="moneyFieldClass" @focusout="onMoneyBlur('remainingGt')">
+              <div
+                v-if="showLowerBound(form.remainingMode)"
+                :class="moneyFieldClass"
+                @focusout="onMoneyBlur('remainingGt')"
+              >
                 <MpInputGroup>
                   <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                  <MpInput v-model="text.remainingGt" type="text" inputmode="decimal" @update:model-value="onMoneyInput('remainingGt')" />
+                  <MpInput
+                    v-model="text.remainingGt"
+                    type="text"
+                    inputmode="decimal"
+                    @update:model-value="onMoneyInput('remainingGt')"
+                  />
                 </MpInputGroup>
               </div>
-              <MpText v-if="form.remainingMode === 'bt'" color="gray.600" :class="dashClass">-</MpText>
-              <div v-if="showUpperBound(form.remainingMode)" :class="moneyFieldClass" @focusout="onMoneyBlur('remainingLt')">
+              <MpText v-if="form.remainingMode === 'bt'" color="gray.600" :class="dashClass"
+                >-</MpText
+              >
+              <div
+                v-if="showUpperBound(form.remainingMode)"
+                :class="moneyFieldClass"
+                @focusout="onMoneyBlur('remainingLt')"
+              >
                 <MpInputGroup>
                   <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                  <MpInput v-model="text.remainingLt" type="text" inputmode="decimal" @update:model-value="onMoneyInput('remainingLt')" />
+                  <MpInput
+                    v-model="text.remainingLt"
+                    type="text"
+                    inputmode="decimal"
+                    @update:model-value="onMoneyInput('remainingLt')"
+                  />
                 </MpInputGroup>
               </div>
             </div>
@@ -88,22 +136,46 @@
           <MpFormControl v-if="showMoneyFields" :is-invalid="invalidTotal">
             <MpFormLabel>Total</MpFormLabel>
             <div :class="radioRowClass">
-              <MpRadio v-for="mode in AMOUNT_MODES" :id="`total-${mode.value}`" :key="mode.value" v-model="form.totalMode" :value="mode.value">
+              <MpRadio
+                v-for="mode in AMOUNT_MODES"
+                :id="`total-${mode.value}`"
+                :key="mode.value"
+                v-model="form.totalMode"
+                :value="mode.value"
+              >
                 {{ mode.label }}
               </MpRadio>
             </div>
             <div :class="rangeRowClass">
-              <div v-if="showLowerBound(form.totalMode)" :class="moneyFieldClass" @focusout="onMoneyBlur('totalGt')">
+              <div
+                v-if="showLowerBound(form.totalMode)"
+                :class="moneyFieldClass"
+                @focusout="onMoneyBlur('totalGt')"
+              >
                 <MpInputGroup>
                   <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                  <MpInput v-model="text.totalGt" type="text" inputmode="decimal" @update:model-value="onMoneyInput('totalGt')" />
+                  <MpInput
+                    v-model="text.totalGt"
+                    type="text"
+                    inputmode="decimal"
+                    @update:model-value="onMoneyInput('totalGt')"
+                  />
                 </MpInputGroup>
               </div>
               <MpText v-if="form.totalMode === 'bt'" color="gray.600" :class="dashClass">-</MpText>
-              <div v-if="showUpperBound(form.totalMode)" :class="moneyFieldClass" @focusout="onMoneyBlur('totalLt')">
+              <div
+                v-if="showUpperBound(form.totalMode)"
+                :class="moneyFieldClass"
+                @focusout="onMoneyBlur('totalLt')"
+              >
                 <MpInputGroup>
                   <MpInputLeftAddon>Rp</MpInputLeftAddon>
-                  <MpInput v-model="text.totalLt" type="text" inputmode="decimal" @update:model-value="onMoneyInput('totalLt')" />
+                  <MpInput
+                    v-model="text.totalLt"
+                    type="text"
+                    inputmode="decimal"
+                    @update:model-value="onMoneyInput('totalLt')"
+                  />
                 </MpInputGroup>
               </div>
             </div>
@@ -182,7 +254,7 @@ import {
   MpSelect,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import {
   AMOUNT_MODES,
@@ -190,9 +262,14 @@ import {
   emptyPurchaseFilter,
   totalBelowBalanceDue,
   type AmountMode,
-  type PurchaseFilter,
+  type PurchaseFilter
 } from "~/data/purchase-filter";
-import { DATE_INPUT_FORMAT, TAG_OPTIONS, formatAmount, parseAmount } from "~/data/purchase-transactions";
+import {
+  DATE_INPUT_FORMAT,
+  TAG_OPTIONS,
+  formatAmount,
+  parseAmount
+} from "~/data/purchase-transactions";
 
 // ---------------------------------------------------------------------------
 // The purchase list's advanced filter drawer. Ported from jurnal-frontend-app
@@ -237,14 +314,27 @@ const form = reactive<PurchaseFilter>(emptyPurchaseFilter());
  *  keystroke and reformatted only on focusout — reformatting live at two
  *  decimals makes incremental typing impossible (docs/patterns/Form.md). */
 type MoneyKey = "remainingGt" | "remainingLt" | "totalGt" | "totalLt";
-const text = reactive<Record<MoneyKey, string>>({ remainingGt: "", remainingLt: "", totalGt: "", totalLt: "" });
+const text = reactive<Record<MoneyKey, string>>({
+  remainingGt: "",
+  remainingLt: "",
+  totalGt: "",
+  totalLt: ""
+});
 
 // MpInputTag owns its own tag list internally, so it is seeded through `data`
 // and re-mounted via this key whenever the draft is replaced from outside
 // (open / reset). Without the re-mount, Reset would clear the model while the
 // chips stayed on screen.
 const tagInputKey = ref(0);
-const tagData = computed(() => form.tags.map((tag) => ({ id: `tag-${tag}`, text: tag, value: tag, isInvalid: false, isReadOnly: false })));
+const tagData = computed(() =>
+  form.tags.map((tag) => ({
+    id: `tag-${tag}`,
+    text: tag,
+    value: tag,
+    isInvalid: false,
+    isReadOnly: false
+  }))
+);
 
 function syncText() {
   (Object.keys(text) as MoneyKey[]).forEach((key) => {
@@ -264,7 +354,7 @@ watch(
   (open) => {
     if (open) loadDraft(props.applied);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const isDelivery = computed(() => props.activeTab === "pd");
@@ -279,7 +369,9 @@ const showTags = computed(() => !isJoinInvoice.value);
 /** Requests and join invoices have neither a warehouse nor a vendor reference
  *  number, so those two columns are dropped rather than offered empty. */
 const columnOptions = computed(() =>
-  isRequest.value || isJoinInvoice.value ? COLUMN_OPTIONS.filter((c) => c.value !== "warehouse" && c.value !== "referenceNo") : COLUMN_OPTIONS,
+  isRequest.value || isJoinInvoice.value
+    ? COLUMN_OPTIONS.filter((c) => c.value !== "warehouse" && c.value !== "referenceNo")
+    : COLUMN_OPTIONS
 );
 
 function showLowerBound(mode: AmountMode) {
@@ -306,7 +398,7 @@ watch(
     if (mode === "lt") form.remainingLt = form.remainingGt;
     else if (mode === "gt") form.remainingGt = form.remainingLt;
     syncText();
-  },
+  }
 );
 watch(
   () => form.totalMode,
@@ -314,7 +406,7 @@ watch(
     if (mode === "lt") form.totalLt = form.totalGt;
     else if (mode === "gt") form.totalGt = form.totalLt;
     syncText();
-  },
+  }
 );
 
 function onTagsChange(data: { value?: string; text?: string }[]) {
@@ -349,11 +441,28 @@ function onApply() {
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
 const titleClass = css({ fontSize: "lg" });
 const formClass = css({ display: "flex", flexDirection: "column", gap: 5 });
-const rangeRowClass = css({ display: "flex", alignItems: "center", gap: 3, "& > *": { flex: "1 1 0", minWidth: "0" } });
+const rangeRowClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 3,
+  "& > *": { flex: "1 1 0", minWidth: "0" }
+});
 const moneyFieldClass = css({ minWidth: "0" });
 const dashClass = css({ flex: "none!" });
-const radioRowClass = css({ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", mb: 2 });
+const radioRowClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  flexWrap: "wrap",
+  mb: 2
+});
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
-const footerClass = css({ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 3, width: "full" });
+const footerClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 3,
+  width: "full"
+});
 const footerRightClass = css({ display: "flex", gap: 2 });
 </script>

@@ -6,7 +6,9 @@
   >
     <div v-if="!record" :class="notFoundClass">
       <img src="/illustrations/search-not-found.png" alt="" :class="notFoundIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass">Landed cost not found</MpText>
+      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass"
+        >Landed cost not found</MpText
+      >
       <MpText size="body-small" color="gray.600" :class="notFoundDescClass">
         This landed cost may have been deleted, or the link you followed may be out of date.
       </MpText>
@@ -33,8 +35,16 @@
         <div />
 
         <div :class="totalColClass">
-          <MpText weight="semiBold" color="dark">Total landed cost {{ formatCurrency(record.total) }}</MpText>
-          <MpTextlink :class="textlinkAlignClass" as="button" variant="secondary" @click="onAction('journal-entry')">View journal entry</MpTextlink>
+          <MpText weight="semiBold" color="dark"
+            >Total landed cost {{ formatCurrency(record.total) }}</MpText
+          >
+          <MpTextlink
+            :class="textlinkAlignClass"
+            as="button"
+            variant="secondary"
+            @click="onAction('journal-entry')"
+            >View journal entry</MpTextlink
+          >
         </div>
       </div>
 
@@ -90,7 +100,9 @@
           <MpTableBody>
             <MpTableRow v-for="expense in record.expenses" :key="expense.id">
               <MpTableCell as="td" :class="wrapCellClass">{{ expense.expense }}</MpTableCell>
-              <MpTableCell as="td" :class="wrapCellClass">{{ expense.description || "—" }}</MpTableCell>
+              <MpTableCell as="td" :class="wrapCellClass">{{
+                expense.description || "—"
+              }}</MpTableCell>
               <MpTableCell as="td">{{ formatCurrency(expense.amount) }}</MpTableCell>
               <MpTableCell as="td">{{ formatCurrency(expense.amountUsed) }}</MpTableCell>
             </MpTableRow>
@@ -100,7 +112,9 @@
 
       <!-- Zone C — what each product cost once its share is added. This is the
            point of the document: the last two columns are the answer. -->
-      <MpText weight="semiBold" color="dark" :class="sectionHeadingClass">Landed cost calculation</MpText>
+      <MpText weight="semiBold" color="dark" :class="sectionHeadingClass"
+        >Landed cost calculation</MpText
+      >
       <MpTableContainer :class="scrollShadowClass">
         <MpTable :class="landedTableClass">
           <colgroup>
@@ -139,7 +153,9 @@
 
       <div :class="bottomActionsClass">
         <MpButton variant="ghost" @click="isDeleteModalOpen = true">Delete</MpButton>
-        <MpButton variant="secondary" @click="navigateTo(`/purchase/landed-cost/edit/${record.id}`)">Edit</MpButton>
+        <MpButton variant="secondary" @click="navigateTo(`/purchase/landed-cost/edit/${record.id}`)"
+          >Edit</MpButton
+        >
       </div>
 
       <MpModal :is-open="isDeleteModalOpen" size="sm" @close="isDeleteModalOpen = false">
@@ -151,7 +167,8 @@
           </MpModalHeader>
           <MpModalBody>
             <MpText size="body" color="gray.700">
-              The products on {{ purchase?.number ?? "this purchase" }} will go back to their original cost. This can't be undone.
+              The products on {{ purchase?.number ?? "this purchase" }} will go back to their
+              original cost. This can't be undone.
             </MpText>
           </MpModalBody>
           <MpModalFooter>
@@ -190,7 +207,7 @@ import {
   MpTag,
   MpText,
   MpTextlink,
-  MpTooltip,
+  MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
@@ -199,7 +216,7 @@ import {
   getLandedCostById,
   landedAmount,
   landedUnitPrice,
-  purchaseForLandedCost,
+  purchaseForLandedCost
 } from "~/data/purchase-landed-cost";
 import { formatCurrency, formatDisplayDate } from "~/data/purchase-transactions";
 
@@ -220,7 +237,9 @@ const purchase = computed(() => (record.value ? purchaseForLandedCost(record.val
 
 const isDeleteModalOpen = ref(false);
 
-useHead({ title: computed(() => `${record.value?.number ?? "Landed cost not found"} — Mekari Jurnal`) });
+useHead({
+  title: computed(() => `${record.value?.number ?? "Landed cost not found"} — Mekari Jurnal`)
+});
 
 function onAction(action: string) {
   void action; // inert in this prototype, same as the other detail pages
@@ -234,10 +253,27 @@ function onDelete() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
-const topRowClass = css({ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, alignItems: "start" });
-const totalColClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, textAlign: "right" });
+const topRowClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 6,
+  alignItems: "start"
+});
+const totalColClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1,
+  textAlign: "right"
+});
 const dividerClass = css({ my: 6 });
-const metaGridClass = css({ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, alignItems: "start", mb: 8 });
+const metaGridClass = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: 6,
+  alignItems: "start",
+  mb: 8
+});
 const metaFieldClass = css({ display: "flex", flexDirection: "column", gap: 1, minWidth: "0" });
 const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
 const sectionHeadingClass = css({ fontSize: "lg", mb: 4, mt: 8, display: "block" });
@@ -248,7 +284,7 @@ const scrollShadowClass = css({
   backgroundPosition: "left center, right center, left center, right center",
   backgroundRepeat: "no-repeat",
   backgroundSize: "36px 100%, 36px 100%, 12px 100%, 12px 100%",
-  backgroundAttachment: "local, local, scroll, scroll",
+  backgroundAttachment: "local, local, scroll, scroll"
 });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const expenseTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "760px" });
@@ -265,10 +301,17 @@ const bottomActionsClass = css({
   mt: 8,
   pt: 5,
   borderTopWidth: "sm",
-  borderColor: "gray.100",
+  borderColor: "gray.100"
 });
 
-const notFoundClass = css({ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, py: 16, textAlign: "center" });
+const notFoundClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 3,
+  py: 16,
+  textAlign: "center"
+});
 const notFoundTitleClass = css({ fontSize: "lg" });
 const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
 const notFoundDescClass = css({ maxWidth: "320px" });

@@ -38,15 +38,15 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 
 ## Zone → pattern map
 
-| Zone | Piece                          | Pattern                                                     |
-| ---- | ------------------------------ | ------------------------------------------------------------ |
-| —    | Breadcrumb + title + status    | [`page-title-bar`](./page-title-bar.md) (`breadcrumb`/`breadcrumbTo` props + `#title-badge` slot) |
-| —    | Section tabs                   | [`Tabs`](./Tabs.md)                                          |
-| A    | Identity row                   | Plain labeled fields, **no** `StatusBadge` here — it's in the title |
-| B    | Record KPIs                    | [`SummaryBox`](./SummaryBox.md)                              |
-| C    | Detail sections / edit form    | [`Form`](./Form.md)                                          |
-| D    | Related records / line items   | [`TablePage`](./TablePage.md) (compact — often no bulk bar)  |
-| E    | Delete + primary/secondary lifecycle actions | Bottom action bar (see below) + [`Modal`](./Modal.md) for Delete |
+| Zone | Piece                                        | Pattern                                                                                           |
+| ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| —    | Breadcrumb + title + status                  | [`page-title-bar`](./page-title-bar.md) (`breadcrumb`/`breadcrumbTo` props + `#title-badge` slot) |
+| —    | Section tabs                                 | [`Tabs`](./Tabs.md)                                                                               |
+| A    | Identity row                                 | Plain labeled fields, **no** `StatusBadge` here — it's in the title                               |
+| B    | Record KPIs                                  | [`SummaryBox`](./SummaryBox.md)                                                                   |
+| C    | Detail sections / edit form                  | [`Form`](./Form.md)                                                                               |
+| D    | Related records / line items                 | [`TablePage`](./TablePage.md) (compact — often no bulk bar)                                       |
+| E    | Delete + primary/secondary lifecycle actions | Bottom action bar (see below) + [`Modal`](./Modal.md) for Delete                                  |
 
 ## Rules
 
@@ -64,7 +64,7 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 
 A details page almost always lives at a **child route** of its list page (e.g.
 `/purchase` → `/purchase/invoice/:id`). In Nuxt's file-based routing, if
-`pages/purchase.vue` *and* `pages/purchase/invoice/[id].vue` both exist,
+`pages/purchase.vue` _and_ `pages/purchase/invoice/[id].vue` both exist,
 `purchase.vue` is treated as a **parent layout** for everything under
 `pages/purchase/` and must render `<NuxtPage />` to show its children — miss
 that and the child route silently renders the parent's own template instead
@@ -94,7 +94,7 @@ that and the child route silently renders the parent's own template instead
   screenshot showed it that way", while the list page used the month-as-word
   style; the Purchase audit flagged the split as a consistency defect
   (`NNG · H4`). Matching each screen to its own screenshot is right for
-  *layout*; it is not a licence for the same value to be **written** two ways
+  _layout_; it is not a licence for the same value to be **written** two ways
   one click apart. The typed format inside `MpDatePicker` is a separate
   concern and stays `DD/MM/YYYY` — an input mask is not a display format.
 - **Unsaved-changes guarding:** not applicable — edit is a separate route
@@ -203,7 +203,7 @@ confirmed the rules above still hold, plus:
 - **A cross-type relationship can go both ways, and should be a live
   lookup, not a second stored field.** Order → Delivery is already modeled
   (`linkedDeliveryId` on the Order record); Delivery's own "Order no." field
-  is the *reverse* of that same relationship, computed with
+  is the _reverse_ of that same relationship, computed with
   `find(t => t.type === "order" && t.linkedDeliveryId === this.id)` rather
   than adding a second `linkedOrderId` field that could drift out of sync
   with the first. When two types reference each other, store the link once
@@ -225,17 +225,17 @@ not just field/label substitutions:
 - **A type's numbering scheme isn't universal.** Every other type reads
   `"{Label} #{14025 + id}"`; Join Invoice reads `"Join Invoice - 10002"` —
   a different separator, no `Purchase` prefix, and its own offset. Check the
-  screenshot's title/Transaction-no. field for the *exact* format before
+  screenshot's title/Transaction-no. field for the _exact_ format before
   assuming the established scheme applies — it's a per-type decision, not a
   fixed rule of the pattern.
 - **A details page's "items" table doesn't have to hold line items at
-  all.** A join invoice bundles *other whole Invoice records* for combined
+  all.** A join invoice bundles _other whole Invoice records_ for combined
   billing — its table lists them (Purchase invoice / Due date / Status /
   Amount billed / Remaining billed), reusing `total`/`balanceDue` off the
   real linked records (`joinedInvoiceIds`, resolved the same way Order →
   Delivery's `linkedDeliveryId` is: a forward reference set once at
   generation time, resolved by lookup on the page, and — this is the new
-  part — the join invoice's *own* summary figures are the **sum** of the
+  part — the join invoice's _own_ summary figures are the **sum** of the
   linked records', not independently generated).
 - **Some pages genuinely have no bottom action bar.** Join Invoice's
   reference screenshot has no Delete, no Edit, no "Last updated by" — full
@@ -272,8 +272,8 @@ Two rules the Purchase audit had to correct here:
   The list's search-empty state had an illustration and tailored copy while
   every details page's not-found state was bare centred text — the same
   situation dressed two ways (`CHOICE · Holistic`).
-- **Keep implementation vocabulary out of the copy.** The original read *"This
-  invoice doesn't exist in this prototype's mock data."* — "prototype" and
+- **Keep implementation vocabulary out of the copy.** The original read _"This
+  invoice doesn't exist in this prototype's mock data."_ — "prototype" and
   "mock data" are the build team's words, not the user's, and that phrasing
   gets copied forward into the real product (`CHOICE · Emotional`). Say what
   happened and what to do next.
@@ -285,13 +285,19 @@ section. The wrap fix above was originally written as:
 
 ```ts
 // WRONG — `display: inline-block` on a <td>
-const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block", textAlign: "left" });
+const wrapCellClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  maxWidth: "full",
+  display: "inline-block",
+  textAlign: "left"
+});
 ```
 
 …and applied straight to the cell: `<MpTableCell as="td" :class="wrapCellClass">`.
 A `<td>` must stay `display: table-cell`. Making it `inline-block` drops it
 out of the table's column model entirely, so the browser lays each cell out
-as an inline box sized to *its own content* and draws the row borders and
+as an inline box sized to _its own content_ and draws the row borders and
 column edges against that — the rows render visibly ragged, with underlines
 of different lengths per row and stray vertical rules at the old column
 boundaries. It looks like a border/spacing bug, which sends you hunting in
@@ -302,8 +308,13 @@ child that ships its own `nowrap` (`MpTag`, `MpTextlink`) gets the
 inline-block box:
 
 ```ts
-const wrapCellClass   = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" });                          // on <td>
-const wrapInlineClass = css({ whiteSpace: "normal!", wordBreak: "break-word", maxWidth: "full", display: "inline-block" }); // on MpTag only
+const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word", textAlign: "left" }); // on <td>
+const wrapInlineClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  maxWidth: "full",
+  display: "inline-block"
+}); // on MpTag only
 ```
 
 `wrapInlineClass` is for `MpTag`. An `MpTextlink` needs the same wrap rules

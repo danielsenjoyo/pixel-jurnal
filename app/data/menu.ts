@@ -57,17 +57,35 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
     { id: "budget", label: "Budget", labelId: "Anggaran", icon: "finance", route: "/budget" }
   ],
   [
-    { id: "cash-bank", label: "Cash & bank", labelId: "Kas & bank", icon: "bank", route: "/cash-bank" },
+    {
+      id: "cash-bank",
+      label: "Cash & bank",
+      labelId: "Kas & bank",
+      icon: "bank",
+      route: "/cash-bank"
+    },
     { id: "sales", label: "Sales", labelId: "Penjualan", icon: "sales", route: "/sales" },
     { id: "purchase", label: "Purchases", labelId: "Pembelian", icon: "cart", route: "/purchase" },
     { id: "expenses", label: "Expenses", labelId: "Biaya", icon: "expenses", route: "/expenses" },
-    { id: "job-order", label: "Job orders", labelId: "Job order", icon: "table-view-list", route: "/job-order" },
+    {
+      id: "job-order",
+      label: "Job orders",
+      labelId: "Job order",
+      icon: "table-view-list",
+      route: "/job-order"
+    },
     { id: "mekari-pay", label: "Mekari Pay", icon: "mekari_pay", route: "/mekari-pay" }
   ],
   [
     { id: "contacts", label: "Contacts", labelId: "Kontak", icon: "contact", route: "/contacts" },
     { id: "products", label: "Products", labelId: "Produk", icon: "products", route: "/products" },
-    { id: "production", label: "Production", labelId: "Produksi", icon: "fulfillment", route: "/production" },
+    {
+      id: "production",
+      label: "Production",
+      labelId: "Produksi",
+      icon: "fulfillment",
+      route: "/production"
+    },
     {
       id: "fulfillment",
       label: "Fulfillment",
@@ -78,8 +96,20 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
         title: "Fulfillment",
         titleId: "Pemenuhan",
         items: [
-          { id: "sales", label: "Sales", labelId: "Penjualan", route: "/fulfillment/sales", count: 4 },
-          { id: "purchases", label: "Purchases", labelId: "Pembelian", route: "/fulfillment/purchases", count: 2 }
+          {
+            id: "sales",
+            label: "Sales",
+            labelId: "Penjualan",
+            route: "/fulfillment/sales",
+            count: 4
+          },
+          {
+            id: "purchases",
+            label: "Purchases",
+            labelId: "Pembelian",
+            route: "/fulfillment/purchases",
+            count: 2
+          }
         ]
       }
     },
@@ -103,8 +133,20 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
     }
   ],
   [
-    { id: "other-lists", label: "Other lists", labelId: "Daftar lainnya", icon: "doc", route: "/other-lists" },
-    { id: "integrations", label: "Integrations", labelId: "Integrasi", icon: "add-ons", route: "/integrations" },
+    {
+      id: "other-lists",
+      label: "Other lists",
+      labelId: "Daftar lainnya",
+      icon: "doc",
+      route: "/other-lists"
+    },
+    {
+      id: "integrations",
+      label: "Integrations",
+      labelId: "Integrasi",
+      icon: "add-ons",
+      route: "/integrations"
+    },
     {
       id: "settings",
       label: "Settings",
@@ -116,52 +158,114 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
         titleId: "Pengaturan",
         items: [
           { id: "company", label: "Company", labelId: "Perusahaan", route: "/settings/company" },
-          { id: "users", label: "User settings", labelId: "Pengaturan pengguna", route: "/settings/users" },
+          {
+            id: "users",
+            label: "User settings",
+            labelId: "Pengaturan pengguna",
+            route: "/settings/users"
+          },
           {
             id: "sales",
             label: "Sales",
             labelId: "Penjualan",
             route: "/settings/sales",
             children: [
-              { id: "format", label: "Format settings", labelId: "Format pengaturan", route: "/settings/sales/format" },
-              { id: "reminder", label: "Invoice reminder", labelId: "Pengingat faktur", route: "/settings/sales/reminder" }
+              {
+                id: "format",
+                label: "Format settings",
+                labelId: "Format pengaturan",
+                route: "/settings/sales/format"
+              },
+              {
+                id: "reminder",
+                label: "Invoice reminder",
+                labelId: "Pengingat faktur",
+                route: "/settings/sales/reminder"
+              }
             ]
           },
-          { id: "purchases", label: "Purchases", labelId: "Pembelian", route: "/settings/purchases" },
+          {
+            id: "purchases",
+            label: "Purchases",
+            labelId: "Pembelian",
+            route: "/settings/purchases"
+          },
           {
             id: "products",
             label: "Products",
             labelId: "Produk",
             route: "/settings/products",
             children: [
-              { id: "goods", label: "Goods & services", labelId: "Barang & jasa", route: "/settings/products/goods" },
-              { id: "warehouse", label: "Warehouse", labelId: "Gudang", route: "/settings/products/warehouse" }
+              {
+                id: "goods",
+                label: "Goods & services",
+                labelId: "Barang & jasa",
+                route: "/settings/products/goods"
+              },
+              {
+                id: "warehouse",
+                label: "Warehouse",
+                labelId: "Gudang",
+                route: "/settings/products/warehouse"
+              }
             ]
           },
-          { id: "production", label: "Production", labelId: "Produksi", route: "/settings/production" },
+          {
+            id: "production",
+            label: "Production",
+            labelId: "Produksi",
+            route: "/settings/production"
+          },
           {
             id: "templates",
             label: "Templates",
             labelId: "Template",
             route: "/settings/templates",
             children: [
-              { id: "section-email", label: "EMAIL TEMPLATES", labelId: "TEMPLATE EMAIL", route: "", isSection: true },
+              {
+                id: "section-email",
+                label: "EMAIL TEMPLATES",
+                labelId: "TEMPLATE EMAIL",
+                route: "",
+                isSection: true
+              },
               {
                 id: "invoice-email",
                 label: "Sales invoice",
                 labelId: "Faktur penjualan",
                 route: "/settings/templates/invoice-email"
               },
-              { id: "quote-email", label: "Sales quote", labelId: "Penawaran penjualan", route: "/settings/templates/quote-email" },
-              { id: "order-email", label: "Sales order", labelId: "Pemesanan penjualan", route: "/settings/templates/order-email" },
-              { id: "section-pdf", label: "PDF TEMPLATES", labelId: "PDF TEMPLATE", route: "", isSection: true },
+              {
+                id: "quote-email",
+                label: "Sales quote",
+                labelId: "Penawaran penjualan",
+                route: "/settings/templates/quote-email"
+              },
+              {
+                id: "order-email",
+                label: "Sales order",
+                labelId: "Pemesanan penjualan",
+                route: "/settings/templates/order-email"
+              },
+              {
+                id: "section-pdf",
+                label: "PDF TEMPLATES",
+                labelId: "PDF TEMPLATE",
+                route: "",
+                isSection: true
+              },
               {
                 id: "pdf-general",
                 label: "General settings",
                 labelId: "Pengaturan umum",
                 route: "/settings/templates/pdf-general"
               },
-              { id: "pdf-customize", label: "Customize PDF", labelId: "Atur PDF", route: "/settings/templates/pdf" },
+              {
+                id: "pdf-customize",
+                label: "Customize PDF",
+                labelId: "Atur PDF",
+                route: "/settings/templates/pdf"
+              },
               { id: "section-wa", label: "WHATSAPP", route: "", isSection: true },
               {
                 id: "wa-sales",
@@ -177,11 +281,31 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
               }
             ]
           },
-          { id: "custom-fields", label: "Custom fields", labelId: "Kolom khusus", route: "/settings/custom-fields" },
-          { id: "account-mapping", label: "Account mapping", labelId: "Pemetaan akun", route: "/settings/account-mapping" },
+          {
+            id: "custom-fields",
+            label: "Custom fields",
+            labelId: "Kolom khusus",
+            route: "/settings/custom-fields"
+          },
+          {
+            id: "account-mapping",
+            label: "Account mapping",
+            labelId: "Pemetaan akun",
+            route: "/settings/account-mapping"
+          },
           { id: "billing", label: "Billing", labelId: "Tagihan", route: "/settings/billing" },
-          { id: "approval-rules", label: "Approval rules", labelId: "Aturan persetujuan", route: "/settings/approval-rules" },
-          { id: "tagging-rules", label: "Tagging rules", labelId: "Aturan tagging", route: "/settings/tagging-rules" }
+          {
+            id: "approval-rules",
+            label: "Approval rules",
+            labelId: "Aturan persetujuan",
+            route: "/settings/approval-rules"
+          },
+          {
+            id: "tagging-rules",
+            label: "Tagging rules",
+            labelId: "Aturan tagging",
+            route: "/settings/tagging-rules"
+          }
         ]
       }
     }

@@ -12,7 +12,15 @@
 // time a field was added.
 
 /** Which single column a keyword is matched against. "" means every column. */
-export type SearchColumn = "" | "number" | "vendor" | "warehouse" | "referenceNo" | "product" | "memo" | "message";
+export type SearchColumn =
+  | ""
+  | "number"
+  | "vendor"
+  | "warehouse"
+  | "referenceNo"
+  | "product"
+  | "memo"
+  | "message";
 
 /** How an amount range is expressed. `bt` uses both bounds; `gt`/`lt` one each. */
 export type AmountMode = "gt" | "bt" | "lt";
@@ -25,13 +33,13 @@ export const COLUMN_OPTIONS: { value: SearchColumn; label: string }[] = [
   { value: "referenceNo", label: "Vendor ref. no." },
   { value: "product", label: "Product name" },
   { value: "memo", label: "Memo" },
-  { value: "message", label: "Message" },
+  { value: "message", label: "Message" }
 ];
 
 export const AMOUNT_MODES: { value: AmountMode; label: string }[] = [
   { value: "gt", label: "More than" },
   { value: "bt", label: "In between" },
-  { value: "lt", label: "Less than" },
+  { value: "lt", label: "Less than" }
 ];
 
 export interface PurchaseFilter {
@@ -73,7 +81,7 @@ export function emptyPurchaseFilter(): PurchaseFilter {
     totalGt: 0,
     totalLt: 0,
     tags: [],
-    tagsLogic: "and",
+    tagsLogic: "and"
   };
 }
 
@@ -81,17 +89,17 @@ export function emptyPurchaseFilter(): PurchaseFilter {
 export function isFilterActive(f: PurchaseFilter): boolean {
   return Boolean(
     f.key ||
-      f.searchColumn ||
-      f.startDate ||
-      f.endDate ||
-      f.dueDateStart ||
-      f.dueDateEnd ||
-      f.status ||
-      f.remainingGt ||
-      f.remainingLt ||
-      f.totalGt ||
-      f.totalLt ||
-      f.tags.length,
+    f.searchColumn ||
+    f.startDate ||
+    f.endDate ||
+    f.dueDateStart ||
+    f.dueDateEnd ||
+    f.status ||
+    f.remainingGt ||
+    f.remainingLt ||
+    f.totalGt ||
+    f.totalLt ||
+    f.tags.length
   );
 }
 
@@ -181,10 +189,14 @@ export function matchesPurchaseFilter(row: FilterableRow, f: PurchaseFilter): bo
   if (!withinDateRange(row.transactionDateSort, f.startDate, f.endDate)) return false;
   if (!withinDateRange(row.dueDateSort, f.dueDateStart, f.dueDateEnd)) return false;
   if (f.status && row.status !== f.status) return false;
-  if (!withinAmountRange(row.balanceDue, f.remainingMode, f.remainingGt, f.remainingLt)) return false;
+  if (!withinAmountRange(row.balanceDue, f.remainingMode, f.remainingGt, f.remainingLt))
+    return false;
   if (!withinAmountRange(row.totalAmount, f.totalMode, f.totalGt, f.totalLt)) return false;
   if (f.tags.length) {
-    const matched = f.tagsLogic === "and" ? f.tags.every((t) => row.tags.includes(t)) : f.tags.some((t) => row.tags.includes(t));
+    const matched =
+      f.tagsLogic === "and"
+        ? f.tags.every((t) => row.tags.includes(t))
+        : f.tags.some((t) => row.tags.includes(t));
     if (!matched) return false;
   }
   return true;
@@ -194,5 +206,7 @@ export function matchesPurchaseFilter(row: FilterableRow, f: PurchaseFilter): bo
  *  "more than" balance due can never match anything, since a transaction's
  *  total is always at least its outstanding balance. */
 export function totalBelowBalanceDue(f: PurchaseFilter): boolean {
-  return f.remainingMode === "gt" && f.totalMode === "lt" && f.totalLt !== 0 && f.totalLt < f.remainingGt;
+  return (
+    f.remainingMode === "gt" && f.totalMode === "lt" && f.totalLt !== 0 && f.totalLt < f.remainingGt
+  );
 }
