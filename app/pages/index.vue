@@ -1,47 +1,78 @@
 <template>
-  <DefaultPageContent title="Master template">
-    <template #actions>
-      <MpButton variant="secondary" right-icon="chevrons-down" aria-haspopup="menu">
-        More
-      </MpButton>
-      <MpButton variant="secondary">Label</MpButton>
-      <MpButton variant="primary">Label</MpButton>
-    </template>
-
-    <div :class="emptyClass">
-      <MpText :class="hintClass" color="gray.600">
-        This is the <strong>master template</strong> — duplicate
-        <code :class="codeClass">app/pages/index.vue</code> as the starting point for new Jurnal
-        screens. The navbar, sidebar, and stage already follow the Pixel 3 specification (Design
-        Tokens v2.1).
-      </MpText>
-    </div>
-  </DefaultPageContent>
+  <main data-pixel-component="PixelContent" :class="mainClass">
+    <section :class="stageClass">
+      <div :class="columnClass">
+        <HomeActivities />
+        <HomeHighlights v-if="showHighlights" @dismiss="showHighlights = false" />
+        <HomeAddOns />
+        <HomeLiveTraining />
+        <HomeOptimizeBusiness />
+      </div>
+    </section>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { css, MpButton, MpText } from "@mekari/pixel3";
-import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import { ref } from "vue";
+import { css } from "@mekari/pixel3";
+import HomeActivities from "~/components/home/HomeActivities.vue";
+import HomeHighlights from "~/components/home/HomeHighlights.vue";
+import HomeAddOns from "~/components/home/HomeAddOns.vue";
+import HomeLiveTraining from "~/components/home/HomeLiveTraining.vue";
+import HomeOptimizeBusiness from "~/components/home/HomeOptimizeBusiness.vue";
 
-useHead({ title: "Master template — Mekari Jurnal" });
+useHead({ title: "Home — Mekari Jurnal" });
 
-const emptyClass = css({
+/**
+ * Home is the one page that renders a PageStage without a PageTitle band
+ * (see `docs/design.md` §1). Its first section already opens with the
+ * greeting and "What activity do you want to do?" — a title band reading
+ * "Home" above that would say the same thing twice. Every other page keeps
+ * the `DefaultPageContent` title + stage pairing.
+ */
+
+/** In-memory only — production persists the dismissal to localStorage. */
+const showHighlights = ref(true);
+
+const mainClass = css({
   display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "center",
+  flexDirection: "column",
+  flex: "1 1 auto",
+  minWidth: 0,
   width: "full",
-  py: 8
+  paddingTop: "var(--pixel-navbar-height)",
+  minHeight: "100svh"
 });
 
-const hintClass = css({ maxWidth: "560px", textAlign: "center" });
+// Same white surface as `DefaultPageContent`'s stage, but flush to the top of
+// the shell since no title band precedes it.
+const stageClass = css({
+  bg: "white",
+  borderTopWidth: "sm",
+  borderLeftWidth: "sm",
+  borderColor: "gray.100",
+  roundedTopLeft: "md",
+  px: 6,
+  py: 8,
+  mt: 6,
+  flex: "1 1 auto",
+  minHeight: "0"
+});
 
-const codeClass = css({
-  px: 1,
-  py: "0.5",
-  fontFamily: "mono",
-  fontSize: "sm",
-  bg: "gray.25",
-  rounded: "sm",
-  color: "dark"
+/**
+ * One 776px column, centred — the width every Home section is built to.
+ *
+ * The two carousels hang their prev/next arrows 44px outside this column, so
+ * it also reserves 80px of gutter on each side. Without that the left arrow
+ * is clipped by the stage edge once the viewport drops near 1024px.
+ */
+const columnClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 12,
+  width: "calc(100% - 160px)",
+  maxWidth: "776px",
+  mx: "auto"
 });
 </script>
