@@ -200,7 +200,11 @@
              checkbox never grows again) and only the trailing filler <col>
              (matched by the blank <th>/<td> at the end of every row below)
              stretches to soak it up. -->
-        <MpTable is-hoverable :class="tableFixedClass" :style="{ minWidth: tableMinWidth, width: '100%' }">
+        <MpTable
+          is-hoverable
+          :class="tableFixedClass"
+          :style="{ minWidth: tableMinWidth, width: '100%' }"
+        >
           <colgroup>
             <col :style="{ width: '44px' }" />
             <col
@@ -1234,7 +1238,12 @@ const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
 // Sized to match MpCheckbox's own 18px control rather than stretching full
 // width like the other columns' skeleton bars — a full-width bar in a 44px
 // cell would render wider than the checkbox it stands in for.
-const skeletonCheckboxClass = css({ display: "block", width: "18px", height: "18px", rounded: "sm" });
+const skeletonCheckboxClass = css({
+  display: "block",
+  width: "18px",
+  height: "18px",
+  rounded: "sm"
+});
 
 const emptyStateClass = css({
   display: "flex",
