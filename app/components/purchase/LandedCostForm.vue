@@ -342,7 +342,6 @@ import {
   type LandedCostExpense
 } from "~/data/purchase-landed-cost";
 import {
-  DATE_INPUT_FORMAT,
   TAG_OPTIONS,
   formatAmount,
   formatCurrency,
@@ -350,6 +349,7 @@ import {
   getPurchaseTransactionById,
   parseAmount
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit a landed cost. Ported from jurnal-frontend-app
@@ -391,18 +391,6 @@ const submitted = ref(false);
 const purchase = computed(() =>
   form.purchaseId != null ? getPurchaseTransactionById(form.purchaseId) : undefined
 );
-
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
-}
 
 let expenseKeySeq = 0;
 function blankExpense(name = ""): ExpenseRow {

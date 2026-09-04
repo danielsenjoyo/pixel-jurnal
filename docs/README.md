@@ -18,6 +18,8 @@ and the `@mekari/pixel3` component library.
 | Build a single-record screen                    | [`patterns/details-page-format.md`](./patterns/details-page-format.md)                                                  |
 | Build a create/edit form screen                 | [`patterns/form-page-format.md`](./patterns/form-page-format.md) + [`patterns/Form.md`](./patterns/Form.md)             |
 | Work on the Home landing page                   | [`patterns/home-page-format.md`](./patterns/home-page-format.md)                                                        |
+| Build a catalog page (tabs → grid of links)     | [`patterns/reports-index-format.md`](./patterns/reports-index-format.md)                                                |
+| Build a report screen (range → run → totals)    | [`patterns/reports-page-format.md`](./patterns/reports-page-format.md)                                                  |
 
 ## Map
 
@@ -38,6 +40,8 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition.
 - [`form-page-format.md`](./patterns/form-page-format.md) — create/edit form page composition (+ the Purchase module page map).
 - [`home-page-format.md`](./patterns/home-page-format.md) — the Home landing page: section stack, the no-PageTitle exception, what the port from production leaves out.
+- [`reports-index-format.md`](./patterns/reports-index-format.md) — the catalog page: category tabs over a two-column grid of link cards (Reports).
+- [`reports-page-format.md`](./patterns/reports-page-format.md) — the report screen: date range + criteria → run → table with a TOTAL row. How it differs from an index page, and why.
 
 **Building blocks**
 
@@ -60,9 +64,16 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 
 ### Compliance gate
 
+Three checks run on `git push` (husky `pre-push`) and on every PR to `main`
+(`.github/workflows/ci.yml`): **`pnpm lint`**, **`pnpm typecheck`**
+(`nuxt typecheck`), and Pixel Police. Typecheck earns its place because eslint
+cannot see what it sees — none of the sixteen type errors this repo carried
+until they were cleared were lint errors.
+
 - **`scripts/pixel-police.sh`** — Pixel Police: the mechanical rules below, checked on the **added
-  lines** of changed `.vue` files. Runs on `git push` (husky `pre-push`) and on every PR to `main`.
-  Run it yourself with `bash scripts/pixel-police.sh`.
+  lines** of changed `.vue` files — commits since the base **and the working tree**, including
+  untracked files, so uncommitted work is checked too. Runs on `git push` (husky `pre-push`) and on
+  every PR to `main`. Run it yourself with `bash scripts/pixel-police.sh`.
 - **[`.agents/skills/pixel-police/references/rules.md`](../.agents/skills/pixel-police/references/rules.md)** —
   the full rule list: the 7 the script enforces (with their whitelisted exceptions) and the
   reviewer-only ones it can't see. Adding a rule? That file says how.

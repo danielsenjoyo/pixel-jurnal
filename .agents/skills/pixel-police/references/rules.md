@@ -7,7 +7,9 @@ means "nothing obviously off-system was added", not "this screen is correct".
 ## Tier 1 — enforced by `scripts/pixel-police.sh`
 
 Checked on **added lines only**, in changed `.vue` files, against the merge-base
-with `origin/main`. Comment-only lines are skipped. Any line carrying a trailing
+with `origin/main`. "Changed" spans the commits since that base _and_ the
+working tree — staged, unstaged, and untracked files — so a rule fires on work
+that is not committed yet. Comment-only lines are skipped. Any line carrying a trailing
 `pixel-police-allow` comment is exempt.
 
 | #   | Violation                                                                                    | Fix                                                           | Source                                                |

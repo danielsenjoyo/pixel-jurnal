@@ -22,6 +22,7 @@
 // So resetting a duplicate's status to "open" now genuinely moves it back
 // into its own type's tab, because there's only one place it can be.
 import type { PurchaseStatus } from "./purchase-status";
+import { parseLocalIsoDate, toLocalIsoDate } from "~/utils/dates";
 
 export type TransactionType =
   | "invoice"
@@ -255,10 +256,6 @@ function pad(n: number) {
   return String(n).padStart(4, "0");
 }
 
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
-
 function dateAt(daysFromToday: number) {
   const d = new Date(2026, 8, 2); // "today" per session context: 2 Sep 2026
   d.setDate(d.getDate() + daysFromToday);
@@ -313,33 +310,10 @@ export function parseAmount(text: string): number {
 /** Dates, for reading: `21 Aug 2026`. Month-as-word deliberately — `21/08/2026`
  *  is ambiguous to anyone who reads `MM/DD`. This is the *display* format; the
  *  format a user *types* into MpDatePicker is a separate concern and stays
- *  `DD/MM/YYYY` (see DATE_INPUT_FORMAT). */
+ *  `DD/MM/YYYY` (see `DATE_INPUT_FORMAT` in `~/utils/dates`). */
 export function formatDisplayDate(iso: string): string {
   if (!iso) return "—";
   return formatDate(parseLocalIsoDate(iso.slice(0, 10)));
-}
-
-/** The typed/edited date format for MpDatePicker — an input mask, not a
- *  display format, so it is allowed to differ from formatDisplayDate. */
-export const DATE_INPUT_FORMAT = "DD/MM/YYYY";
-
-// "yyyy-mm-dd" from a Date's *local* calendar fields — used everywhere a date
-// is round-tripped through a native <input type="date">. `Date#toISOString`
-// converts to UTC first, which silently shifts the day in any timezone ahead
-// of UTC (this session's browser timezone is UTC+7): local midnight becomes
-// the previous day once expressed in UTC. Never use toISOString for a
-// date-only value.
-export function toLocalIsoDate(d: Date): string {
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-}
-
-// The inverse: `new Date("yyyy-mm-dd")` parses as UTC midnight per spec, which
-// re-introduces the same timezone shift once converted back to a local
-// calendar day (just in the opposite direction, so it bites viewers *behind*
-// UTC). Parse the components ourselves and build a local Date instead.
-export function parseLocalIsoDate(iso: string): Date {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
 }
 
 export function todayIsoDate(): string {

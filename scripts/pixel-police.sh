@@ -11,6 +11,18 @@
 #   scripts/pixel-police.sh            # vs. merge-base with origin/main (or main)
 #   scripts/pixel-police.sh <base-ref> # vs. an explicit base ref/sha
 #
+# WHAT COUNTS AS "THE CHANGE": every commit since the base, PLUS whatever is in
+# the working tree right now — staged, unstaged, and untracked .vue files alike.
+#
+# The working tree used to be excluded (the diff was `BASE...HEAD`), which made
+# the local run useless for its stated purpose. CLAUDE.md says to run this
+# before handing work back, but at that moment the work is usually uncommitted —
+# so the script would report a clean tree for a change it had not looked at, and
+# an entirely new page, being untracked, was skipped in full rather than checked
+# in full. Both cases have happened. On a clean checkout (CI, the pre-push hook)
+# this is identical to the old behaviour, since there is nothing uncommitted to
+# add.
+#
 # Escape hatch: append `pixel-police-allow` as a trailing comment on a line that
 # is a deliberate, documented exception. Use it sparingly — and document the
 # exception in docs/ in the same change.
@@ -31,11 +43,18 @@ BASE_INPUT="${1:-}"
 # Resolve a usable base commit. A CI "before" sha can be all-zeros (new branch)
 # or unreachable; fall back to the merge-base with origin/main, then main, then
 # HEAD~1.
+#
+# Everything here resolves to a MERGE-BASE with HEAD, never a branch tip. That
+# normalisation used to be implicit in the `BASE...HEAD` diff; now that the diff
+# is two-dot (so it can reach the working tree) it has to happen here instead.
+# Without it, `pixel-police.sh origin/main` on a branch cut before main moved
+# would report main's own later commits as this change's work.
 resolve_base() {
   local b="$1"
   if [[ -n "$b" && "$b" != "0000000000000000000000000000000000000000" ]] \
      && git cat-file -e "${b}^{commit}" 2>/dev/null; then
-    echo "$b"; return
+    git merge-base "$b" HEAD 2>/dev/null || echo "$b"
+    return
   fi
   if git rev-parse --verify -q origin/main >/dev/null; then
     git merge-base origin/main HEAD 2>/dev/null && return
@@ -47,7 +66,17 @@ resolve_base() {
 }
 
 BASE="$(resolve_base "$BASE_INPUT")"
-echo "Pixel Police: checking added lines since ${BASE:0:12}"
+
+# Untracked .vue files never appear in a diff, so they are collected separately
+# and treated as wholly new — every line is an added line. bash 3.2 has no
+# associative arrays, so membership is a newline-delimited string + grep -Fxq.
+UNTRACKED="$(git ls-files --others --exclude-standard -- '*.vue' 2>/dev/null || true)"
+
+dirty=""
+if [[ -n "$(git status --porcelain -- '*.vue' 2>/dev/null || true)" ]]; then
+  dirty=" (+ uncommitted work)"
+fi
+echo "Pixel Police: checking added lines since ${BASE:0:12}${dirty}"
 
 fail=0
 
@@ -60,9 +89,17 @@ while IFS= read -r f; do
 
   # Added lines only: keep '+' lines, drop the '+++ b/file' header, strip the
   # '+', then drop comment-only lines so prose about a rule never trips it.
-  added="$(git diff --unified=0 "$BASE"...HEAD -- "$f" \
-    | grep '^+' | grep -v '^+++' | sed 's/^+//' \
-    | grep -vE '^[[:space:]]*(//|/\*|\*|<!--)' || true)"
+  # An untracked file has no diff to read — the whole file is new, so every
+  # line of it is an added line.
+  if grep -Fxq "$f" <<<"$UNTRACKED"; then
+    added="$(grep -vE '^[[:space:]]*(//|/\*|\*|<!--)' "$f" || true)"
+  else
+    # Two-dot, and no `HEAD`: that makes the right-hand side the WORKING TREE
+    # rather than the last commit, so staged and unstaged edits are checked too.
+    added="$(git diff --unified=0 "$BASE" -- "$f" \
+      | grep '^+' | grep -v '^+++' | sed 's/^+//' \
+      | grep -vE '^[[:space:]]*(//|/\*|\*|<!--)' || true)"
+  fi
   [[ -z "$added" ]] && continue
 
   file_msgs=""
@@ -129,7 +166,14 @@ while IFS= read -r f; do
     printf '%s' "$file_msgs"
     fail=1
   fi
-done < <(git diff --name-only "$BASE"...HEAD -- '*.vue')
+done < <(
+  # Changed tracked files (commits since BASE + the working tree), then the
+  # untracked ones. `sort -u` because a file can appear in both lists.
+  {
+    git diff --name-only "$BASE" -- '*.vue'
+    printf '%s\n' "$UNTRACKED"
+  } | grep -v '^$' | sort -u
+)
 
 echo ""
 if [[ $fail -eq 0 ]]; then
