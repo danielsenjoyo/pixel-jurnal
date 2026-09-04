@@ -6,7 +6,7 @@
       </button>
     </MpTooltip>
     <MpText v-else weight="semiBold">{{ mainAmount }}</MpText>
-    <MpText size="caption" color="gray.600">for 1 {{ unit }}</MpText>
+    <MpText size="label-small" color="gray.600">for 1 {{ unit }}</MpText>
   </div>
 </template>
 

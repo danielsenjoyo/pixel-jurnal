@@ -2,18 +2,14 @@
   <MpTableContainer>
     <MpTable :class="tableFixedClass">
       <colgroup>
-        <col style="width: 22%" />
-        <col style="width: 28%" />
-        <col style="width: 16%" />
-        <col style="width: 20%" />
-        <col v-if="showAction" style="width: 22%" />
+        <col v-for="(w, i) in colWidths" :key="i" :style="{ width: w }" />
       </colgroup>
       <MpTableHead is-fixed>
         <MpTableRow>
-          <MpTableCell as="th">Date</MpTableCell>
-          <MpTableCell as="th">Vendor</MpTableCell>
-          <MpTableCell as="th">Qty</MpTableCell>
-          <MpTableCell as="th" :class="numCellClass">Vendor charged</MpTableCell>
+          <MpTableCell as="th" :class="wrapCellClass">Date</MpTableCell>
+          <MpTableCell as="th" :class="wrapCellClass">Vendor</MpTableCell>
+          <MpTableCell as="th" :class="wrapCellClass">Qty</MpTableCell>
+          <MpTableCell as="th" :class="[numCellClass, wrapCellClass]">Vendor charged</MpTableCell>
           <MpTableCell v-if="showAction" as="th" />
         </MpTableRow>
       </MpTableHead>
@@ -28,14 +24,18 @@
 
       <MpTableBody v-else-if="rows.length">
         <MpTableRow v-for="(row, index) in rows" :key="row.id">
-          <MpTableCell as="td">
+          <MpTableCell as="td" :class="wrapCellClass">
             <div :class="dateCellClass">
-              <MpText size="body-small" weight="semiBold">{{ row.purchasedAtLabel }}</MpText>
+              <MpText size="body-small" weight="semiBold" :class="nowrapClass">
+                {{ row.purchasedAtLabel }}
+              </MpText>
               <MpBadge v-if="index === 0" for="additionalInformation" type="information">newest</MpBadge>
             </div>
-            <MpText as="a" href="#" is-text-link size="caption" @click.prevent>{{ row.documentNumber }}</MpText>
+            <MpText as="a" href="#" is-text-link size="label-small" :class="nowrapClass" @click.prevent>
+              {{ row.documentNumber }}
+            </MpText>
           </MpTableCell>
-          <MpTableCell as="td">
+          <MpTableCell as="td" :class="wrapCellClass">
             <div :class="dateCellClass">
               <MpText size="body-small">{{ row.vendorName }}</MpText>
               <MpBadge v-if="row.vendorName === currentVendorName" for="additionalInformation" type="announcement">
@@ -43,11 +43,11 @@
               </MpBadge>
             </div>
           </MpTableCell>
-          <MpTableCell as="td">
+          <MpTableCell as="td" :class="wrapCellClass">
             <MpText size="body-small" weight="semiBold">{{ formatQty(row.qty) }} {{ row.unit }}</MpText>
             <UnitConversionNote :unit="row.unit" :factor="row.unitFactorAtPurchase" :base-unit="row.baseUnit" />
           </MpTableCell>
-          <MpTableCell as="td" :class="numCellClass">
+          <MpTableCell as="td" :class="[numCellClass, wrapCellClass]">
             <HistoricalPriceCell
               :price="row.price"
               :currency="row.currency"
@@ -56,7 +56,7 @@
               :exchange-rate-at-purchase="row.exchangeRateAtPurchase"
             />
           </MpTableCell>
-          <MpTableCell v-if="showAction" as="td" :class="numCellClass">
+          <MpTableCell v-if="showAction" as="td" :class="[numCellClass, wrapCellClass]">
             <slot name="action" :row="row" />
           </MpTableCell>
         </MpTableRow>
@@ -113,9 +113,28 @@ defineSlots<{
 
 const colCount = computed(() => (props.showAction ? 5 : 4));
 
+// Must sum to exactly 100% — with tableLayout:fixed these widths are
+// authoritative, and an over-100% set silently pushes the last column
+// (the action cell) off the panel's right edge.
+const colWidths = computed(() =>
+  props.showAction
+    ? ["20%", "20%", "13%", "19%", "28%"]
+    : ["24%", "28%", "18%", "30%"]
+);
+
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
 const numCellClass = css({ textAlign: "right" });
-const dateCellClass = css({ display: "flex", alignItems: "center", gap: 1 });
+// MpTableCell defaults to white-space:nowrap, so a long vendor name spills
+// into the next column instead of wrapping — the columns then visibly
+// collide. Wrapping only: never set `display` on a <td> (see
+// docs/patterns/details-page-format.md § "Never set display on a table cell").
+const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word" });
+// flexWrap so the "newest" badge drops to its own line rather than being
+// squeezed on top of a wrapping date.
+const dateCellClass = css({ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" });
+// A date and a document number are single tokens — wrapping them mid-token
+// ("BILL/2026/07/050" / "3") is worse than letting the column carry them.
+const nowrapClass = css({ whiteSpace: "nowrap!" });
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
 const emptyClass = css({
   display: "flex",

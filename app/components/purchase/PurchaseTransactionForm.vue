@@ -317,17 +317,17 @@
                    § "Resolved — Purchase Price History"). Extending to Order
                    is a one-line guard change, not a new component. -->
               <div v-if="props.type === 'invoice' && line.product" :class="priceHistoryCellClass">
-                <MpButton
+                <MpTextlink
                   v-if="hasPriceHistory(line.product)"
-                  variant="secondary"
-                  size="sm"
-                  left-icon="time"
+                  as="button"
+                  variant="primary"
+                  :class="textlinkAlignClass"
                   @click="activeLineKey = line.key"
                 >
                   See past prices
-                </MpButton>
-                <MpText v-else size="caption" color="gray.600">
-                  No purchase history found for this product.
+                </MpTextlink>
+                <MpText v-else size="label-small" color="gray.600" :class="priceNoteClass">
+                  No purchase history found
                 </MpText>
               </div>
             </MpTableCell>
@@ -655,12 +655,14 @@ import {
   MpTag,
   MpText,
   MpTextarea,
+  MpTextlink,
   MpTooltip,
   MpUpload,
   toast
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
+import { textlinkAlignClass } from "~/utils/textlink-align";
 import { hasPriceHistory } from "~/data/price-history";
 import type { PriceHistoryEntry } from "~/types/price-history";
 import {
@@ -1204,6 +1206,15 @@ const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" }
 const lineCellClass = css({ verticalAlign: "top" });
 const numCellClass = css({ textAlign: "right" });
 const priceHistoryCellClass = css({ display: "flex", justifyContent: "flex-end", mt: 1 });
+// Keeps the note inside the Unit price column, under the input — the cell
+// inherits white-space:nowrap, so without this it runs out across Discount
+// and Tax instead of wrapping under the box.
+const priceNoteClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  textAlign: "right",
+  maxWidth: "full"
+});
 const numInputClass = css({ textAlign: "right" });
 const lineErrorClass = css({ mt: 2 });
 

@@ -1,5 +1,11 @@
 <template>
-  <MpDrawer :is-open="isOpen" :is-keep-alive="true" placement="right" size="md" @close="$emit('close')">
+  <MpDrawer
+    :is-open="isOpen"
+    :is-keep-alive="true"
+    placement="right"
+    :size="mode === 'apply' ? 'lg' : 'md'"
+    @close="$emit('close')"
+  >
     <MpDrawerOverlay />
     <MpDrawerContent>
       <MpDrawerHeader>
@@ -12,7 +18,7 @@
 
       <MpDrawerBody>
         <div :class="bodyClass">
-          <MpText size="caption" color="gray.600">{{ hoverExceptionNote }}</MpText>
+          <MpText size="body-small" color="gray.600">{{ hoverExceptionNote }}</MpText>
 
           <PriceHistoryCurrentCard
             v-if="mode === 'reference' && currentLine"
@@ -59,14 +65,14 @@
                   </span>
                 </span>
               </MpButton>
-              <MpText v-else size="caption" color="gray.400">Different currency</MpText>
+              <MpText v-else size="label-small" color="gray.400">Different currency</MpText>
             </template>
           </PriceHistoryRows>
         </div>
       </MpDrawerBody>
 
       <MpDrawerFooter>
-        <MpText size="caption" color="gray.600">
+        <MpText size="label-small" color="gray.600">
           Tax not included. Prices reflect a discount on that line only — not a discount given on the
           whole document.
         </MpText>
@@ -198,6 +204,22 @@ const scopeRowClass = css({
   gap: 3,
   flexWrap: "wrap"
 });
-const useButtonInnerClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-start" });
-const usePlusClass = css({ fontSize: "xs", color: "gray.600", fontWeight: "regular" });
+const useButtonInnerClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  whiteSpace: "normal",
+  textAlign: "left"
+});
+// The vendor-change preview (rule: always preview the side effect before the
+// click) carries a full vendor name, so it must wrap rather than clip — a
+// truncated "and set vendor to CV Su…" defeats the point of previewing it.
+const usePlusClass = css({
+  fontSize: "xs",
+  color: "gray.600",
+  fontWeight: "regular",
+  whiteSpace: "normal",
+  wordBreak: "break-word",
+  textAlign: "left"
+});
 </script>

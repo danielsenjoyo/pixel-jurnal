@@ -189,17 +189,17 @@
               <MpTableCell as="td" :class="numCellClass">
                 <div :class="priceCellClass">
                   <MpText weight="semiBold">{{ formatCurrency(line.unitPrice) }}</MpText>
-                  <MpButton
+                  <MpTextlink
                     v-if="hasHistory(line.product)"
-                    variant="secondary"
-                    size="sm"
-                    left-icon="time"
+                    as="button"
+                    variant="primary"
+                    :class="textlinkAlignClass"
                     @click="activeLineId = line.id"
                   >
                     See past prices
-                  </MpButton>
-                  <MpText v-else size="caption" color="gray.600">
-                    No purchase history found for this product.
+                  </MpTextlink>
+                  <MpText v-else size="label-small" color="gray.600" :class="priceNoteClass">
+                    No purchase history found
                   </MpText>
                 </div>
               </MpTableCell>
@@ -681,6 +681,15 @@ const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const numCellClass = css({ textAlign: "right" });
 const priceCellClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 });
+// The note sits under the price and must stay inside the Unit price column —
+// the cell inherits white-space:nowrap, so without this it runs out across
+// the Discount and Amount columns instead of wrapping under the figure.
+const priceNoteClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  textAlign: "right",
+  maxWidth: "full"
+});
 // MpTableCell defaults to white-space:nowrap + overflow:visible, so text
 // longer than the column spills into the next cell instead of wrapping —
 // see docs/patterns/TablePage.md's truncation gotcha (this table wraps

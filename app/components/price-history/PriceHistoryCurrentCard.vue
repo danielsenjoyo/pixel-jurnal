@@ -7,7 +7,7 @@
     <MpText size="body-small" color="gray.600">
       for 1 {{ unit }} · {{ formatQty(qty) }} {{ unit }} on this document
     </MpText>
-    <MpText size="caption" color="gray.600">
+    <MpText size="label-small" color="gray.600">
       This is the price already entered on this line. Nothing on this screen can change it.
     </MpText>
   </div>
