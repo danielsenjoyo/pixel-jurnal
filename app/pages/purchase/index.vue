@@ -798,9 +798,15 @@ watch(activeTabIndex, () => {
   // out of view instead of sitting next to the checkbox. Snap it back to the
   // left edge every time the active tab changes.
   nextTick(() => {
-    const container = tableContainerRef.value as { $el?: HTMLElement } | HTMLElement | null;
-    const el = container && "$el" in container ? container.$el : container;
-    el?.scrollTo?.({ left: 0 });
+    // The ref holds either the DOM node or the component instance wrapping it,
+    // depending on how MpTableContainer renders. `in` narrowing doesn't settle
+    // that union when `$el` is optional, so test the DOM case directly.
+    const container: unknown = tableContainerRef.value;
+    const el =
+      container instanceof HTMLElement
+        ? container
+        : ((container as { $el?: HTMLElement } | null)?.$el ?? null);
+    el?.scrollTo({ left: 0 });
   });
 });
 
