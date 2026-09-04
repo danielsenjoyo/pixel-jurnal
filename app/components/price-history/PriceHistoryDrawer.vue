@@ -5,7 +5,7 @@
       <MpDrawerHeader>
         <div :class="headerTextClass">
           <span :class="titleClass">What we paid before</span>
-          <MpText size="body-small" color="gray.600">{{ productName }} ({{ productCode }})</MpText>
+          <MpText size="body-small" color="gray.600">{{ product }}</MpText>
         </div>
         <MpDrawerCloseButton />
       </MpDrawerHeader>
@@ -43,7 +43,7 @@
             :rows="rows"
             :is-loading="isLoading"
             :show-action="mode === 'apply'"
-            :current-vendor-id="vendorId"
+            :current-vendor-name="vendorName"
           >
             <template v-if="mode === 'apply'" #action="{ row }">
               <MpButton
@@ -54,7 +54,7 @@
               >
                 <span :class="useButtonInnerClass">
                   <span>Use this price</span>
-                  <span v-if="row.vendorId !== vendorId" :class="usePlusClass">
+                  <span v-if="row.vendorName !== vendorName" :class="usePlusClass">
                     {{ vendorPreviewText(row) }}
                   </span>
                 </span>
@@ -96,18 +96,17 @@ import {
 import PriceHistoryRows from "./PriceHistoryRows.vue";
 import PriceHistoryCurrentCard from "./PriceHistoryCurrentCard.vue";
 import { usePriceHistory } from "~/composables/usePriceHistory";
-import type { CurrencyCode, PriceHistoryEntry, PriceHistoryMode, PriceHistoryScope, UnitCode } from "~/types/price-history";
+import type { PriceHistoryEntry, PriceHistoryMode, PriceHistoryScope } from "~/types/price-history";
 
 const props = defineProps<{
   isOpen: boolean;
   mode: PriceHistoryMode;
-  productId: string;
-  productName: string;
-  productCode: string;
-  vendorId?: string;
+  /** Matches `PurchaseTransactionLine.product` — a name, not an id (see `app/types/price-history.ts`). */
+  product: string;
+  /** The document's current vendor name, if known — also matches `PurchaseTransaction.vendorName`. */
   vendorName?: string;
-  documentCurrency: CurrencyCode;
-  currentLine?: { price: number; currency: CurrencyCode; unit: UnitCode; qty: number };
+  documentCurrency: string;
+  currentLine?: { price: number; currency: string; unit: string; qty: number };
 }>();
 
 const emit = defineEmits<{
@@ -115,9 +114,9 @@ const emit = defineEmits<{
   (e: "apply", entry: PriceHistoryEntry): void;
 }>();
 
-const productIdRef = computed(() => props.productId);
-const vendorIdRef = computed(() => props.vendorId);
-const { vendorHasHistory, resultFor, resolveDefaultScope } = usePriceHistory(productIdRef, vendorIdRef);
+const productRef = computed(() => props.product);
+const vendorNameRef = computed(() => props.vendorName);
+const { vendorHasHistory, resultFor, resolveDefaultScope } = usePriceHistory(productRef, vendorNameRef);
 
 const scope = ref<PriceHistoryScope>("all");
 const isLoading = ref(false);
@@ -141,13 +140,13 @@ watch(
 
 // A vendor that later gets cleared shouldn't leave scope stranded on "vendor".
 watch(
-  () => props.vendorId,
-  (vendorId) => {
-    if (!vendorId) scope.value = "all";
+  () => props.vendorName,
+  (vendorName) => {
+    if (!vendorName) scope.value = "all";
   }
 );
 
-const canScopeToVendor = computed(() => !!props.vendorId);
+const canScopeToVendor = computed(() => !!props.vendorName);
 
 const scopeOptions = [
   { id: "seg-vendor", label: "This vendor", value: "vendor" },
@@ -167,16 +166,16 @@ const countText = computed(() => {
 });
 
 const showBanner = computed(
-  () => !props.vendorId || (scope.value === "vendor" && !vendorHasHistory.value)
+  () => !props.vendorName || (scope.value === "vendor" && !vendorHasHistory.value)
 );
 
 const bannerText = computed(() => {
-  if (!props.vendorId) {
+  if (!props.vendorName) {
     return props.mode === "apply"
       ? "No vendor selected yet. Showing every vendor that has supplied this item. Applying a price will set the vendor to match it."
       : "No vendor selected yet. Showing every vendor that has supplied this item.";
   }
-  return `${props.vendorName ?? "This vendor"} has no recorded purchases for this product. Switch to All vendors to see prices from other vendors.`;
+  return `${props.vendorName} has no recorded purchases for this product. Switch to All vendors to see prices from other vendors.`;
 });
 
 const hoverExceptionNote = computed(() =>
@@ -186,7 +185,7 @@ const hoverExceptionNote = computed(() =>
 );
 
 function vendorPreviewText(row: PriceHistoryEntry) {
-  return props.vendorId ? `and change vendor to ${row.vendorName}` : `and set vendor to ${row.vendorName}`;
+  return props.vendorName ? `and change vendor to ${row.vendorName}` : `and set vendor to ${row.vendorName}`;
 }
 
 const headerTextClass = css({ display: "flex", flexDirection: "column", gap: "0.5" });

@@ -38,7 +38,7 @@
           <MpTableCell as="td">
             <div :class="dateCellClass">
               <MpText size="body-small">{{ row.vendorName }}</MpText>
-              <MpBadge v-if="row.vendorId === currentVendorId" for="additionalInformation" type="announcement">
+              <MpBadge v-if="row.vendorName === currentVendorName" for="additionalInformation" type="announcement">
                 this vendor
               </MpBadge>
             </div>
@@ -102,9 +102,9 @@ const props = withDefaults(
     rows: PriceHistoryEntry[];
     isLoading?: boolean;
     showAction?: boolean;
-    currentVendorId?: string;
+    currentVendorName?: string;
   }>(),
-  { isLoading: false, showAction: false, currentVendorId: undefined }
+  { isLoading: false, showAction: false, currentVendorName: undefined }
 );
 
 defineSlots<{

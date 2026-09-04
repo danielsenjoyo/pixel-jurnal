@@ -1,9 +1,12 @@
 # Price history components — reuse contract
 
-Built for the Purchase Invoice draft-review and entry-form screens
-(`app/pages/purchase/invoices/[id].vue` and `new.vue`). Everything here is
-document-type-agnostic — porting this to Purchase Order should mean writing
-two new page files and **zero new price-history logic**.
+Built for the real Purchase module: [`app/pages/purchase/invoice/[id].vue`](../../pages/purchase/invoice/%5Bid%5D.vue)
+(read-only) and [`PurchaseTransactionForm.vue`](../purchase/PurchaseTransactionForm.vue)
+(interactive, gated to `type === "invoice"` — see that file's `onApplyPrice`
+and the trigger in its line-items table). Everything here is document-type
+-agnostic — extending to Purchase Order is a one-line guard change in
+`PurchaseTransactionForm.vue` (it already renders Order via the same
+component), not a new component set.
 
 ## Non-negotiable rules (carry these into any new caller)
 
@@ -31,29 +34,44 @@ two new page files and **zero new price-history logic**.
    in-drawer scope explainer, not a document-level "this looks off" signal —
    don't repurpose it as one.
 
+## Keyed by name, not id — deliberately
+
+`app/data/purchase-transactions.ts` has no `productId`/`vendorId` anywhere —
+vendor and product are referenced by name throughout that module
+(`VENDOR_OPTIONS`, `PRODUCT_OPTIONS`). Price history follows the same
+convention: `PriceHistoryEntry.product`/`.vendorName` are names, matched
+directly against `PurchaseTransactionLine.product` and
+`PurchaseTransaction.vendorName`. Don't introduce ids here — it would make
+this the one part of the Purchase module that doesn't join the way
+everything else does.
+
 ## Components
 
 | Component | Responsibility |
 |---|---|
-| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, the banner, and the footer disclaimer. Props: `isOpen`, `mode`, `productId`, `productName`, `productCode`, `vendorId?`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. |
+| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, the banner, and the footer disclaimer. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. |
 | `PriceHistoryRows.vue` | The rows table. Exposes an `#action` scoped slot per row (only used when `showAction` is true) so the drawer decides what renders there. |
 | `PriceHistoryCurrentCard.vue` | The read-only "this document · current" card — `mode="reference"` only. |
-| `HistoricalPriceCell.vue` | One historical price cell: money + "for 1 {unit}" + the hover/tap IDR estimate. The one place the disclosed currency exception lives. |
+| `HistoricalPriceCell.vue` | One historical price cell: money + "for 1 {unit}" + the hover/tap IDR estimate. The one place the disclosed currency exception lives. Uses `~/utils/currency`'s `formatMoney` — a multi-currency formatter kept separate from the Purchase module's own `formatCurrency` (see `docs/patterns/MoneyField.md` for why that's the right call, not a violation of the module's "one formatter per value type" rule). |
 | `UnitConversionNote.vue` | The "1 box = 24 pcs" note, driven entirely by props. |
 
 ## Data layer
 
 `app/composables/usePriceHistory.ts` is the correctness core (rule 3 above).
-`app/data/price-history.ts` is mock data for this prototype — a real
-implementation replaces this with an API call but should keep the same
-per-scope independent-query shape.
+`app/data/price-history.ts` is mock data for this prototype, seeded against
+real names from `PRODUCT_OPTIONS`/`VENDOR_OPTIONS` (`PRODUCT_WITH_HISTORY` =
+"Wireless Mouse", `PRODUCT_NO_HISTORY` = "LED Desk Lamp") so the feature has
+real data to show on the actual invoice pages, not a disconnected mock
+dataset. A real implementation replaces this with an API call but should
+keep the same per-scope independent-query shape.
 
 ## Porting to Purchase Order
 
 - Reuse every component and the composable as-is.
-- Write a new page (or two) that supplies `productId`, `vendorId`,
-  `documentCurrency`, and (for `mode="apply"`) handles the `apply` event by
-  updating that document's own line-item state — same contract as
-  `app/pages/purchase/invoices/new.vue`.
+- In `PurchaseTransactionForm.vue`, drop (or extend) the `props.type === "invoice"`
+  guard around the trigger and the `<PriceHistoryDrawer>` mount — the rest of
+  the wiring (`activeLineKey`, `activeLine`, `onApplyPrice`) already works for
+  any type that shares this form component.
 - Keep the line-items table itself page-specific — it isn't part of this
-  component set on purpose (see the approved plan).
+  component set on purpose (see `docs/patterns/details-page-format.md` §
+  "Resolved — Purchase Price History").

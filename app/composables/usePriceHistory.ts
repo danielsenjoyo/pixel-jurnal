@@ -2,8 +2,8 @@ import { computed, type Ref } from "vue";
 import { PRICE_HISTORY } from "~/data/price-history";
 import type { PriceHistoryEntry, PriceHistoryScope } from "~/types/price-history";
 
-// Fixed, not a setting — TS-001 (Price History Source Governance) is Future,
-// ships with no admin UI. Do not make this configurable here.
+// Fixed, not a setting — a future admin-settings screen (not built) would
+// make this configurable. Do not make it configurable here.
 const MAX_LAST = 10;
 
 interface ScopeResult {
@@ -21,27 +21,23 @@ const EMPTY_RESULT: ScopeResult = { rows: [], total: 0 };
  * because other vendors bought the same item more recently. "This vendor"
  * and "all vendors" must each get their own independent last-10 window.
  */
-function queryScope(
-  scope: PriceHistoryScope,
-  productId: string,
-  vendorId: string | undefined
-): ScopeResult {
-  const matched = PRICE_HISTORY.filter((entry) => entry.productId === productId)
-    .filter((entry) => scope === "all" || entry.vendorId === vendorId)
+function queryScope(scope: PriceHistoryScope, product: string, vendorName: string | undefined): ScopeResult {
+  const matched = PRICE_HISTORY.filter((entry) => entry.product === product)
+    .filter((entry) => scope === "all" || entry.vendorName === vendorName)
     .sort((a, b) => (a.purchasedAt < b.purchasedAt ? 1 : -1));
 
   return { rows: matched.slice(0, MAX_LAST), total: matched.length };
 }
 
-export function usePriceHistory(productId: Ref<string | undefined>, vendorId: Ref<string | undefined>) {
+export function usePriceHistory(product: Ref<string | undefined>, vendorName: Ref<string | undefined>) {
   // Two independent computeds — "this vendor" is never derived by filtering
   // "all vendors"' already-capped result, so the last-10-per-scope bug can't
   // structurally reappear.
   const vendorResult = computed<ScopeResult>(() =>
-    productId.value && vendorId.value ? queryScope("vendor", productId.value, vendorId.value) : EMPTY_RESULT
+    product.value && vendorName.value ? queryScope("vendor", product.value, vendorName.value) : EMPTY_RESULT
   );
   const allResult = computed<ScopeResult>(() =>
-    productId.value ? queryScope("all", productId.value, undefined) : EMPTY_RESULT
+    product.value ? queryScope("all", product.value, undefined) : EMPTY_RESULT
   );
 
   const vendorHasHistory = computed(() => vendorResult.value.total > 0);

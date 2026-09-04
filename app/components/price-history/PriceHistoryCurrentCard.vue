@@ -16,12 +16,11 @@
 <script setup lang="ts">
 import { MpBadge, MpText, css } from "@mekari/pixel3";
 import { formatMoney, formatQty } from "~/utils/currency";
-import type { CurrencyCode, UnitCode } from "~/types/price-history";
 
 defineProps<{
   price: number;
-  currency: CurrencyCode;
-  unit: UnitCode;
+  currency: string;
+  unit: string;
   qty: number;
 }>();
 

@@ -186,9 +186,23 @@
               }}</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
               <MpTableCell as="td">{{ line.unit }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{
-                formatCurrency(line.unitPrice)
-              }}</MpTableCell>
+              <MpTableCell as="td" :class="numCellClass">
+                <div :class="priceCellClass">
+                  <MpText weight="semiBold">{{ formatCurrency(line.unitPrice) }}</MpText>
+                  <MpButton
+                    v-if="hasHistory(line.product)"
+                    variant="secondary"
+                    size="sm"
+                    left-icon="time"
+                    @click="activeLineId = line.id"
+                  >
+                    See past prices
+                  </MpButton>
+                  <MpText v-else size="caption" color="gray.600">
+                    No purchase history found for this product.
+                  </MpText>
+                </div>
+              </MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.discountPercent }}%</MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{
                 formatCurrency(line.amount)
@@ -480,6 +494,30 @@
         </MpModalFooter>
       </MpModalContent>
     </MpModal>
+
+    <!-- Purchase Price History — read-only reference mode, per
+         docs/patterns/details-page-format.md § "Resolved — Purchase Price
+         History". Mounted unconditionally (not v-if'd on a selected line) so
+         the panel's open transition always has a real closed→open state to
+         animate from. -->
+    <PriceHistoryDrawer
+      :is-open="activeLineId !== null"
+      mode="reference"
+      :product="activeLine?.product ?? ''"
+      :vendor-name="invoice?.vendorName"
+      :document-currency="invoice?.currency ?? 'IDR'"
+      :current-line="
+        activeLine
+          ? {
+              price: activeLine.unitPrice,
+              currency: invoice?.currency ?? 'IDR',
+              unit: activeLine.unit,
+              qty: activeLine.quantity
+            }
+          : undefined
+      "
+      @close="activeLineId = null"
+    />
   </DefaultPageContent>
 </template>
 
@@ -515,9 +553,11 @@ import {
   MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { getLandedCostsForPurchase } from "~/data/purchase-landed-cost";
+import { hasPriceHistory } from "~/data/price-history";
 import {
   deleteTransactions,
   duplicateTransaction,
@@ -562,6 +602,12 @@ useHead({
 });
 
 const isDeleteModalOpen = ref(false);
+
+const activeLineId = ref<number | null>(null);
+const activeLine = computed(() => invoice.value?.lines.find((line) => line.id === activeLineId.value));
+function hasHistory(product: string) {
+  return hasPriceHistory(product);
+}
 
 function goTo(nextId: number | null) {
   if (nextId) navigateTo(`/purchase/invoice/${nextId}`);
@@ -634,6 +680,7 @@ const metaFieldClass = css({ display: "flex", flexDirection: "column", gap: 1, m
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const numCellClass = css({ textAlign: "right" });
+const priceCellClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 });
 // MpTableCell defaults to white-space:nowrap + overflow:visible, so text
 // longer than the column spills into the next cell instead of wrapping —
 // see docs/patterns/TablePage.md's truncation gotcha (this table wraps

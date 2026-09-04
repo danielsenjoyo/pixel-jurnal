@@ -14,12 +14,11 @@
 import { computed, ref } from "vue";
 import { MpText, MpTooltip, css } from "@mekari/pixel3";
 import { formatMoney, formatRate, historicalIdrEstimate } from "~/utils/currency";
-import type { CurrencyCode, UnitCode } from "~/types/price-history";
 
 const props = defineProps<{
   price: number;
-  currency: CurrencyCode;
-  unit: UnitCode;
+  currency: string;
+  unit: string;
   purchasedAtLabel: string;
   exchangeRateAtPurchase?: number;
 }>();

@@ -1,16 +1,27 @@
-import type { CurrencyCode } from "~/types/price-history";
+// Multi-currency display for HISTORICAL price-history rows only — the
+// Purchase module's own current-document amounts always use `formatCurrency`/
+// `formatAmount` from `~/data/purchase-transactions.ts` (that module's
+// generated data is always IDR by design; see the comment in
+// `purchase/invoice/[id].vue` about what's out of scope for this prototype).
+// This formatter exists because price history deliberately DOES model
+// foreign-currency historical purchases (rule: never convert, show the
+// original currency) — a genuinely different value type from anything else
+// in the Purchase module, not a competing formatter for the same one. See
+// docs/patterns/MoneyField.md.
 
 const idrWhole = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 });
-const usdFixed = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const twoDecimal = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export function currencySymbol(currency: CurrencyCode): string {
-  return currency === "USD" ? "US$" : "Rp";
+export function currencySymbol(currency: string): string {
+  if (currency === "USD") return "US$";
+  if (currency === "SGD") return "S$";
+  return "Rp";
 }
 
-export function formatMoney(amount: number, currency: CurrencyCode): string {
-  return currency === "USD"
-    ? `${currencySymbol(currency)}${usdFixed.format(amount)}`
-    : `${currencySymbol(currency)}${idrWhole.format(Math.round(amount))}`;
+export function formatMoney(amount: number, currency: string): string {
+  return currency === "IDR"
+    ? `${currencySymbol(currency)}${idrWhole.format(Math.round(amount))}`
+    : `${currencySymbol(currency)}${twoDecimal.format(amount)}`;
 }
 
 export function formatQty(qty: number): string {
@@ -23,38 +34,10 @@ export function formatRate(rate: number): string {
 }
 
 /**
- * OD-005: converts a foreign-currency historical price to an IDR estimate,
- * using the rate recorded on that specific transaction. Informational only —
- * never feed the result into a calculation, sort, or filter.
+ * Converts a foreign-currency historical price to an IDR estimate, using the
+ * rate recorded on that specific transaction. Informational only — never
+ * feed the result into a calculation, sort, or filter.
  */
 export function historicalIdrEstimate(price: number, exchangeRateAtPurchase: number): number {
   return price * exchangeRateAtPurchase;
-}
-
-export function parseNumeric(value: string): number {
-  const cleaned = value.replace(/[^\d.]/g, "");
-  const parsed = Number(cleaned);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-/**
- * Grouped-digit display for an editable amount field (no currency symbol —
- * the input's addon already shows that). Currency-aware decimals: IDR is
- * whole numbers, USD keeps 2 decimals — matches `formatMoney`'s precision so
- * a value round-trips through `parseEditableAmount` without drift.
- */
-export function formatEditableAmount(amount: number, currency: CurrencyCode): string {
-  return currency === "USD" ? usdFixed.format(amount) : idrWhole.format(Math.round(amount));
-}
-
-/**
- * Reverses `formatEditableAmount`'s id-ID grouping: "." is a thousands
- * separator here, "," is the decimal separator — the opposite of en-US.
- * Using `parseNumeric` (which treats "." as decimal) on this output would
- * silently truncate e.g. "350.000" to 350.
- */
-export function parseEditableAmount(value: string): number {
-  const cleaned = value.replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "");
-  const parsed = Number(cleaned);
-  return Number.isFinite(parsed) ? parsed : 0;
 }

@@ -1,7 +1,7 @@
 # Toast
 
 > Part of the Mekari Jurnal page-construction pattern set.
-> Reference impl: [`new.vue`](../../app/pages/purchase/invoices/new.vue) (apply-price confirmation).
+> Reference impl: [`PurchaseTransactionForm.vue`](../../app/components/purchase/PurchaseTransactionForm.vue)'s `onApplyPrice` (apply-price confirmation).
 
 ## Purpose
 
@@ -18,7 +18,7 @@ import { toast } from "@mekari/pixel3";
 toast.notify({
   id: `apply-price-${Date.now()}`,
   variant: "success",
-  title: "Price applied — vendor changed to CV Teknik Mandiri."
+  title: "Price applied — vendor changed to CV Sumber Rejeki."
 });
 ```
 

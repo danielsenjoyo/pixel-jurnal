@@ -312,6 +312,24 @@
                   />
                 </MpInputGroup>
               </div>
+              <!-- Purchase Price History — apply mode, Invoice only for now
+                   (gated on props.type; see docs/patterns/details-page-format.md
+                   § "Resolved — Purchase Price History"). Extending to Order
+                   is a one-line guard change, not a new component. -->
+              <div v-if="props.type === 'invoice' && line.product" :class="priceHistoryCellClass">
+                <MpButton
+                  v-if="hasPriceHistory(line.product)"
+                  variant="secondary"
+                  size="sm"
+                  left-icon="time"
+                  @click="activeLineKey = line.key"
+                >
+                  See past prices
+                </MpButton>
+                <MpText v-else size="caption" color="gray.600">
+                  No purchase history found for this product.
+                </MpText>
+              </div>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpInputGroup>
@@ -584,6 +602,20 @@
         <MpButton variant="primary" @click="onSubmit()">Save &amp; pay with Mekari Pay</MpButton>
       </template>
     </div>
+
+    <!-- Purchase Price History — apply mode, Invoice only for now. Mounted
+         unconditionally (not v-if'd on a selected line) so the panel's open
+         transition always has a real closed→open state to animate from. -->
+    <PriceHistoryDrawer
+      v-if="props.type === 'invoice'"
+      :is-open="activeLineKey !== null"
+      mode="apply"
+      :product="activeLine?.product ?? ''"
+      :vendor-name="form.vendorName || undefined"
+      :document-currency="currency"
+      @close="activeLineKey = null"
+      @apply="onApplyPrice"
+    />
   </DefaultPageContent>
 </template>
 
@@ -624,9 +656,13 @@ import {
   MpText,
   MpTextarea,
   MpTooltip,
-  MpUpload
+  MpUpload,
+  toast
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
+import { hasPriceHistory } from "~/data/price-history";
+import type { PriceHistoryEntry } from "~/types/price-history";
 import {
   CURRENCY_OPTIONS,
   DATE_INPUT_FORMAT,
@@ -918,6 +954,35 @@ function onPriceBlur(line: LineForm) {
   line.unitPriceText = line.unitPrice ? formatAmount(line.unitPrice) : "";
 }
 
+// Purchase Price History — apply mode, Invoice only for now (see the
+// gating comment on the trigger in the template above).
+const activeLineKey = ref<number | null>(null);
+const activeLine = computed(() => form.lines.find((line) => line.key === activeLineKey.value));
+
+function onApplyPrice(entry: PriceHistoryEntry) {
+  const line = activeLine.value;
+  if (!line) return;
+
+  line.unitPrice = entry.price;
+  line.unitPriceText = formatAmount(entry.price);
+
+  // Rule: Use never touches currency — only vendor, and always overwrites an
+  // already-selected vendor (not just when empty).
+  let vendorNote = "";
+  if (entry.vendorName !== form.vendorName) {
+    const hadVendor = !!form.vendorName;
+    form.vendorName = entry.vendorName;
+    vendorNote = hadVendor ? ` — vendor changed to ${entry.vendorName}` : ` — vendor set to ${entry.vendorName}`;
+  }
+
+  activeLineKey.value = null;
+  toast.notify({
+    id: `apply-price-${Date.now()}`,
+    variant: "success",
+    title: `Price applied${vendorNote}.`
+  });
+}
+
 function onAttachmentChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files;
   // Names only — this prototype never uploads or stores the bytes.
@@ -1138,6 +1203,7 @@ const itemsTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "13
 const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const lineCellClass = css({ verticalAlign: "top" });
 const numCellClass = css({ textAlign: "right" });
+const priceHistoryCellClass = css({ display: "flex", justifyContent: "flex-end", mt: 1 });
 const numInputClass = css({ textAlign: "right" });
 const lineErrorClass = css({ mt: 2 });
 

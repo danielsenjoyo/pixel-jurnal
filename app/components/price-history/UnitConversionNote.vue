@@ -5,12 +5,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { MpText } from "@mekari/pixel3";
-import type { UnitCode } from "~/types/price-history";
 
 const props = defineProps<{
-  unit: UnitCode;
+  unit: string;
   factor: number;
-  baseUnit: UnitCode;
+  baseUnit: string;
 }>();
 
 // A "1 pcs = 1 pcs" note would be noise — only show when the purchase unit
