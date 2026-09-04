@@ -84,11 +84,25 @@ function localeName(code: AppLocale): string {
   return LOCALE_OPTIONS.find((option) => option.code === code)?.name ?? code;
 }
 
+/**
+ * Translate an English/Indonesian content pair. Data files (`menu.ts`,
+ * `home.ts`) carry their copy as `{ someField, someFieldId }` — pass the
+ * record and the English field name, and this picks the `Id` sibling when the
+ * locale is `id`. Reads `locale.value` at call time, so calling it inside a
+ * template or computed makes that render reactive to language changes.
+ */
+function tField<T extends Record<string, unknown>>(item: T, field: string & keyof T): string {
+  const indonesian = item[`${field}Id` as keyof T];
+  if (locale.value === "id" && typeof indonesian === "string" && indonesian) return indonesian;
+  return String(item[field] ?? "");
+}
+
 export function useLanguage() {
   return {
     locale: readonly(locale),
     setLocale,
     t,
+    tField,
     localeName,
     localeOptions: LOCALE_OPTIONS
   };

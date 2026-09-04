@@ -77,3 +77,24 @@ counts by status, …). Omit entirely on pages with no headline numbers.
 
 - Per-variant classes are written as **literal `css()` calls** (a `BORDER`/`TOP_BG`/`BADGE_BG` map). Panda's static extractor won't emit rules for `css({ bg: map[x] })` indirection — each token value must appear literally. Add a new variant by extending all the literal maps, not by computing a token string.
 - `#bottom-right-content` content is **always visible**; only the built-in `is-filter` icon hides-until-hover.
+- **A KPI strip sitting above a table is read as a summary _of that table_.**
+  If the figures are scoped differently — one record type only, or ignoring the
+  active tab / filter / search — they will silently describe a different dataset
+  than the rows beneath them. The Purchase audit caught exactly this: the strip
+  stays on invoice totals while the user is on the Request tab, and keeps showing
+  millions while a search renders "not found" (`CHOICE · Contextual`, `reports/`).
+  **Two ways out, and the reference picks the second.** Either scope the
+  figures to the same query that feeds the table, or keep them global and
+  _say so in the caption_. Purchases does the latter: the boxes are always the
+  all-time invoice figures and don't move when you change tab, filter or
+  search, and the caption reads **"Balance is for all time period, unless
+  stated otherwise"**. That works because the labels are themselves
+  invoice-specific ("Unpaid invoices", "Payments sent last 30 days") — a strip
+  whose labels already name their scope isn't mistaken for a summary of
+  whatever happens to be below it. Re-scoping per tab was tried first and
+  undone: it forced every metric to be one that made sense for every type,
+  which is how "Payments sent last 30 days" became a meaningless "Total value".
+- **A click on a scoped box should land you where the figure came from.** These
+  boxes describe invoices, so clicking one switches to the Invoice tab _and_
+  applies that status. Filtering in place would contradict the number just
+  clicked whenever another tab was open.

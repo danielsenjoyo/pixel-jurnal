@@ -16,6 +16,8 @@ and the `@mekari/pixel3` component library.
 | Pick patterns for a kind of page                | [`patterns/page-recipes.md`](./patterns/page-recipes.md)                                                                |
 | Build a list/index screen                       | [`patterns/index-page-format.md`](./patterns/index-page-format.md) + [`index-page-pattern.md`](./index-page-pattern.md) |
 | Build a single-record screen                    | [`patterns/details-page-format.md`](./patterns/details-page-format.md)                                                  |
+| Build a create/edit form screen                 | [`patterns/form-page-format.md`](./patterns/form-page-format.md) + [`patterns/Form.md`](./patterns/Form.md)             |
+| Work on the Home landing page                   | [`patterns/home-page-format.md`](./patterns/home-page-format.md)                                                        |
 | Show a one-line confirmation after an action     | [`patterns/Toast.md`](./patterns/Toast.md)                                                                              |
 | Display or enter a currency amount               | [`patterns/MoneyField.md`](./patterns/MoneyField.md)                                                                    |
 
@@ -36,6 +38,8 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`page-recipes.md`](./patterns/page-recipes.md) — which patterns assemble which page type.
 - [`index-page-format.md`](./patterns/index-page-format.md) — index/list page zone composition.
 - [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition.
+- [`form-page-format.md`](./patterns/form-page-format.md) — create/edit form page composition (+ the Purchase module page map).
+- [`home-page-format.md`](./patterns/home-page-format.md) — the Home landing page: section stack, the no-PageTitle exception, what the port from production leaves out.
 
 **Building blocks**
 

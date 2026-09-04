@@ -52,3 +52,15 @@ by a bulk-action bar: the select-all checkbox + `{n} selected` + a primary
 ## Gotchas
 
 - The label uses `size="label"` / `weight="semiBold"` to match the column-header type exactly.
+- **Never let the bulk bar replace the header row — render it as its own row
+  above it.** Swapping the header out removes the Date / Number / Balance due /
+  Total labels at exactly the moment the user is deciding which rows to act on,
+  leaving two adjacent money columns unlabelled. The Purchase list shipped that
+  way and it was caught in the design audit (`NNG · H6`); it now renders a
+  `colspan` bulk row _above_ an intact header, so selection costs nothing.
+- **Give a destructive bulk action `variant="danger"`.** A plain ghost "Delete"
+  beside a solid "Print PDF" inverts the visual hierarchy relative to risk — the
+  irreversible action reads as the least prominent control. A confirm
+  [`Modal`](./Modal.md) mitigates but doesn't excuse it.
+- **Offer an explicit "Clear selection".** Un-ticking rows one by one is the
+  only other way out once a selection spans pages.

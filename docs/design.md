@@ -38,6 +38,12 @@ The Jurnal master template is composed of three regions:
 layout (`layouts/default.vue`) injects the header and sidebar — pages must not
 render those themselves.
 
+**One documented exception:** the Home landing page (`app/pages/index.vue`)
+renders a PageStage with no PageTitle band — its first section already opens
+with the greeting and page question, so a band reading "Home" above it would
+repeat itself. See [`patterns/home-page-format.md`](./patterns/home-page-format.md).
+Home is a landing page, not a records screen; nothing else may skip the band.
+
 ---
 
 ## 2. AppHeader

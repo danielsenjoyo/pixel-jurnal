@@ -49,7 +49,23 @@ A flex `space-between` row (`filterBarClass`):
 
 - **`MpSelect` options are native `<option>` children** — this version has **no `:options` prop**. Always include a `<option value="">All …</option>` for the cleared state, plus `is-full-width is-clearable`.
 - **Own search clear (×).** Do **not** use `MpInput is-clearable` for search: its native clear is an `<svg>` whose click emits `undefined` (breaking `search.trim()`) and doesn't reliably reset. Render an own `<button data-search-clear @click="search = ''">` inside the `position:relative` `searchGroupClass`, gated by `v-if="searchTerm"` and faded in on `&:hover / &:focus-within`.
-- **Shared refs.** Quick filters and the drawer fields bind the **same** refs (`filterCategory`, `filterStatus`, `search`) so both surfaces stay in sync.
+- **One filter state, two surfaces.** The quick filters, the search box and the
+  drawer all edit the same thing — never a second filter layered on the first.
+  For a small set that means literally sharing refs. Once the set is big enough
+  to stage (see [`Drawer`](./Drawer.md)), hold **one object** instead and make
+  the bar's controls writable computeds into its fields, so committing the
+  drawer can replace the whole object without the bar drifting out of sync:
+
+  ```ts
+  const filter = ref<PurchaseFilter>(emptyPurchaseFilter());
+  const search = computed({ get: () => filter.value.key, set: (v) => (filter.value.key = v) });
+  ```
+
+- **Show that a filter is on.** A staged drawer hides its own settings once
+  closed, so mark the Filter button with a dot whenever anything is set.
+- **Clear the filter when the tab changes.** Tabs over different record types
+  don't share a field set, so a filter carried across can narrow by a control
+  the new tab doesn't even show.
 - The **Filter** button opens the [`Drawer`](./Drawer.md), never a popover.
 - Normalize the keyword through a `searchTerm` computed: `computed(() => (search.value ?? "").trim())`.
 
