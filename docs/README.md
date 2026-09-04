@@ -19,6 +19,7 @@ and the `@mekari/pixel3` component library.
 | Build a create/edit form screen                 | [`patterns/form-page-format.md`](./patterns/form-page-format.md) + [`patterns/Form.md`](./patterns/Form.md)             |
 | Work on the Home landing page                   | [`patterns/home-page-format.md`](./patterns/home-page-format.md)                                                        |
 | Build a catalog page (tabs → grid of links)     | [`patterns/reports-index-format.md`](./patterns/reports-index-format.md)                                                |
+| Build a report screen (range → run → totals)    | [`patterns/reports-page-format.md`](./patterns/reports-page-format.md)                                                  |
 
 ## Map
 
@@ -40,6 +41,7 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`form-page-format.md`](./patterns/form-page-format.md) — create/edit form page composition (+ the Purchase module page map).
 - [`home-page-format.md`](./patterns/home-page-format.md) — the Home landing page: section stack, the no-PageTitle exception, what the port from production leaves out.
 - [`reports-index-format.md`](./patterns/reports-index-format.md) — the catalog page: category tabs over a two-column grid of link cards (Reports).
+- [`reports-page-format.md`](./patterns/reports-page-format.md) — the report screen: date range + criteria → run → table with a TOTAL row. How it differs from an index page, and why.
 
 **Building blocks**
 

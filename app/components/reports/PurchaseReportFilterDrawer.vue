@@ -1,0 +1,319 @@
+<template>
+  <MpDrawer :is-open="isOpen" placement="right" size="md" @close="onCancel">
+    <MpDrawerOverlay />
+    <MpDrawerContent>
+      <MpDrawerHeader>
+        <span :class="titleClass">Filter report</span>
+        <MpDrawerCloseButton />
+      </MpDrawerHeader>
+
+      <MpDrawerBody>
+        <div :class="formClass">
+          <MpFormControl>
+            <MpFormLabel>Date range</MpFormLabel>
+            <div :class="rangeRowClass">
+              <MpDatePicker
+                v-model="form.startDate"
+                value-type="string"
+                :format="DATE_INPUT_FORMAT"
+                placeholder="Start date"
+                use-portal
+                @update:model-value="onDateEdited"
+              />
+              <MpText color="gray.600" :class="dashClass">-</MpText>
+              <MpDatePicker
+                v-model="form.endDate"
+                value-type="string"
+                :format="DATE_INPUT_FORMAT"
+                placeholder="End date"
+                use-portal
+                @update:model-value="onDateEdited"
+              />
+            </div>
+          </MpFormControl>
+
+          <MpFormControl>
+            <MpFormLabel>Period</MpFormLabel>
+            <MpSelect
+              :model-value="form.periodId"
+              is-full-width
+              @update:model-value="onPeriodChange"
+            >
+              <option v-for="period in PURCHASE_REPORT_PERIODS" :key="period.id" :value="period.id">
+                {{ period.label }}
+              </option>
+            </MpSelect>
+          </MpFormControl>
+
+          <MpFormControl>
+            <MpFormLabel>Transaction type</MpFormLabel>
+            <MpSelect v-model="form.transactionType" is-full-width>
+              <option
+                v-for="opt in PURCHASE_REPORT_TYPE_OPTIONS"
+                :key="opt.value"
+                :value="opt.value"
+              >
+                {{ opt.label }}
+              </option>
+            </MpSelect>
+          </MpFormControl>
+
+          <!-- Production calls this "Date by": which of the two dates on a
+               transaction the range above is measured against. -->
+          <MpFormControl>
+            <MpFormLabel>Date by</MpFormLabel>
+            <MpSelect v-model="form.dateBy" is-full-width>
+              <option v-for="opt in DATE_BY_OPTIONS" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </MpSelect>
+          </MpFormControl>
+
+          <MpFormControl>
+            <MpFormLabel>Vendor</MpFormLabel>
+            <MpInputTag
+              id="report-filter-vendors"
+              :key="`vendors-${draftKey}`"
+              placeholder="All vendors"
+              :data="vendorData"
+              :suggestions="vendorOptions"
+              :max-row="-1"
+              :is-enable-create-new-tag="false"
+              :is-show-suggestions="true"
+              :is-show-icon-chevron-down="true"
+              @change="(data: TagChange[]) => (form.vendors = readTags(data))"
+            />
+          </MpFormControl>
+
+          <MpFormControl>
+            <MpFormLabel>Status</MpFormLabel>
+            <MpInputTag
+              id="report-filter-statuses"
+              :key="`statuses-${draftKey}`"
+              placeholder="All statuses"
+              :data="statusData"
+              :suggestions="statusSuggestions"
+              :max-row="-1"
+              :is-enable-create-new-tag="false"
+              :is-show-suggestions="true"
+              :is-show-icon-chevron-down="true"
+              @change="onStatusChange"
+            />
+          </MpFormControl>
+
+          <MpFormControl>
+            <MpFormLabel>Group with tag</MpFormLabel>
+            <MpInputTag
+              id="report-filter-tags"
+              :key="`tags-${draftKey}`"
+              placeholder="Search tag..."
+              :data="tagData"
+              :suggestions="tagOptions"
+              :max-row="-1"
+              :is-enable-create-new-tag="false"
+              :is-show-suggestions="true"
+              :is-show-icon-chevron-down="true"
+              @change="(data: TagChange[]) => (form.tags = readTags(data))"
+            />
+            <div :class="radioRowClass">
+              <MpRadio id="report-tag-logic-and" v-model="form.tagsLogic" value="and">
+                Include all
+              </MpRadio>
+              <MpRadio id="report-tag-logic-or" v-model="form.tagsLogic" value="or">
+                <span :class="labelWithIconClass">
+                  Either
+                  <MpTooltip label="Showing one of all selected tags.">
+                    <MpIcon name="info" size="sm" color="gray.600" />
+                  </MpTooltip>
+                </span>
+              </MpRadio>
+            </div>
+          </MpFormControl>
+        </div>
+      </MpDrawerBody>
+
+      <MpDrawerFooter>
+        <div :class="footerClass">
+          <MpTextlink as="button" variant="primary" @click="onReset">
+            <span :class="labelWithIconClass">
+              <MpIcon name="reset" size="sm" />
+              Reset filter
+            </span>
+          </MpTextlink>
+          <div :class="footerRightClass">
+            <MpButton variant="ghost" @click="onCancel">Cancel</MpButton>
+            <MpButton variant="primary" @click="onApply">Filter</MpButton>
+          </div>
+        </div>
+      </MpDrawerFooter>
+    </MpDrawerContent>
+  </MpDrawer>
+</template>
+
+<script setup lang="ts">
+import { computed, reactive, ref, watch } from "vue";
+import {
+  css,
+  MpButton,
+  MpDatePicker,
+  MpDrawer,
+  MpDrawerBody,
+  MpDrawerCloseButton,
+  MpDrawerContent,
+  MpDrawerFooter,
+  MpDrawerHeader,
+  MpDrawerOverlay,
+  MpFormControl,
+  MpFormLabel,
+  MpIcon,
+  MpInputTag,
+  MpRadio,
+  MpSelect,
+  MpText,
+  MpTextlink,
+  MpTooltip
+} from "@mekari/pixel3";
+import {
+  DATE_BY_OPTIONS,
+  PURCHASE_REPORT_PERIODS,
+  PURCHASE_REPORT_STATUS_OPTIONS,
+  PURCHASE_REPORT_TYPE_OPTIONS,
+  purchaseReportTags,
+  purchaseReportVendors
+} from "~/data/purchase-report";
+import {
+  defaultPurchaseReportFilter,
+  isoToDmy,
+  type PurchaseReportFilter
+} from "~/data/purchase-report-filter";
+import { PURCHASE_STATUS_LABEL, type PurchaseStatus } from "~/data/purchase-status";
+import { DATE_INPUT_FORMAT } from "~/data/purchase-transactions";
+
+const props = defineProps<{
+  isOpen: boolean;
+  /** The filter currently applied to the report; the draft is seeded from it. */
+  applied: PurchaseReportFilter;
+}>();
+
+const emit = defineEmits<{ close: []; apply: [filter: PurchaseReportFilter] }>();
+
+const form = reactive<PurchaseReportFilter>(defaultPurchaseReportFilter());
+
+interface TagChange {
+  value?: string;
+  text?: string;
+}
+
+const vendorOptions = purchaseReportVendors();
+const tagOptions = purchaseReportTags();
+const statusSuggestions = PURCHASE_REPORT_STATUS_OPTIONS.map((s) => s.label);
+
+/**
+ * MpInputTag keeps its own internal chip list, so it is seeded through `data`
+ * and re-mounted whenever the draft is replaced from outside (open / reset).
+ * Without the re-mount, Reset clears the model while the chips stay on screen.
+ */
+const draftKey = ref(0);
+
+function chips(values: string[]) {
+  return values.map((value) => ({
+    id: `chip-${value}`,
+    text: value,
+    value,
+    isInvalid: false,
+    isReadOnly: false
+  }));
+}
+
+const vendorData = computed(() => chips(form.vendors));
+const tagData = computed(() => chips(form.tags));
+const statusData = computed(() => chips(form.statuses.map((s) => PURCHASE_STATUS_LABEL[s])));
+
+function readTags(data: TagChange[]): string[] {
+  return (data ?? []).map((item) => String(item.value ?? item.text ?? "")).filter(Boolean);
+}
+
+function onStatusChange(data: TagChange[]) {
+  const labels = new Set(readTags(data));
+  form.statuses = PURCHASE_REPORT_STATUS_OPTIONS.filter((s) => labels.has(s.label)).map(
+    (s) => s.value as PurchaseStatus
+  );
+}
+
+function loadDraft(source: PurchaseReportFilter) {
+  Object.assign(form, {
+    ...source,
+    vendors: [...source.vendors],
+    statuses: [...source.statuses],
+    tags: [...source.tags]
+  });
+  draftKey.value += 1;
+}
+
+// Re-seed each time it opens, so a cancelled edit leaves nothing behind.
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) loadDraft(props.applied);
+  },
+  { immediate: true }
+);
+
+/** Picking a preset fills both dates; "Custom" leaves whatever is there. */
+function onPeriodChange(id: string) {
+  form.periodId = id;
+  const bounds = PURCHASE_REPORT_PERIODS.find((p) => p.id === id)?.range?.();
+  if (!bounds) return;
+  form.startDate = isoToDmy(bounds.start);
+  form.endDate = isoToDmy(bounds.end);
+}
+
+/** Editing either date by hand means the range is no longer a named preset. */
+function onDateEdited() {
+  form.periodId = "custom";
+}
+
+function onReset() {
+  loadDraft(defaultPurchaseReportFilter());
+}
+
+function onCancel() {
+  emit("close");
+}
+
+function onApply() {
+  emit("apply", {
+    ...form,
+    vendors: [...form.vendors],
+    statuses: [...form.statuses],
+    tags: [...form.tags]
+  });
+}
+
+// All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
+const titleClass = css({ fontSize: "lg" });
+const formClass = css({ display: "flex", flexDirection: "column", gap: 5 });
+const rangeRowClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 3,
+  "& > *": { flex: "1 1 0", minWidth: "0" }
+});
+const dashClass = css({ flex: "none!" });
+const radioRowClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  flexWrap: "wrap",
+  mt: 3
+});
+const labelWithIconClass = css({ display: "inline-flex", alignItems: "center", gap: 1 });
+const footerClass = css({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 3,
+  width: "full"
+});
+const footerRightClass = css({ display: "flex", gap: 2 });
+</script>

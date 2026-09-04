@@ -39,6 +39,21 @@ via a [`Modal`](./Modal.md).
 **The one thing to get right:** commit buttons live at the bottom of the form
 body, not in the title band — the opposite of the details page.
 
+## Recipe: Report page
+
+> Compose a query, run it, read a table with totals. Full recipe:
+> [`reports-page-format`](./reports-page-format.md).
+
+`page-title-bar` (breadcrumb → /reports; `#actions` holds a column-layout
+picker and Export) → **stage:** date range + period + `[Filter]` +
+`[More filter]` → meta strip → [`TablePage`](./TablePage.md) + a TOTAL row
+**or** [`BlankSlate`](./BlankSlate.md) → [`Pagination`](./Pagination.md).
+
+**The one thing to get right:** the filter is **not** live. Two objects — the
+one being edited and the one the table reads — and a Filter button that copies
+one into the other. Wire it live and both the button and the "Report will
+appear here" blank state stop meaning anything.
+
 ## Recipe: Catalog page
 
 > A curated set of destinations, not records — nothing to filter, sort or

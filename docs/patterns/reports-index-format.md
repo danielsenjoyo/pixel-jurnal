@@ -87,10 +87,17 @@ linkable and survives a reload. The query carries the **tab id**
 (`business_overview`), never its index — reordering the tabs must not change
 what an old link opens.
 
-## Entries with no destination yet
+## Where a card goes
 
-Every card links to `/reports/<slug>`, served by the stub
+Every card links to `/reports/<slug>`. A slug with a real page wins — Nuxt
+prefers a static route over the dynamic one — so `purchases_list` resolves to
+[`purchases_list.vue`](../../app/pages/reports/purchases_list.vue), built to
+[`reports-page-format`](./reports-page-format.md).
+
+Every other slug falls through to the stub
 [`[report].vue`](../../app/pages/reports/%5Breport%5D.vue): a
 `DefaultPageContent` titled from `reports.ts`, with a "Reports" breadcrumb and
 an empty stage. An unknown slug 404s. Prefer this over a disabled button — the
 grid stays legible, and the placeholder names the report the reader clicked.
+Adding a real report page needs no change here: drop the file in beside the
+stub and the card starts landing on it.
