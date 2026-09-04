@@ -19,6 +19,7 @@ import {
   type PurchaseReportRow
 } from "./purchase-report";
 import type { TransactionType } from "./purchase-transactions";
+import { dmyToIso, isoToDmy } from "~/utils/dates";
 
 export interface PurchaseReportFilter {
   /** Both dates are DD/MM/YYYY, the format MpDatePicker emits. */
@@ -61,23 +62,6 @@ export function isReportFilterActive(f: PurchaseReportFilter): boolean {
   return Boolean(
     f.vendors.length || f.statuses.length || f.tags.length || f.dateBy !== "transaction_date"
   );
-}
-
-/** DD/MM/YYYY → YYYY-MM-DD, so a typed date compares against the row's ISO
- *  dates as a plain string. "" for anything unparseable — callers read that as
- *  "no bound". */
-export function dmyToIso(dmy: string): string {
-  const parts = String(dmy ?? "").split("/");
-  if (parts.length !== 3) return "";
-  const [d, m, y] = parts;
-  if (!d || !m || !y || y.length !== 4) return "";
-  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-}
-
-/** The inverse, for seeding the date fields from a period preset. */
-export function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
 }
 
 export function matchesPurchaseReportFilter(

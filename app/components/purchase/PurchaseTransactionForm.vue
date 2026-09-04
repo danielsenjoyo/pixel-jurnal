@@ -629,7 +629,6 @@ import {
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
   CURRENCY_OPTIONS,
-  DATE_INPUT_FORMAT,
   PRODUCT_OPTIONS,
   TAG_OPTIONS,
   TAX_OPTIONS,
@@ -651,6 +650,7 @@ import {
   type PurchaseTransactionInput,
   type TransactionType
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Layout matched to the live app's "Create Purchase Invoice" screen, with
@@ -796,19 +796,6 @@ function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
-}
-function toDmy(date: Date): string {
-  const d = String(date.getDate()).padStart(2, "0");
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  return `${d}/${m}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
 }
 
 function loadFromExisting() {

@@ -264,12 +264,8 @@ import {
   type AmountMode,
   type PurchaseFilter
 } from "~/data/purchase-filter";
-import {
-  DATE_INPUT_FORMAT,
-  TAG_OPTIONS,
-  formatAmount,
-  parseAmount
-} from "~/data/purchase-transactions";
+import { TAG_OPTIONS, formatAmount, parseAmount } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // The purchase list's advanced filter drawer. Ported from jurnal-frontend-app

@@ -121,7 +121,7 @@
 
     <template v-if="hasRun && filteredRows.length">
       <MpTableContainer :class="scrollShadowClass">
-        <MpTable is-hoverable :class="tableFixedClass" :style="{ minWidth: `${tableMinWidth}px` }">
+        <MpTable is-hoverable :class="tableFixedClass">
           <colgroup>
             <col v-for="col in columns" :key="col.key" :style="{ width: `${col.width}px` }" />
           </colgroup>
@@ -328,19 +328,18 @@ import {
   defaultPurchaseReportFilter,
   isReportFilterActive,
   isReportRangeValid,
-  isoToDmy,
   matchesPurchaseReportFilter,
   type PurchaseReportFilter
 } from "~/data/purchase-report-filter";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import {
-  DATE_INPUT_FORMAT,
   TRANSACTION_TYPE_LABEL,
   formatAmount,
   formatDisplayDate,
   type TransactionType
 } from "~/data/purchase-transactions";
 import { textlinkAlignClass } from "~/utils/textlink-align";
+import { DATE_INPUT_FORMAT, isoToDmy } from "~/utils/dates";
 
 useHead({ title: "Purchase list — Mekari Jurnal" });
 
@@ -413,7 +412,6 @@ const activeLayout = computed(
   () => PURCHASE_REPORT_LAYOUTS.find((l) => l.id === layoutId.value) ?? PURCHASE_REPORT_LAYOUTS[0]!
 );
 const columns = computed<ReportColumn[]>(() => activeLayout.value.columns.map(reportColumn));
-const tableMinWidth = computed(() => columns.value.reduce((sum, c) => sum + c.width, 0));
 
 const sortKey = ref<keyof PurchaseReportRow>("date");
 const sortDir = ref<"asc" | "desc">("asc");
@@ -580,7 +578,13 @@ const filterDotClass = css({
 
 const metaClass = css({ mb: 4 });
 
-const tableFixedClass = css({ tableLayout: "fixed" });
+// `width: max-content` makes the table exactly as wide as its <colgroup>
+// widths add up to, so the container scrolls instead of squeezing columns —
+// and it does so without an inline style, which the column set being variable
+// would otherwise force (a css() value has to be statically extractable).
+// `minWidth: full` keeps a narrow layout (Summary is 4 columns) filling the
+// stage rather than stopping short of it.
+const tableFixedClass = css({ tableLayout: "fixed", width: "max-content", minWidth: "full" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const numCellClass = css({ textAlign: "right" });
 const tagRowClass = css({ display: "flex", gap: 2, flexWrap: "wrap" });

@@ -183,11 +183,10 @@ import {
 } from "~/data/purchase-report";
 import {
   defaultPurchaseReportFilter,
-  isoToDmy,
   type PurchaseReportFilter
 } from "~/data/purchase-report-filter";
 import { PURCHASE_STATUS_LABEL, type PurchaseStatus } from "~/data/purchase-status";
-import { DATE_INPUT_FORMAT } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, isoToDmy } from "~/utils/dates";
 
 const props = defineProps<{
   isOpen: boolean;

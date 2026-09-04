@@ -300,7 +300,6 @@ import {
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
   CURRENCY_OPTIONS,
-  DATE_INPUT_FORMAT,
   PRODUCT_OPTIONS,
   SHIP_VIA_OPTIONS,
   TAG_OPTIONS,
@@ -317,6 +316,7 @@ import {
   type PurchaseTransactionInput,
   type TransactionType
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit for a Purchase Delivery — its own component, matching the
@@ -381,18 +381,6 @@ const shippingFeeText = ref("");
 const submitted = ref(false);
 
 const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "Gram", "ml"];
-
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
-}
 
 function loadFromExisting() {
   const r = existing.value;

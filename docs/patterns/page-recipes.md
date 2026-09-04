@@ -98,6 +98,15 @@ groups thousands, `,` separates two decimals, no space after `Rp`), and dates
 already says "Total" shares the same formatter, so grouping and decimals can't
 drift between the two.
 
+**Conversion drifts the same way display does — and more quietly.** The same
+audit found `dmyToIso` copy-pasted into seven files in two versions: one padded
+and validated, one did neither. So `1/7/2026` became `2026-7-1` in a form and
+`""` in a filter, and `2026-7-1` sorts _after_ `2026-12-01` as a string. Nothing
+looked wrong on screen. Date conversion now lives in one module,
+[`app/utils/dates.ts`](../../app/utils/dates.ts) — `toDmy`, `dmyToIso`,
+`isoToDmy`, `toLocalIsoDate`, `parseLocalIsoDate` and `DATE_INPUT_FORMAT`.
+Import from there; never re-declare one locally, however small it looks.
+
 **An editable money field is not a display.** It needs a matching `parseAmount`,
 because `.` and `,` carry meaning — `210.000,50` is 210000.5, not 21000050. And
 it must **not** reformat while the user types: at two decimals, live formatting
