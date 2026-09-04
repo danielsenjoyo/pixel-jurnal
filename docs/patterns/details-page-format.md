@@ -2,11 +2,10 @@
 
 > Composition recipe for a **single-record** screen (view / edit one Invoice,
 > Contact, Product, …).
-> _Proposed pattern — no reference implementation in the repo yet. It builds only
-> on already-established primitives (the shell + [`SummaryBox`](./SummaryBox.md),
-> [`StatusBadge`](./StatusBadge.md), [`Form`](./Form.md), [`Tabs`](./Tabs.md),
-> [`Modal`](./Modal.md)). Treat the dimensions below as the intended pattern;
-> confirm component props with the Pixel MCP before building._
+> Reference implementation: [`app/pages/purchase/invoices/[id].vue`](../../app/pages/purchase/invoices/%5Bid%5D.vue)
+> (Purchase Invoice draft/approval review — read-only). Builds on the shell +
+> [`SummaryBox`](./SummaryBox.md), [`StatusBadge`](./StatusBadge.md),
+> [`Form`](./Form.md), [`Tabs`](./Tabs.md), [`Modal`](./Modal.md).
 
 ## When to use
 
@@ -37,12 +36,13 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 | —    | Title + record actions        | [`page-title-bar`](./page-title-bar.md)                     |
 | —    | Section tabs                  | [`Tabs`](./Tabs.md)                                         |
 | A    | Identity / status header      | [`StatusBadge`](./StatusBadge.md) + meta rows               |
+| A.1  | Line-level reference affordance | A per-row trigger (e.g. "See past prices") opening a [`Drawer`](./Drawer.md) scoped to that row — or, when there's nothing to reference, a plain under-value text note. Lives inside zone C/D's row, not the identity header. |
 | B    | Record KPIs                   | [`SummaryBox`](./SummaryBox.md)                             |
 | C    | Detail sections / edit form   | [`Form`](./Form.md)                                         |
 | D    | Related records / line items  | [`TablePage`](./TablePage.md) (compact — often no bulk bar) |
 | —    | Destructive lifecycle actions | [`Modal`](./Modal.md) confirmation                          |
 
-## Rules (proposed)
+## Rules
 
 - **One `<DefaultPageContent>`**, same as the index page — the shell frame is identical; only the body zones differ.
 - The title is the **record's name**; the `#actions` row carries the primary lifecycle action (`Edit`, `Approve`, `Send`) + a secondary "More" menu for the rest.
@@ -52,11 +52,12 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 - Destructive actions (Delete, Void) confirm via a [`Modal`](./Modal.md).
 - Same styling/token discipline as everywhere: Panda `css()` with Pixel token shortcuts, no inline `style`.
 
-## Open questions (resolve when first built)
+## Resolved (from the first real build)
 
-- Two-column vs. stacked detail layout, and the responsive breakpoint.
-- Whether the action row sticks while the body scrolls.
-- Where unsaved-changes guarding lives (route leave guard vs. modal).
-
-Update this file — and add a reference impl under `app/pages/templates/` — when the
-first real details page lands.
+- **Layout**: a 4-up meta grid (`repeat(auto-fit, minmax(160px, 1fr))`) for zone A,
+  not two-column — reads well at the widths this app actually renders at.
+- **Action row**: not sticky. Simplest default; revisit if a details page grows
+  long enough that the primary lifecycle action scrolls out of reach.
+- **Unsaved-changes guarding**: not exercised — the reference impl is a
+  strictly read-only details page (no mutation path at all). A future
+  edit-capable details page still needs to decide route-leave-guard vs. modal.

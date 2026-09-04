@@ -1,7 +1,10 @@
 # Drawer
 
 > Part of the Mekari Jurnal page-construction pattern set.
-> Reference impl: [`index-template.vue`](../../app/pages/templates/index-template.vue) (filter drawer).
+> Reference impls: [`index-template.vue`](../../app/pages/templates/index-template.vue) (filter drawer)
+> and [`PriceHistoryDrawer.vue`](../../app/components/price-history/PriceHistoryDrawer.vue)
+> (side detail-viewer — "side forms/detail editors where context behind the panel
+> should stay visible", the second use case listed below).
 > See also [`FilterBar`](./FilterBar.md), [`Form`](./Form.md), [`Modal`](./Modal.md).
 
 ## Purpose
@@ -60,3 +63,9 @@ For destructive confirmation or a focused single-task dialog, use a [`Modal`](./
 
 - `placement="right"`, `size="sm"` for the filter use case. Larger forms can use `md`.
 - The drawer fields and the quick filters bind the **same** refs (see [`FilterBar`](./FilterBar.md)).
+- **A table inside `MpDrawerBody` needs `size="md"` or `"lg"`** — `"sm"` (the filter
+  drawer's default) is too narrow for a multi-column table. `PriceHistoryDrawer`
+  uses `size="md"` for a 4–5 column rows table.
+- Content that changes shape while the drawer is open (e.g. a scope toggle that
+  swaps which rows are visible) doesn't need any special handling — it's a normal
+  reactive body, not a drawer-specific concern.

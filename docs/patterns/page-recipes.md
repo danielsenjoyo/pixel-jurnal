@@ -29,10 +29,13 @@ sections) → compact `TablePage` (related lists) → `Modal` (destructive confi
 ## Recipe: Create / edit form page
 
 > A focused data-entry screen. _No dedicated format doc — compose from [`Form`](./Form.md)._
+> Reference implementation: [`app/pages/purchase/invoices/new.vue`](../../app/pages/purchase/invoices/new.vue)
+> (Purchase Invoice entry form).
 
-`page-title-bar` (`{Verb} {Entity}` + Save/Cancel actions) → **stage:** stacked
-[`Form`](./Form.md) sections → footer action row (Cancel / Save). Confirm
-discard-on-leave via a [`Modal`](./Modal.md).
+`page-title-bar` (`{Verb} {Entity}` title — **no actions here**) → **stage:** stacked
+[`Form`](./Form.md) sections → footer action row (Cancel / Save), at the **bottom**
+of the page, not the title bar. Confirm discard-on-leave via a [`Modal`](./Modal.md)
+(not exercised in the reference impl — it has no destructive action to guard).
 
 ## Recipe: Settings page
 
@@ -60,4 +63,6 @@ discard-on-leave via a [`Modal`](./Modal.md).
 | [`Form`](./Form.md)                               | `MpFormControl`-wrapped fields.                  |
 | [`Modal`](./Modal.md)                             | Centred confirm / focused dialog.                |
 | [`index-page-format`](./index-page-format.md)     | Index-page zone composition.                     |
-| [`details-page-format`](./details-page-format.md) | Details-page zone composition (proposed).        |
+| [`details-page-format`](./details-page-format.md) | Details-page zone composition.                   |
+| [`Toast`](./Toast.md)                             | One-line transient confirmation via `toast()`.   |
+| [`MoneyField`](./MoneyField.md)                   | Currency-aware display/input — never converts.   |

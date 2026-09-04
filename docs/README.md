@@ -16,6 +16,8 @@ and the `@mekari/pixel3` component library.
 | Pick patterns for a kind of page                | [`patterns/page-recipes.md`](./patterns/page-recipes.md)                                                                |
 | Build a list/index screen                       | [`patterns/index-page-format.md`](./patterns/index-page-format.md) + [`index-page-pattern.md`](./index-page-pattern.md) |
 | Build a single-record screen                    | [`patterns/details-page-format.md`](./patterns/details-page-format.md)                                                  |
+| Show a one-line confirmation after an action     | [`patterns/Toast.md`](./patterns/Toast.md)                                                                              |
+| Display or enter a currency amount               | [`patterns/MoneyField.md`](./patterns/MoneyField.md)                                                                    |
 
 ## Map
 
@@ -33,7 +35,7 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 
 - [`page-recipes.md`](./patterns/page-recipes.md) — which patterns assemble which page type.
 - [`index-page-format.md`](./patterns/index-page-format.md) — index/list page zone composition.
-- [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition _(proposed)_.
+- [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition.
 
 **Building blocks**
 
@@ -49,6 +51,8 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`BlankSlate.md`](./patterns/BlankSlate.md) — adaptive empty state.
 - [`Form.md`](./patterns/Form.md) — `MpFormControl`-wrapped fields.
 - [`Modal.md`](./patterns/Modal.md) — centred confirm/focused dialog.
+- [`Toast.md`](./patterns/Toast.md) — one-line transient confirmation via `toast()`.
+- [`MoneyField.md`](./patterns/MoneyField.md) — currency-aware display/input; never converts.
 
 ### Deep reference
 
