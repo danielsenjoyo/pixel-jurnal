@@ -18,6 +18,7 @@ and the `@mekari/pixel3` component library.
 | Build a single-record screen                    | [`patterns/details-page-format.md`](./patterns/details-page-format.md)                                                  |
 | Build a create/edit form screen                 | [`patterns/form-page-format.md`](./patterns/form-page-format.md) + [`patterns/Form.md`](./patterns/Form.md)             |
 | Work on the Home landing page                   | [`patterns/home-page-format.md`](./patterns/home-page-format.md)                                                        |
+| Build a catalog page (tabs → grid of links)     | [`patterns/reports-index-format.md`](./patterns/reports-index-format.md)                                                |
 
 ## Map
 
@@ -38,6 +39,7 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`details-page-format.md`](./patterns/details-page-format.md) — single-record page composition.
 - [`form-page-format.md`](./patterns/form-page-format.md) — create/edit form page composition (+ the Purchase module page map).
 - [`home-page-format.md`](./patterns/home-page-format.md) — the Home landing page: section stack, the no-PageTitle exception, what the port from production leaves out.
+- [`reports-index-format.md`](./patterns/reports-index-format.md) — the catalog page: category tabs over a two-column grid of link cards (Reports).
 
 **Building blocks**
 

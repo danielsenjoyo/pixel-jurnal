@@ -39,6 +39,18 @@ via a [`Modal`](./Modal.md).
 **The one thing to get right:** commit buttons live at the bottom of the form
 body, not in the title band — the opposite of the details page.
 
+## Recipe: Catalog page
+
+> A curated set of destinations, not records — nothing to filter, sort or
+> paginate. Full recipe: [`reports-index-format`](./reports-index-format.md).
+
+`page-title-bar` → `Tabs` (page-level, one per category) → **stage:** a
+two-column grid of chrome-less entry cards (title + `MpBadge` → one-line
+description → `MpButton variant="secondary"` CTA).
+
+**The one thing to get right:** don't reach for the index-page machinery. No
+`FilterBar`, no `TablePage`, no `Pagination`.
+
 ## Recipe: Settings page
 
 > A list of settings groups or a single settings form.
