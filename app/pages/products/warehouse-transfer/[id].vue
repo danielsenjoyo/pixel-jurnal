@@ -7,7 +7,7 @@
     "
   >
     <template v-if="isPending" #title-badge>
-      <MpBadge for="tableStatus" type="warning">Waiting for approval</MpBadge>
+      <MpBadge for="tableStatus" type="warning">Awaiting approval</MpBadge>
     </template>
 
     <template v-if="record && !isPending" #actions>
@@ -153,8 +153,8 @@
               Edit
             </MpButton>
             <!-- The source's one extra action: transfers repeat between the
-                 same two sites, so cloning beats retyping the lines. -->
-            <MpButton variant="primary" @click="onClone">Clone warehouse transfer</MpButton>
+                 same two sites, so duplicating beats retyping the lines. -->
+            <MpButton variant="primary" @click="onClone">Duplicate transfer</MpButton>
           </MpFlex>
         </template>
       </div>
@@ -168,12 +168,12 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Delete {{ record.number }}?</span>
+            <span :class="modalTitleClass">Delete warehouse transfer?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
             <MpText size="body" color="gray.700">
-              Deleted warehouse transfer transactions cannot be recovered.
+              Once deleted, <strong>{{ record.number }}</strong> cannot be restored.
             </MpText>
           </MpModalBody>
           <MpModalFooter>

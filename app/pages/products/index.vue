@@ -174,7 +174,11 @@
             <MpInputLeftAddon>
               <MpIcon name="search" size="sm" color="gray.400" />
             </MpInputLeftAddon>
-            <MpInput v-model="search" :placeholder="searchPlaceholder" />
+            <MpInput
+              v-model="search"
+              :placeholder="searchPlaceholder"
+              :aria-label="searchPlaceholder"
+            />
           </MpInputGroup>
           <button
             v-if="searchTerm"
@@ -384,11 +388,8 @@
                   </MpText>
                 </template>
                 <template v-else-if="col.key === 'status'">
-                  <MpBadge
-                    for="tableStatus"
-                    :type="row.status === 'active' ? 'completed' : 'critical'"
-                  >
-                    {{ row.status === "active" ? "Active" : "Inactive" }}
+                  <MpBadge for="tableStatus" :type="ACTIVE_STATUS_TYPE[row.status as ActiveStatus]">
+                    {{ ACTIVE_STATUS_LABEL[row.status as ActiveStatus] }}
                   </MpBadge>
                 </template>
                 <template v-else-if="col.key === 'tags'">
@@ -574,10 +575,13 @@ import {
   getWarehouseApprovals,
   getWarehouseTransfers,
   getWarehouses,
+  ACTIVE_STATUS_LABEL,
+  ACTIVE_STATUS_TYPE,
   priceRuleScopeSummary,
   type ApprovalType,
   type AdjustmentType,
   type PriceRuleType,
+  type ActiveStatus,
   type ProductType
 } from "~/data/products";
 

@@ -57,7 +57,7 @@
         <MpFormControl is-required :is-invalid="submitted && !form.name.trim()">
           <MpFormLabel>Product name</MpFormLabel>
           <MpInput v-model="form.name" placeholder="Enter product name" />
-          <MpFormErrorMessage>You must fill in product name</MpFormErrorMessage>
+          <MpFormErrorMessage>Enter a product name</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl>
@@ -78,7 +78,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select unit</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a unit</MpFormErrorMessage>
         </MpFormControl>
 
         <!-- A bundle's cost is the sum of its components, and it moves with
@@ -190,7 +190,7 @@
                 {{ option }}
               </option>
             </MpSelect>
-            <MpFormErrorMessage>You must select purchases account</MpFormErrorMessage>
+            <MpFormErrorMessage>Select a purchases account</MpFormErrorMessage>
           </MpFormControl>
 
           <MpFormControl>
@@ -232,7 +232,7 @@
                 {{ option }}
               </option>
             </MpSelect>
-            <MpFormErrorMessage>You must select sales account</MpFormErrorMessage>
+            <MpFormErrorMessage>Select a sales account</MpFormErrorMessage>
           </MpFormControl>
 
           <MpFormControl>
@@ -262,7 +262,7 @@
                 {{ option }}
               </option>
             </MpSelect>
-            <MpFormErrorMessage>You must select inventory account</MpFormErrorMessage>
+            <MpFormErrorMessage>Select an inventory account</MpFormErrorMessage>
             <MpFormHelpText>
               Opening quantity can be recorded through stock adjustment
             </MpFormHelpText>
@@ -356,6 +356,7 @@
                     :model-value="String(line.quantity)"
                     type="text"
                     inputmode="numeric"
+                    :aria-label="`Quantity for ${line.name}`"
                     @update:model-value="onLineQuantityChange(index, $event)"
                   />
                 </MpTableCell>
@@ -422,18 +423,16 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Cancel addition?</span>
+            <span :class="modalTitleClass">Leave this page?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700">Data you have filled will not be saved.</MpText>
+            <MpText size="body" color="gray.700">{{ leaveModalBody }}</MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">
-              <MpButton variant="secondary" @click="isDiscardModalOpen = false">
-                Continue addition
-              </MpButton>
-              <MpButton variant="danger" @click="leave">Discard</MpButton>
+              <MpButton variant="ghost" @click="isDiscardModalOpen = false">Keep editing</MpButton>
+              <MpButton variant="primary" @click="leave">Leave</MpButton>
             </div>
           </MpModalFooter>
         </MpModalContent>
@@ -722,6 +721,13 @@ const isDirty = computed(() =>
     form.buyPrice ||
     form.sellPrice
   )
+);
+
+/** Leave-page body copy: "Information you entered" when creating (no prior
+ *  state), "Your changes" when editing — mekari-product-writing →
+ *  component-patterns.md § Modal. */
+const leaveModalBody = computed(() =>
+  isEdit.value ? "Your changes will not be saved." : "Information you entered will not be saved."
 );
 
 function onCancel() {

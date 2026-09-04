@@ -69,7 +69,7 @@
             placeholder="DD/MM/YYYY"
             use-portal
           />
-          <MpFormErrorMessage>You must fill the conversion date</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a conversion date</MpFormErrorMessage>
         </MpFormControl>
 
         <div :class="runningTotalClass">
@@ -87,7 +87,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select warehouse</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a warehouse</MpFormErrorMessage>
         </MpFormControl>
         <div />
         <div />
@@ -169,6 +169,7 @@
                       v-model="costText[index]"
                       type="text"
                       inputmode="decimal"
+                      aria-label="Fixed cost amount"
                       @update:model-value="onCostInput(index)"
                     />
                   </MpInputGroup>

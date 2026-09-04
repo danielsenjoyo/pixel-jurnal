@@ -60,7 +60,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select warehouse</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a warehouse</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl is-required :is-invalid="submitted && !dmyToIso(dateText)">
@@ -72,7 +72,7 @@
             placeholder="DD/MM/YYYY"
             use-portal
           />
-          <MpFormErrorMessage>You must fill the date</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a date</MpFormErrorMessage>
         </MpFormControl>
 
         <div :class="runningTotalClass">
@@ -100,7 +100,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select account</MpFormErrorMessage>
+          <MpFormErrorMessage>Select an account</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl>
@@ -162,6 +162,7 @@
                   v-model="actualText[index]"
                   type="text"
                   inputmode="numeric"
+                  :aria-label="`Actual quantity for ${line.name}`"
                   @update:model-value="onActualInput(index)"
                 />
               </MpTableCell>
@@ -227,18 +228,16 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Cancel addition?</span>
+            <span :class="modalTitleClass">Leave this page?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700">Data you have filled will not be saved.</MpText>
+            <MpText size="body" color="gray.700">{{ leaveModalBody }}</MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">
-              <MpButton variant="secondary" @click="isDiscardModalOpen = false">
-                Continue addition
-              </MpButton>
-              <MpButton variant="danger" @click="leave">Discard</MpButton>
+              <MpButton variant="ghost" @click="isDiscardModalOpen = false">Keep editing</MpButton>
+              <MpButton variant="primary" @click="leave">Leave</MpButton>
             </div>
           </MpModalFooter>
         </MpModalContent>
@@ -475,6 +474,13 @@ function onSubmit() {
 }
 
 const isDirty = computed(() => Boolean(form.lines.length || form.memo.trim() || form.warehouse));
+
+/** Leave-page body copy: "Information you entered" when creating (no prior
+ *  state), "Your changes" when editing — mekari-product-writing →
+ *  component-patterns.md § Modal. */
+const leaveModalBody = computed(() =>
+  isEdit.value ? "Your changes will not be saved." : "Information you entered will not be saved."
+);
 
 function onCancel() {
   if (isDirty.value) {

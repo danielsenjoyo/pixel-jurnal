@@ -5,7 +5,9 @@
     breadcrumb-to="/products?tab=warehouses"
   >
     <template v-if="warehouse && !warehouse.isActive" #title-badge>
-      <MpBadge for="tableStatus" type="critical">Inactive</MpBadge>
+      <MpBadge for="tableStatus" :type="ACTIVE_STATUS_TYPE.inactive">
+        {{ ACTIVE_STATUS_LABEL.inactive }}
+      </MpBadge>
     </template>
 
     <template v-if="warehouse" #actions>
@@ -85,8 +87,8 @@
         <div :class="metaFieldClass">
           <MpText color="gray.600">Status</MpText>
           <div>
-            <MpBadge for="tableStatus" :type="warehouse.isActive ? 'completed' : 'critical'">
-              {{ warehouse.isActive ? "Active" : "Inactive" }}
+            <MpBadge for="tableStatus" :type="ACTIVE_STATUS_TYPE[statusKey]">
+              {{ ACTIVE_STATUS_LABEL[statusKey] }}
             </MpBadge>
           </div>
         </div>
@@ -266,11 +268,13 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Delete {{ warehouse.name }}?</span>
+            <span :class="modalTitleClass">Delete warehouse?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700">Deleted warehouses cannot be recovered.</MpText>
+            <MpText size="body" color="gray.700">
+              Once deleted, <strong>{{ warehouse.name }}</strong> cannot be restored.
+            </MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">
@@ -300,12 +304,12 @@
               <MpFormControl is-required :is-invalid="locationSubmitted && !locationCode.trim()">
                 <MpFormLabel>Location code</MpFormLabel>
                 <MpInput v-model="locationCode" placeholder="Example: A-01-01" />
-                <MpFormErrorMessage>You must fill in location code</MpFormErrorMessage>
+                <MpFormErrorMessage>Enter a location code</MpFormErrorMessage>
               </MpFormControl>
               <MpFormControl is-required :is-invalid="locationSubmitted && !locationName.trim()">
                 <MpFormLabel>Location name</MpFormLabel>
                 <MpInput v-model="locationName" placeholder="Example: Rak A / Baris 1 / Bin 1" />
-                <MpFormErrorMessage>You must fill in location name</MpFormErrorMessage>
+                <MpFormErrorMessage>Enter a location name</MpFormErrorMessage>
               </MpFormControl>
             </div>
           </MpDrawerBody>
@@ -370,6 +374,8 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
+  ACTIVE_STATUS_LABEL,
+  ACTIVE_STATUS_TYPE,
   ADJUSTMENT_TYPE_LABEL,
   createStorageLocation,
   deleteProductRecords,
@@ -382,7 +388,8 @@ import {
   getStorageLocations,
   getWarehouseById,
   getWarehouseTransfers,
-  setWarehouseActive
+  setWarehouseActive,
+  type ActiveStatus
 } from "~/data/products";
 import { textlinkCellClass } from "~/utils/textlink-align";
 
@@ -414,6 +421,8 @@ useHead({
 });
 
 const adjacent = computed(() => getAdjacentWarehouseIds(warehouseId.value));
+
+const statusKey = computed<ActiveStatus>(() => (warehouse.value?.isActive ? "active" : "inactive"));
 
 /** What this warehouse holds — read off the catalogue rather than stored
  *  against the warehouse, so the two can't disagree. */

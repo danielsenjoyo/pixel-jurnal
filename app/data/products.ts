@@ -511,6 +511,27 @@ export const PRICE_RULE_TIER_LABEL: Record<string, string> = {
   subtotal_tier: "Subtotal amount"
 };
 
+/**
+ * Active / inactive — the one status vocabulary this module has. Warehouses and
+ * price rules both use it.
+ *
+ * A record, not an inline ternary at each call site: the domain status → badge
+ * `type` mapping lives in exactly one place, so a third screen can't quietly
+ * pick a different colour for the same word
+ * (docs/patterns/StatusBadge.md, `references/rules.md` Tier 2).
+ */
+export type ActiveStatus = "active" | "inactive";
+
+export const ACTIVE_STATUS_LABEL: Record<ActiveStatus, string> = {
+  active: "Active",
+  inactive: "Inactive"
+};
+
+export const ACTIVE_STATUS_TYPE: Record<ActiveStatus, "completed" | "critical"> = {
+  active: "completed",
+  inactive: "critical"
+};
+
 export const CONTACT_OPTIONS = [
   "PT Sumber Rejeki",
   "CV Maju Bersama",

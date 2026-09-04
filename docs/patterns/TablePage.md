@@ -63,7 +63,7 @@ in a 2400px one.
 
 Two nearby variants do **not** work:
 
-- **`width: auto`** silently opts the table back into the *automatic* table
+- **`width: auto`** silently opts the table back into the _automatic_ table
   layout algorithm (CSS 2.1 §17.5.2), which treats the `<colgroup>` as a hint
   and squeezes the columns — Product name came out at 142px instead of 260px.
   `table-layout: fixed` alone does not prevent this; the `width` has to be

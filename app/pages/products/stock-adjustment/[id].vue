@@ -7,7 +7,7 @@
     "
   >
     <template v-if="isPending" #title-badge>
-      <MpBadge for="tableStatus" type="warning">Waiting for approval</MpBadge>
+      <MpBadge for="tableStatus" type="warning">Awaiting approval</MpBadge>
     </template>
 
     <template v-if="record && !isPending" #actions>

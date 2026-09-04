@@ -56,7 +56,7 @@
         <MpFormControl is-required :is-invalid="submitted && !form.name.trim()">
           <MpFormLabel>Main product name</MpFormLabel>
           <MpInput v-model="form.name" placeholder="Enter main product name" />
-          <MpFormErrorMessage>You must fill in main product name</MpFormErrorMessage>
+          <MpFormErrorMessage>Enter a main product name</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl>
@@ -77,7 +77,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select unit</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a unit</MpFormErrorMessage>
         </MpFormControl>
 
         <div :class="runningTotalClass">
@@ -128,7 +128,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select attribute</MpFormErrorMessage>
+          <MpFormErrorMessage>Select an attribute</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl
@@ -145,7 +145,7 @@
             :is-enable-create-new-tag="true"
             @change="onOptionsChange(index, $event)"
           />
-          <MpFormErrorMessage>You must select/add at least one option</MpFormErrorMessage>
+          <MpFormErrorMessage>Select at least 1 option</MpFormErrorMessage>
         </MpFormControl>
 
         <div :class="attributeActionClass">
@@ -231,7 +231,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select purchases account</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a purchases account</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl>
@@ -269,7 +269,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select sales account</MpFormErrorMessage>
+          <MpFormErrorMessage>Select a sales account</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl>
@@ -304,7 +304,7 @@
               {{ option }}
             </option>
           </MpSelect>
-          <MpFormErrorMessage>You must select inventory account</MpFormErrorMessage>
+          <MpFormErrorMessage>Select an inventory account</MpFormErrorMessage>
           <MpFormHelpText>Opening quantity can be recorded through stock adjustment</MpFormHelpText>
         </MpFormControl>
         <div />
@@ -368,18 +368,16 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Cancel addition?</span>
+            <span :class="modalTitleClass">Leave this page?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700">Data you have filled will not be saved.</MpText>
+            <MpText size="body" color="gray.700">{{ leaveModalBody }}</MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">
-              <MpButton variant="secondary" @click="isDiscardModalOpen = false">
-                Continue addition
-              </MpButton>
-              <MpButton variant="danger" @click="leave">Discard</MpButton>
+              <MpButton variant="ghost" @click="isDiscardModalOpen = false">Keep editing</MpButton>
+              <MpButton variant="primary" @click="leave">Leave</MpButton>
             </div>
           </MpModalFooter>
         </MpModalContent>
@@ -519,7 +517,7 @@ const canAddAttribute = computed(() => {
 const addAttributeBlockedReason = computed(() =>
   form.attributes.length >= MAX_VARIANT_ATTRIBUTES
     ? `You have reached the addition limits of ${MAX_VARIANT_ATTRIBUTES} attributes.`
-    : "You must select/add at least one attribute along with its option to add another attribute."
+    : "Select an attribute and at least 1 option before adding another."
 );
 
 /** An attribute can't be used twice on the same master — the source toasts
@@ -640,6 +638,13 @@ const isDirty = computed(() =>
     form.unit ||
     usableAttributes(form.attributes).length
   )
+);
+
+/** Leave-page body copy: "Information you entered" when creating (no prior
+ *  state), "Your changes" when editing — mekari-product-writing →
+ *  component-patterns.md § Modal. */
+const leaveModalBody = computed(() =>
+  isEdit.value ? "Your changes will not be saved." : "Information you entered will not be saved."
 );
 
 function onCancel() {

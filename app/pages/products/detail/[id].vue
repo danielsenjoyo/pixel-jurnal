@@ -461,11 +461,13 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Delete {{ product.name }}?</span>
+            <span :class="modalTitleClass">Delete product?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700"> Deleted products cannot be recovered. </MpText>
+            <MpText size="body" color="gray.700">
+              Once deleted, <strong>{{ product.name }}</strong> cannot be restored.
+            </MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">

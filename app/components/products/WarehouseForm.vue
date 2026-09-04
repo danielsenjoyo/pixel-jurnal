@@ -39,7 +39,7 @@
         <MpFormControl is-required :is-invalid="submitted && !form.name.trim()">
           <MpFormLabel>Warehouse name</MpFormLabel>
           <MpInput v-model="form.name" placeholder="Example: Gudang Senopati 01" />
-          <MpFormErrorMessage>You must fill in warehouse name</MpFormErrorMessage>
+          <MpFormErrorMessage>Enter a warehouse name</MpFormErrorMessage>
           <MpFormHelpText>Name it specifically enough to tell it from the others.</MpFormHelpText>
         </MpFormControl>
 
@@ -92,18 +92,16 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Cancel addition?</span>
+            <span :class="modalTitleClass">Leave this page?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700">Data you have filled will not be saved.</MpText>
+            <MpText size="body" color="gray.700">{{ leaveModalBody }}</MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">
-              <MpButton variant="secondary" @click="isDiscardModalOpen = false">
-                Continue addition
-              </MpButton>
-              <MpButton variant="danger" @click="leave">Discard</MpButton>
+              <MpButton variant="ghost" @click="isDiscardModalOpen = false">Keep editing</MpButton>
+              <MpButton variant="primary" @click="leave">Leave</MpButton>
             </div>
           </MpModalFooter>
         </MpModalContent>
@@ -205,6 +203,13 @@ function onSubmit() {
 
 const isDirty = computed(() =>
   Boolean(form.name.trim() || form.code.trim() || form.address.trim() || form.description.trim())
+);
+
+/** Leave-page body copy: "Information you entered" when creating (no prior
+ *  state), "Your changes" when editing — mekari-product-writing →
+ *  component-patterns.md § Modal. */
+const leaveModalBody = computed(() =>
+  isEdit.value ? "Your changes will not be saved." : "Information you entered will not be saved."
 );
 
 function onCancel() {

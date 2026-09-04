@@ -35,7 +35,7 @@
         <MpFormControl is-required :is-invalid="submitted && !form.name.trim()">
           <MpFormLabel>Rule name</MpFormLabel>
           <MpInput v-model="form.name" placeholder="Example: Diskon reseller 10%" />
-          <MpFormErrorMessage>You must enter rule name</MpFormErrorMessage>
+          <MpFormErrorMessage>Enter a rule name</MpFormErrorMessage>
         </MpFormControl>
 
         <MpFormControl>
@@ -116,7 +116,7 @@
               />
             </MpInputGroup>
           </div>
-          <MpFormErrorMessage>You must fill the amount</MpFormErrorMessage>
+          <MpFormErrorMessage>Enter an amount</MpFormErrorMessage>
         </MpFormControl>
         <div />
         <div />
@@ -145,6 +145,7 @@
                         v-model="tierThresholdText[index]"
                         type="text"
                         inputmode="decimal"
+                        :aria-label="`${tierThresholdLabel} for tier ${index + 1}`"
                         @update:model-value="onTierThresholdInput(index)"
                       />
                     </MpInputGroup>
@@ -156,6 +157,7 @@
                       :model-value="String(tier.discount || '')"
                       type="text"
                       inputmode="decimal"
+                      :aria-label="`Discount for tier ${index + 1}`"
                       @update:model-value="onTierDiscountChange(index, $event)"
                     />
                     <MpInputRightAddon>%</MpInputRightAddon>
@@ -243,18 +245,16 @@
         <MpModalOverlay />
         <MpModalContent>
           <MpModalHeader>
-            <span :class="modalTitleClass">Cancel addition?</span>
+            <span :class="modalTitleClass">Leave this page?</span>
             <MpModalCloseButton />
           </MpModalHeader>
           <MpModalBody>
-            <MpText size="body" color="gray.700">Data you have filled will not be saved.</MpText>
+            <MpText size="body" color="gray.700">{{ leaveModalBody }}</MpText>
           </MpModalBody>
           <MpModalFooter>
             <div :class="modalFooterClass">
-              <MpButton variant="secondary" @click="isDiscardModalOpen = false">
-                Continue addition
-              </MpButton>
-              <MpButton variant="danger" @click="leave">Discard</MpButton>
+              <MpButton variant="ghost" @click="isDiscardModalOpen = false">Keep editing</MpButton>
+              <MpButton variant="primary" @click="leave">Leave</MpButton>
             </div>
           </MpModalFooter>
         </MpModalContent>
@@ -537,6 +537,13 @@ function onSubmit() {
 
 const isDirty = computed(() =>
   Boolean(form.name.trim() || form.amount || form.products.length || form.contacts.length)
+);
+
+/** Leave-page body copy: "Information you entered" when creating (no prior
+ *  state), "Your changes" when editing — mekari-product-writing →
+ *  component-patterns.md § Modal. */
+const leaveModalBody = computed(() =>
+  isEdit.value ? "Your changes will not be saved." : "Information you entered will not be saved."
 );
 
 function onCancel() {
