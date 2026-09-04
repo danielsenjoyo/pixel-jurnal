@@ -6,7 +6,10 @@
       </colgroup>
       <MpTableHead is-fixed>
         <MpTableRow>
-          <MpTableCell as="th" :class="wrapCellClass">Date</MpTableCell>
+          <!-- Follows the cell below it: the transaction number now leads, so
+               the header names that, not the date beneath it. "Transaction no."
+               is the label the invoice detail page already uses for this value. -->
+          <MpTableCell as="th" :class="wrapCellClass">Transaction no.</MpTableCell>
           <MpTableCell as="th" :class="wrapCellClass">Vendor</MpTableCell>
           <MpTableCell as="th" :class="wrapCellClass">Qty</MpTableCell>
           <MpTableCell as="th" :class="[numCellClass, wrapCellClass]">Vendor charged</MpTableCell>
@@ -26,14 +29,30 @@
         <MpTableRow v-for="row in rows" :key="row.id">
           <MpTableCell as="td" :class="wrapCellClass">
             <div :class="stackClass">
-              <MpText size="body-small" weight="semiBold" :class="nowrapClass">
+              <!-- The transaction number leads: it's the row's identifier, the
+                   same way the Purchases index page leads its Number column.
+                   Inert placeholder, as everywhere else in this prototype — a
+                   real build links this to the source transaction.
+                   MpText as="a" rather than MpTextlink: MpTextlink's recipe
+                   pins its font-size at 14px and an `!important` utility in
+                   pixel_utilities still loses to it (the same reverse
+                   layer-cascade problem app/utils/textlink-align.ts records
+                   for its padding), which would leave this number larger than
+                   the vendor name beside it. MpText has a real `size` prop. -->
+              <MpText
+                as="a"
+                href="#"
+                is-text-link
+                size="body-small"
+                color="blue.400"
+                :class="nowrapClass"
+                @click.prevent
+              >
+                {{ row.documentNumber }}
+              </MpText>
+              <MpText size="label-small" color="gray.600" :class="nowrapClass">
                 {{ row.purchasedAtLabel }}
               </MpText>
-              <!-- Inert placeholder, as everywhere else in this prototype: a
-                   real build links this to the source transaction. -->
-              <MpTextlink as="button" variant="primary" :class="docLinkClass" @click.prevent>
-                {{ row.documentNumber }}
-              </MpTextlink>
             </div>
           </MpTableCell>
           <MpTableCell as="td" :class="wrapCellClass">
@@ -104,12 +123,10 @@ import {
   MpTableHead,
   MpTableRow,
   MpText,
-  MpTextlink,
   css
 } from "@mekari/pixel3";
 import UnitConversionNote from "./UnitConversionNote.vue";
 import HistoricalPriceCell from "./HistoricalPriceCell.vue";
-import { textlinkAlignClass } from "~/utils/textlink-align";
 import { formatQty } from "~/utils/currency";
 import type { PriceHistoryEntry } from "~/types/price-history";
 
@@ -151,11 +168,6 @@ const stackClass = css({ display: "flex", flexDirection: "column", gap: "0.5", a
 // A date and a document number are single tokens — wrapping them mid-token
 // ("BILL/2026/07/050" / "3") is worse than letting the column carry them.
 const nowrapClass = css({ whiteSpace: "nowrap!" });
-// The 2px-padding cancel only (see app/utils/textlink-align.ts) — deliberately
-// NOT textlinkCellClass, whose `inline-block` + `maxWidth: full` fights the
-// nowrap below and clips the number's first characters instead of letting the
-// column carry it.
-const docLinkClass = `${textlinkAlignClass} ${css({ fontSize: "sm", whiteSpace: "nowrap!" })}`;
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
 const emptyClass = css({
   display: "flex",

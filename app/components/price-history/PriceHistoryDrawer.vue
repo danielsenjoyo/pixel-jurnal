@@ -52,19 +52,25 @@
             :current-vendor-name="vendorName"
           >
             <template v-if="mode === 'apply'" #action="{ row }">
-              <MpButton
-                v-if="row.currency === documentCurrency"
-                variant="secondary"
-                size="sm"
-                @click="$emit('apply', row)"
-              >
-                <span :class="useButtonInnerClass">
-                  <span>Use this price</span>
-                  <span v-if="row.vendorName !== vendorName" :class="usePlusClass">
-                    {{ vendorPreviewText(row) }}
-                  </span>
-                </span>
-              </MpButton>
+              <!-- A single-line button plus a sub-line, not two lines stuffed
+                   inside the button: applying a price is a real mutation so it
+                   keeps a button's affordance, while the vendor-change preview
+                   (which must stay visible — the side effect is previewed
+                   before the click) sits beneath it in the same
+                   value-plus-quieter-sub-line shape the other columns use. -->
+              <div v-if="row.currency === documentCurrency" :class="actionStackClass">
+                <MpButton variant="secondary" size="sm" @click="$emit('apply', row)">
+                  Use this price
+                </MpButton>
+                <MpText
+                  v-if="row.vendorName !== vendorName"
+                  size="label-small"
+                  color="gray.600"
+                  :class="vendorPreviewClass"
+                >
+                  {{ vendorPreviewText(row) }}
+                </MpText>
+              </div>
               <MpText v-else size="label-small" color="gray.400">Different currency</MpText>
             </template>
           </PriceHistoryRows>
@@ -204,22 +210,18 @@ const scopeRowClass = css({
   gap: 3,
   flexWrap: "wrap"
 });
-const useButtonInnerClass = css({
+const actionStackClass = css({
   display: "flex",
   flexDirection: "column",
-  alignItems: "flex-start",
-  whiteSpace: "normal",
-  textAlign: "left"
+  alignItems: "flex-end",
+  gap: 1
 });
-// The vendor-change preview (rule: always preview the side effect before the
-// click) carries a full vendor name, so it must wrap rather than clip — a
-// truncated "and set vendor to CV Su…" defeats the point of previewing it.
-const usePlusClass = css({
-  fontSize: "xs",
-  color: "gray.600",
-  fontWeight: "regular",
-  whiteSpace: "normal",
+// The vendor-change preview carries a full vendor name, so it must wrap rather
+// than clip — a truncated "and set vendor to CV Su…" defeats the point of
+// previewing the side effect at all.
+const vendorPreviewClass = css({
+  whiteSpace: "normal!",
   wordBreak: "break-word",
-  textAlign: "left"
+  textAlign: "right"
 });
 </script>
