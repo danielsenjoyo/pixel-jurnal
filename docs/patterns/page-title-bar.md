@@ -67,4 +67,4 @@ the details-page recipe that uses them.
 ## Gotchas
 
 - The primary button intentionally carries **no icon** — the row reads as label-only.
-- `gap` between actions is `--spacing-xs` (8px); it comes from `actionsClass`, not per-page overrides.
+- `gap` between actions is `gap: 2` (8px); it comes from `actionsClass`, not per-page overrides.

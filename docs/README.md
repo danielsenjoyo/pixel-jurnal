@@ -23,7 +23,7 @@ and the `@mekari/pixel3` component library.
 
 ### Shell & tokens
 
-- **[`design.md`](./design.md)** — the app shell: AppHeader, AppSidebar (+ submenu), PageTitle, PageStage; iconography; import discipline; styling rules.
+- **[`design.md`](./design.md)** — the token layers (§0), then the app shell: `TheNavbar`, `TheSidebar` (+ `SidebarChild` submenu), and `DefaultPageContent` (title band + white stage); iconography; import discipline; styling rules.
 - **[`tokens.md`](./tokens.md)** — raw Pixel 2.1 token values (colours, spacing, type, layout).
 
 ### Page construction — [`patterns/`](./patterns/)
@@ -58,8 +58,17 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 
 - **[`index-page-pattern.md`](./index-page-pattern.md)** — the exhaustive index-page reference (full rationale, state-model table, component gotchas, changelog). The `patterns/` files are the focused extract; this is the long form.
 
+### Compliance gate
+
+- **`scripts/pixel-police.sh`** — Pixel Police: the mechanical rules below, checked on the **added
+  lines** of changed `.vue` files. Runs on `git push` (husky `pre-push`) and on every PR to `main`.
+  Run it yourself with `bash scripts/pixel-police.sh`.
+- **[`.agents/skills/pixel-police/references/rules.md`](../.agents/skills/pixel-police/references/rules.md)** —
+  the full rule list: the 7 the script enforces (with their whitelisted exceptions) and the
+  reviewer-only ones it can't see. Adding a rule? That file says how.
+
 ## Conventions
 
-- **Token mode 2.1.** Page-body styling uses Panda **`css()`** with Pixel token shortcuts (`gap: 4`, `bg: "gray.25"`). The shell's scoped CSS uses the project `--color-*` / `--spacing-*` tokens (see `design.md`). Don't mix the two layers.
+- **Token mode 2.1.** All styling — shell and page body alike — uses Panda **`css()`** with Pixel token shorthands (`gap: 4`, `bg: "gray.25"`, `rounded: "md"`). The only other layer is the 10 project-local variables in `app/assets/css/tokens.css` (`--layout-*`, `--motion-*`, `--border-radius-full`) for what Pixel doesn't ship. See [`design.md` §0](./design.md). There is no `--color-*` / `--spacing-*` layer — that namespace belonged to the pre-Nuxt static preview.
 - **No inline `style`**, no `<style>` blocks in pages — `css()` only. Raw `var(--mp-*)` is allowed inside `css()` values only for hairline borders/shadows a shorthand can't express.
 - **Living docs.** When a pattern changes, update its `patterns/` file (and `index-page-pattern.md` if it's the index page) in the same change.

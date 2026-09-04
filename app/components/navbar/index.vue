@@ -103,7 +103,7 @@ const logoLinkClass = css({
   alignItems: "center"
 });
 
-/** Icon-only navbar buttons share `--spacing-2xs` (6px) square padding (Figma spec). */
+/** Icon-only navbar buttons share `padding: 1.5` (--mp-spacing-1.5 = 6px, Figma spec). */
 const iconBtnClass = css({
   padding: "1.5"
 });
