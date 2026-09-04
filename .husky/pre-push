@@ -12,6 +12,10 @@ pnpm lint && pnpm lint:fix && pnpm format || exit 1
 
 # Pixel Police — block the push on NEW token/component violations in the
 # commits being pushed (added lines only, vs. the merge-base with origin/main).
+# It also reads the working tree, so a violation sitting in an uncommitted edit
+# blocks the push too. That is deliberate: `pnpm lint:fix` and `pnpm format`
+# just above may have rewritten files, and a dirty tree at push time is nearly
+# always work you meant to include.
 # Escape hatch for a genuine emergency: PIXEL_POLICE_SKIP=1 git push
 if [ "${PIXEL_POLICE_SKIP:-0}" = "1" ]; then
   echo "Pixel Police: skipped (PIXEL_POLICE_SKIP=1)"

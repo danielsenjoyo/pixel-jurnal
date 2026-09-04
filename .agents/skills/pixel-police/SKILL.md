@@ -123,7 +123,7 @@ copy), rewrite the code:
 ### Phase 3 — ENFORCE (self-check, must be green)
 
 ```bash
-bash scripts/pixel-police.sh   # added lines vs. merge-base with origin/main
+bash scripts/pixel-police.sh   # added lines vs. merge-base with origin/main (working tree included)
 pnpm lint && pnpm format:check
 ```
 
