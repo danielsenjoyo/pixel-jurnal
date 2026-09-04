@@ -65,3 +65,19 @@ Library default — keep the track and put the count badge **inside** the tab sl
 
 - `v-model` is **index-based** (`ref(0)`), not the tab label.
 - `variant-color="blue"` on both kinds.
+- **Add `is-manual` the moment anything but a click sets the tab.** Without it
+  `MpTabs` keeps its own index and the `v-model` is effectively one-way
+  (component → parent): clicks update your ref, but assigning to that ref
+  changes nothing. There is no warning and no error — the tab just stays where
+  it was. Every `v-model` example in the Pixel tab docs passes `is-manual` for
+  this reason.
+
+  It bites wherever a tab is chosen for the user: a `?tab=` deep link, a
+  "View warehouse info" link that jumps to a sibling tab, a details-page
+  breadcrumb that has to land on a specific list. `app/pages/products/index.vue`
+  and `app/pages/products/detail/[id].vue` both do, so both pass it.
+
+  Setting the ref **before mount doesn't help either** — the component settles
+  on its own index as it mounts and emits that back over the model. With
+  `is-manual` the ref is authoritative and the initial value is honoured;
+  without it, apply the change in `onMounted` and it still loses.

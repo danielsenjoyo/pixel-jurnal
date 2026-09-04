@@ -308,6 +308,58 @@ Every page built in this module, and the archetype it follows.
 for it either, so neither does this clone. `TYPE_CAPABILITIES.financing.route`
 is `""` for exactly that reason.
 
+## Reference: Products module page map
+
+| Route                                       | Archetype | Notes                                                               |
+| ------------------------------------------- | --------- | ------------------------------------------------------------------- |
+| `/products`                                 | index     | 3 segments × 8 list tabs; `?tab=`/`?segment=` deep links            |
+| `/products/detail/[id]`                     | details   | Tabs gated per product: bundle, batch, warehouse                    |
+| `/products/new` + `/products/edit/[id]`     | **form**  | `ProductForm` — three checkboxes gate three whole sections          |
+| `/products/master/[id]`                     | details   | Variants are child rows, not links — they have no page of their own |
+| `/products/master/new` + `master/edit/[id]` | **form**  | `ProductMasterForm` — variants generated from the attributes        |
+| `/products/[id]/batches/[batchId]`          | details   | Nested under its product; no batch list exists                      |
+| `/products/convert/new` + `convert/[id]`    | **form**  | `ProductConversionForm` — lines come from the bundle, not a picker  |
+| `/products/price-rules/new` + `edit/[id]`   | **form**  | `PriceRuleForm` — field set driven by `PRICE_RULE_SHAPE`            |
+| `/products/warehouse/[id]`                  | details   | Products held, storage locations (drawer), movements                |
+| `/products/warehouse/new` + `edit/[id]`     | **form**  | `WarehouseForm`                                                     |
+| `/products/stock-adjustment/[id]`           | details   | Also serves the approval queue — see below                          |
+| `/products/stock-adjustment/new` + `edit`   | **form**  | `StockAdjustmentForm` — `?type=` presets the adjustment type        |
+| `/products/warehouse-transfer/[id]`         | details   | Also serves the approval queue; Clone opens the form pre-filled     |
+| `/products/warehouse-transfer/new` + `edit` | **form**  | `WarehouseTransferForm` — `?from=` seeds a clone; per-line cap      |
+
+Five rules this module added to the ones above:
+
+- **A tab is a destination, so a breadcrumb has to be able to name one.** Six
+  of the eight lists here are tabs rather than routes, so every detail page's
+  breadcrumb carries `?tab=`/`?segment=` and the index applies it once on
+  mount. Without it "Back to Product with variant list" lands on Product list —
+  a breadcrumb that names one place and goes to another. See
+  [`Tabs`](./Tabs.md) for the `is-manual` prop this depends on.
+- **Don't render a link where no detail page exists.** While only three of the
+  eight tabs had a detail page, the index's first column was an `MpTextlink` on
+  those three and plain text on the rest — gated on a `DETAIL_ROUTE_BY_TAB`
+  lookup, so filling the gap later was a map entry rather than a template edit.
+  A dead link is worse than no affordance, and "it will work once the next pass
+  lands" is not a state to ship.
+- **Generate the children when they ARE a function of the parent.** A master's
+  variants are the cartesian product of its attributes — that is the source's
+  own model, which is why it resets the variant table whenever an attribute
+  changes. Storing them as a second list would let the two drift; deriving them
+  makes that impossible, and the form's live variant count falls out for free.
+- **A record waiting for approval is the same record, so it gets the same
+  page.** Stock adjustments and warehouse transfers each have an approval queue
+  whose rows carry identical fields to the committed ones. Both routes look the
+  id up in the committed list first and the queue second, then swap the badge,
+  the breadcrumb and the bottom bar (Approve, instead of Edit + Delete). A
+  second near-identical page per type would drift the first time either changed.
+- **A form that records a movement has to move something.** Saving a stock
+  adjustment writes each line's actual quantity back onto its product, so the
+  count just taken is what the catalogue, the summary strip and the product's
+  own page report a moment later. An adjustment screen that leaves stock
+  untouched is theatre — and it is only applied on create here, because
+  re-applying on edit would need the previous lines reversed first, and there is
+  no ledger to reverse against.
+
 **Nested-route gotcha** (bites all three archetypes): `pages/X.vue` next to
 `pages/X/…` makes `X.vue` an implicit parent layout that must render
 `<NuxtPage/>`. Put the list page at `pages/X/index.vue` instead — see
