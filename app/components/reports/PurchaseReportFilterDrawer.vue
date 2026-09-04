@@ -45,7 +45,7 @@
             </MpSelect>
           </MpFormControl>
 
-          <MpFormControl>
+          <MpFormControl v-if="shows('transactionType')">
             <MpFormLabel>Transaction type</MpFormLabel>
             <MpSelect v-model="form.transactionType" is-full-width>
               <option
@@ -60,7 +60,7 @@
 
           <!-- Production calls this "Date by": which of the two dates on a
                transaction the range above is measured against. -->
-          <MpFormControl>
+          <MpFormControl v-if="shows('dateBy')">
             <MpFormLabel>Date by</MpFormLabel>
             <MpSelect v-model="form.dateBy" is-full-width>
               <option v-for="opt in DATE_BY_OPTIONS" :key="opt.value" :value="opt.value">
@@ -69,7 +69,7 @@
             </MpSelect>
           </MpFormControl>
 
-          <MpFormControl>
+          <MpFormControl v-if="shows('vendors')">
             <MpFormLabel>Vendor</MpFormLabel>
             <MpInputTag
               id="report-filter-vendors"
@@ -85,7 +85,7 @@
             />
           </MpFormControl>
 
-          <MpFormControl>
+          <MpFormControl v-if="shows('statuses')">
             <MpFormLabel>Status</MpFormLabel>
             <MpInputTag
               id="report-filter-statuses"
@@ -101,7 +101,7 @@
             />
           </MpFormControl>
 
-          <MpFormControl>
+          <MpFormControl v-if="shows('tags')">
             <MpFormLabel>Group with tag</MpFormLabel>
             <MpInputTag
               id="report-filter-tags"
@@ -188,11 +188,30 @@ import {
 import { PURCHASE_STATUS_LABEL, type PurchaseStatus } from "~/data/purchase-status";
 import { DATE_INPUT_FORMAT, isoToDmy } from "~/utils/dates";
 
-const props = defineProps<{
-  isOpen: boolean;
-  /** The filter currently applied to the report; the draft is seeded from it. */
-  applied: PurchaseReportFilter;
-}>();
+/** Fields a report can offer. Not every report has a referent for each one. */
+export type ReportFilterField = "transactionType" | "dateBy" | "vendors" | "statuses" | "tags";
+
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    /** The filter currently applied to the report; the draft is seeded from it. */
+    applied: PurchaseReportFilter;
+    /**
+     * Which fields this report shows. Delivery fixes its transaction type, and
+     * a product aggregate has no single status — a control that can only ever
+     * match everything reads as broken, so it is dropped rather than shown
+     * inert (docs/patterns/Drawer.md § Gotchas).
+     */
+    fields?: ReportFilterField[];
+  }>(),
+  // Inlined, not a module const: a defineProps default is hoisted out of
+  // setup(), so it cannot reference a locally declared binding.
+  { fields: () => ["transactionType", "dateBy", "vendors", "statuses", "tags"] }
+);
+
+function shows(field: ReportFilterField): boolean {
+  return props.fields.includes(field);
+}
 
 const emit = defineEmits<{ close: []; apply: [filter: PurchaseReportFilter] }>();
 

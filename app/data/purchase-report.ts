@@ -22,6 +22,7 @@
  */
 
 import { PURCHASE_STATUS_LABEL, type PurchaseStatus } from "./purchase-status";
+import type { ReportColumn } from "./report-column";
 import {
   TRANSACTION_TYPE_LABEL,
   getPurchaseTransactions,
@@ -34,16 +35,8 @@ import { parseLocalIsoDate, toLocalIsoDate } from "~/utils/dates";
 // Columns
 // ---------------------------------------------------------------------------
 
-export interface ReportColumn {
-  key: keyof PurchaseReportRow;
-  label: string;
-  labelId: string;
-  /** Right-aligned, summed into the TOTAL footer row, rendered as money. */
-  numeric?: boolean;
-  /** Fixed px width — the table is `table-layout: fixed`, so this is
-   *  authoritative and the container scrolls when the set is wide. */
-  width: number;
-}
+/** A column of this report, keyed to its own row shape. */
+export type PurchaseReportColumn = ReportColumn<keyof PurchaseReportRow & string>;
 
 /**
  * Every column the report can show. Labels are verbatim from production's
@@ -51,34 +44,46 @@ export interface ReportColumn {
  * which is why they read as Title Case while the rest of the app is sentence
  * case — report column heads are their own vocabulary in the product.
  */
-export const PURCHASE_REPORT_COLUMNS: ReportColumn[] = [
-  { key: "date", label: "Date", labelId: "Tanggal", width: 120 },
+export const PURCHASE_REPORT_COLUMNS: PurchaseReportColumn[] = [
+  { key: "date", label: "Date", labelId: "Tanggal", format: "date", width: 120 },
   { key: "number", label: "Transaction No.", labelId: "No. Transaksi", width: 200 },
   { key: "vendorName", label: "Vendor", labelId: "Supplier", width: 200 },
   { key: "referenceNo", label: "Reference No.", labelId: "No. Referensi", width: 140 },
-  { key: "dueDate", label: "Due Date", labelId: "Jatuh Tempo", width: 120 },
+  { key: "dueDate", label: "Due Date", labelId: "Jatuh Tempo", format: "date", width: 120 },
   { key: "status", label: "Status", labelId: "Status", width: 130 },
   { key: "tags", label: "Tags", labelId: "Tag", width: 140 },
   { key: "memo", label: "Memo", labelId: "Memo", width: 220 },
   { key: "warehouse", label: "Warehouse", labelId: "Gudang", width: 160 },
   { key: "currency", label: "Currency", labelId: "Mata Uang", width: 100 },
-  { key: "grossAmount", label: "Gross Amount", labelId: "Jumlah Kotor", numeric: true, width: 150 },
+  {
+    key: "grossAmount",
+    label: "Gross Amount",
+    labelId: "Jumlah Kotor",
+    format: "money",
+    width: 150
+  },
   {
     key: "discountAmount",
     label: "Discount Amount",
     labelId: "Jumlah Diskon",
-    numeric: true,
+    format: "money",
     width: 150
   },
-  { key: "taxAmount", label: "Tax Amount", labelId: "Jumlah Pajak", numeric: true, width: 140 },
-  { key: "total", label: "Total", labelId: "Total", numeric: true, width: 150 },
-  { key: "payment", label: "Payment", labelId: "Pembayaran", numeric: true, width: 150 },
-  { key: "balanceDue", label: "Balance Due", labelId: "Sisa Tagihan", numeric: true, width: 150 }
+  { key: "taxAmount", label: "Tax Amount", labelId: "Jumlah Pajak", format: "money", width: 140 },
+  { key: "total", label: "Total", labelId: "Total", format: "money", width: 150 },
+  { key: "payment", label: "Payment", labelId: "Pembayaran", format: "money", width: 150 },
+  {
+    key: "balanceDue",
+    label: "Balance Due",
+    labelId: "Sisa Tagihan",
+    format: "money",
+    width: 150
+  }
 ];
 
 const COLUMN_BY_KEY = new Map(PURCHASE_REPORT_COLUMNS.map((c) => [c.key, c]));
 
-export function reportColumn(key: keyof PurchaseReportRow): ReportColumn {
+export function reportColumn(key: keyof PurchaseReportRow): PurchaseReportColumn {
   const column = COLUMN_BY_KEY.get(key);
   if (!column) throw new Error(`Unknown purchase report column: ${key}`);
   return column;
@@ -356,3 +361,18 @@ export function purchaseReportVendors(): string[] {
 export function purchaseReportTags(): string[] {
   return [...new Set(getPurchaseTransactions().flatMap((t) => t.tags))].sort();
 }
+
+/**
+ * Where a transaction number links to, per type. Every type the Purchases
+ * module has a detail page for gets one; `financing` has none, so a report
+ * renders those numbers as plain text rather than a link that 404s.
+ */
+export const PURCHASE_TRANSACTION_ROUTE: Partial<Record<TransactionType, string>> = {
+  invoice: "/purchase/invoice",
+  join_invoice: "/purchase/join-invoice",
+  delivery: "/purchase/delivery",
+  order: "/purchase/order",
+  quote: "/purchase/quote",
+  request: "/purchase/request",
+  return: "/purchase/return"
+};

@@ -2,14 +2,58 @@
 
 > A **report** screen: pick a date range and criteria, press a button, read a
 > table with a TOTAL row. Looks like an index page and isn't one.
-> Reference impl: [`app/pages/reports/purchases_list.vue`](../../app/pages/reports/purchases_list.vue),
-> [`PurchaseReportFilterDrawer.vue`](../../app/components/reports/PurchaseReportFilterDrawer.vue);
+> Reference impl: [`app/pages/reports/purchases_list.vue`](../../app/pages/reports/purchases_list.vue)
+> — the other four Purchases reports are the same five components with
+> different columns.
+> Shared chrome: [`ReportFilterBar`](../../app/components/reports/ReportFilterBar.vue),
+> [`ReportTable`](../../app/components/reports/ReportTable.vue),
+> [`ReportPagination`](../../app/components/reports/ReportPagination.vue),
+> [`ReportBlankSlate`](../../app/components/reports/ReportBlankSlate.vue),
+> [`ReportExportButton`](../../app/components/reports/ReportExportButton.vue),
+> [`PurchaseReportFilterDrawer`](../../app/components/reports/PurchaseReportFilterDrawer.vue);
+> state: [`usePurchaseReport`](../../app/composables/usePurchaseReport.ts),
+> [`useReportPaging`](../../app/composables/useReportPaging.ts);
 > data: [`purchase-report.ts`](../../app/data/purchase-report.ts),
-> [`purchase-report-filter.ts`](../../app/data/purchase-report-filter.ts).
+> [`purchase-report-variants.ts`](../../app/data/purchase-report-variants.ts),
+> [`purchase-report-filter.ts`](../../app/data/purchase-report-filter.ts),
+> [`report-column.ts`](../../app/data/report-column.ts).
 > See also [`index-page-format`](./index-page-format.md), [`TablePage`](./TablePage.md),
 > [`Drawer`](./Drawer.md), [`reports-index-format`](./reports-index-format.md).
 
-Ported from `jurnal-frontend-app` → `src/pages/reports/purchases_list/`.
+Ported from `jurnal-frontend-app` → `src/pages/reports/purchases_*`.
+
+## Building one
+
+A report page is columns, a row projection, and wiring. Everything else is
+shared:
+
+```vue
+<ReportFilterBar v-model:start-date … :is-valid :is-filter-active @run @open-drawer>
+  <!-- optional: this report's own Sort by / Group by -->
+</ReportFilterBar>
+<PurchaseReportFilterDrawer :fields="[…]" … />
+<ReportTable :columns :rows="pagedRows" :total-rows="filteredRows" :is-loading />
+<ReportPagination v-model:page v-model:per-page … />
+<ReportBlankSlate v-else :has-run :is-filter-active @clear />
+```
+
+`usePurchaseReport()` owns the two filter objects and the run; `useReportPaging(filteredRows)`
+owns the footer. The page owns only `filteredRows`.
+
+**`ReportTable` is generic** (`generic="Row extends object"`), so the `#cell`
+slot hands the page its _own_ row type rather than a `Record`. Override only the
+cells that aren't plain text — links, badges, tag chips — and let the rest fall
+through to the default.
+
+## The five Purchases reports
+
+| Report                    | Rows are                            | Notable                                         |
+| ------------------------- | ----------------------------------- | ----------------------------------------------- |
+| Purchase list             | one transaction                     | 3 column layouts (Template ▾), sortable headers |
+| Purchase by vendor        | one **line item**, vendor-ordered   | Sort by vendor / total purchases                |
+| Purchase delivery         | one delivery, or one delivered line | **Group by** switches columns _and_ row grain   |
+| Purchase by product       | one **product**, aggregated         | Filter applies per transaction, not per row     |
+| Purchase order completion | one order                           | Links order → its delivery                      |
 
 ## How it differs from an index page
 
@@ -79,6 +123,21 @@ type**: those two sit on the filter bar in plain sight. Only the drawer-only
 criteria (vendor, status, tags, date-by) light the dot, because only those
 vanish when the drawer closes. A dot that's always lit says nothing.
 
+## Columns
+
+`ReportColumn` (in [`report-column.ts`](../../app/data/report-column.ts))
+carries a fixed px `width`, a `format`, and two derived behaviours worth
+knowing:
+
+- **`format`** — `money`, `number`, `date`, or text. `money` uses the Purchases
+  module's `formatAmount`; never hand-roll a formatter in a report.
+- **`align`** defaults to right for `money` and `number`.
+- **`total`** defaults to true for `money` only. Override it in both
+  directions: a **unit price** column is money but its sum is meaningless
+  (`total: false`), and a **quantity** column is not money but its sum is the
+  point (`total: true`). An **average** column never totals — an average of
+  averages is not an average.
+
 ## Column layouts
 
 Production persists per-company layouts and edits them in a builder; the
@@ -122,8 +181,35 @@ projection rather than stored, so they can't disagree with the transaction.
 books transactions daily; this fixture spreads 13 records per type over ~5
 weeks, so "Today" would return one row and demonstrate nothing.
 
+## Aggregates filter per transaction, not per row
+
+Purchase by product is one row per _product_, summed across many transactions.
+Filtering the finished rows would keep or drop a whole product — a date range
+would include a product's entire history or none of it. So the builder takes
+the predicate and applies it while aggregating:
+
+```ts
+buildProductReportRows(type, (t) => matchesPurchaseReportFilter({ date: t.transactionDateSort, … }, f))
+```
+
+`matchesPurchaseReportFilter` reads a **structural** `FilterableReportRow`, not
+one report's row type, precisely so all five can share it. A field a report
+doesn't carry is absent, and its clause is skipped.
+
+## Regrouping must not change the total
+
+Purchase delivery can group by transaction, vendor or product. The first is
+transaction-grained and the other two line-grained — and a transaction's
+`total` carries tax that a sum of its line `amount`s does not. Using `t.total`
+for the transaction grouping made the TOTAL row jump by the tax the moment the
+reader switched grouping, which reads as a bug. All three now sum line values.
+
+**Rule:** if a control regroups the same records, every grouping must reconcile
+to the same figure.
+
 ## Gotchas
 
 - **`formatDisplayDate` and `formatAmount` come from `purchase-transactions.ts`.** Never hand-roll a formatter here.
 - The transaction-number link is only rendered for types that have a detail page — `financing` has none, so those rows show plain text rather than a link that 404s.
+- A column that can never say anything is worse than no column. Order completion shipped without Payment and Balance Due: an `order` in this dataset carries no `amountReceived`, so one was always `0,00` and the other always equalled Order Amount.
 - Column heads are **Title Case** ("Balance Due"), unlike the rest of the app. That's production's shared report dictionary, and reports are their own vocabulary in the product — don't sentence-case them to match other screens.

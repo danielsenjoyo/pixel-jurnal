@@ -15,8 +15,7 @@ import {
   DEFAULT_PERIOD_ID,
   DEFAULT_TRANSACTION_TYPE,
   PURCHASE_REPORT_PERIODS,
-  type DateBy,
-  type PurchaseReportRow
+  type DateBy
 } from "./purchase-report";
 import type { TransactionType } from "./purchase-transactions";
 import { dmyToIso, isoToDmy } from "~/utils/dates";
@@ -64,24 +63,40 @@ export function isReportFilterActive(f: PurchaseReportFilter): boolean {
   );
 }
 
+/**
+ * The fields the predicate below reads. Kept structural rather than tied to one
+ * report's row type: the other four Purchases reports have their own row shapes
+ * (a line item, a product aggregate, an order) and every one of them still
+ * filters by date, vendor, status and tags. A field a report doesn't carry is
+ * simply absent, and the clause that reads it is skipped.
+ */
+export interface FilterableReportRow {
+  date: string;
+  dueDate?: string;
+  vendorName?: string;
+  status?: PurchaseStatus;
+  tags?: string[];
+}
+
 export function matchesPurchaseReportFilter(
-  row: PurchaseReportRow,
+  row: FilterableReportRow,
   f: PurchaseReportFilter
 ): boolean {
-  const subject = f.dateBy === "due_date" ? row.dueDate : row.date;
+  const subject = f.dateBy === "due_date" ? (row.dueDate ?? row.date) : row.date;
   const start = dmyToIso(f.startDate);
   const end = dmyToIso(f.endDate);
   if (start && (!subject || subject < start)) return false;
   if (end && (!subject || subject > end)) return false;
 
-  if (f.vendors.length && !f.vendors.includes(row.vendorName)) return false;
-  if (f.statuses.length && !f.statuses.includes(row.status)) return false;
+  if (f.vendors.length && row.vendorName && !f.vendors.includes(row.vendorName)) return false;
+  if (f.statuses.length && row.status && !f.statuses.includes(row.status)) return false;
 
-  if (f.tags.length) {
+  if (f.tags.length && row.tags) {
+    const tags = row.tags;
     const matched =
       f.tagsLogic === "and"
-        ? f.tags.every((t) => row.tags.includes(t))
-        : f.tags.some((t) => row.tags.includes(t));
+        ? f.tags.every((t) => tags.includes(t))
+        : f.tags.some((t) => tags.includes(t));
     if (!matched) return false;
   }
   return true;
