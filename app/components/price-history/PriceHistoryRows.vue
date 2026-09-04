@@ -23,24 +23,33 @@
       </MpTableBody>
 
       <MpTableBody v-else-if="rows.length">
-        <MpTableRow v-for="(row, index) in rows" :key="row.id">
+        <MpTableRow v-for="row in rows" :key="row.id">
           <MpTableCell as="td" :class="wrapCellClass">
-            <div :class="dateCellClass">
+            <div :class="stackClass">
               <MpText size="body-small" weight="semiBold" :class="nowrapClass">
                 {{ row.purchasedAtLabel }}
               </MpText>
-              <MpBadge v-if="index === 0" for="additionalInformation" type="information">newest</MpBadge>
+              <!-- Inert placeholder, as everywhere else in this prototype: a
+                   real build links this to the source transaction. -->
+              <MpTextlink as="button" variant="primary" :class="docLinkClass" @click.prevent>
+                {{ row.documentNumber }}
+              </MpTextlink>
             </div>
-            <MpText as="a" href="#" is-text-link size="label-small" :class="nowrapClass" @click.prevent>
-              {{ row.documentNumber }}
-            </MpText>
           </MpTableCell>
           <MpTableCell as="td" :class="wrapCellClass">
-            <div :class="dateCellClass">
+            <div :class="stackClass">
               <MpText size="body-small">{{ row.vendorName }}</MpText>
-              <MpBadge v-if="row.vendorName === currentVendorName" for="additionalInformation" type="announcement">
+              <!-- Not an MpBadge: badges in this app are lifecycle statuses
+                   (`for="tableStatus"`) or counts (`for="additionalInformation"`),
+                   and "this vendor" is neither — see docs/patterns/StatusBadge.md. -->
+              <MpText
+                v-if="row.vendorName === currentVendorName"
+                size="label-small"
+                color="gray.600"
+                :class="nowrapClass"
+              >
                 this vendor
-              </MpBadge>
+              </MpText>
             </div>
           </MpTableCell>
           <MpTableCell as="td" :class="wrapCellClass">
@@ -65,10 +74,17 @@
       <MpTableBody v-else>
         <MpTableRow>
           <MpTableCell as="td" :colspan="colCount">
+            <!-- Illustration + title + body, per docs/patterns/BlankSlate.md.
+                 Deliberately NOT an MpIcon: `name="empty"` type-checks but is
+                 not actually wired, and renders as a 626px unstyled SVG (the
+                 same trap details-page-format.md records for "pdf-document").
+                 Scaled down from the page-level 180px — this sits in a drawer. -->
             <div :class="emptyClass">
-              <MpIcon name="empty" size="lg" color="gray.400" />
+              <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
               <MpText weight="semiBold" color="dark">No purchases found</MpText>
-              <MpText size="body-small" color="gray.600">No purchases have been recorded for this product yet.</MpText>
+              <MpText size="body-small" color="gray.600">
+                No purchases have been recorded for this product yet.
+              </MpText>
             </div>
           </MpTableCell>
         </MpTableRow>
@@ -80,8 +96,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import {
-  MpBadge,
-  MpIcon,
   MpSkeleton,
   MpTable,
   MpTableBody,
@@ -90,10 +104,12 @@ import {
   MpTableHead,
   MpTableRow,
   MpText,
+  MpTextlink,
   css
 } from "@mekari/pixel3";
 import UnitConversionNote from "./UnitConversionNote.vue";
 import HistoricalPriceCell from "./HistoricalPriceCell.vue";
+import { textlinkAlignClass } from "~/utils/textlink-align";
 import { formatQty } from "~/utils/currency";
 import type { PriceHistoryEntry } from "~/types/price-history";
 
@@ -118,8 +134,8 @@ const colCount = computed(() => (props.showAction ? 5 : 4));
 // (the action cell) off the panel's right edge.
 const colWidths = computed(() =>
   props.showAction
-    ? ["20%", "20%", "13%", "19%", "28%"]
-    : ["24%", "28%", "18%", "30%"]
+    ? ["22%", "22%", "13%", "19%", "24%"]
+    : ["26%", "28%", "16%", "30%"]
 );
 
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
@@ -129,12 +145,17 @@ const numCellClass = css({ textAlign: "right" });
 // collide. Wrapping only: never set `display` on a <td> (see
 // docs/patterns/details-page-format.md § "Never set display on a table cell").
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word" });
-// flexWrap so the "newest" badge drops to its own line rather than being
-// squeezed on top of a wrapping date.
-const dateCellClass = css({ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" });
+// A value plus its quieter sub-line, stacked — the same shape the Purchases
+// index page uses for "number + description" in one cell.
+const stackClass = css({ display: "flex", flexDirection: "column", gap: "0.5", alignItems: "flex-start" });
 // A date and a document number are single tokens — wrapping them mid-token
 // ("BILL/2026/07/050" / "3") is worse than letting the column carry them.
 const nowrapClass = css({ whiteSpace: "nowrap!" });
+// The 2px-padding cancel only (see app/utils/textlink-align.ts) — deliberately
+// NOT textlinkCellClass, whose `inline-block` + `maxWidth: full` fights the
+// nowrap below and clips the number's first characters instead of letting the
+// column carry it.
+const docLinkClass = `${textlinkAlignClass} ${css({ fontSize: "sm", whiteSpace: "nowrap!" })}`;
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
 const emptyClass = css({
   display: "flex",
@@ -144,4 +165,5 @@ const emptyClass = css({
   py: 8,
   textAlign: "center"
 });
+const emptyIllustrationClass = css({ width: "120px", height: "auto", mb: 1 });
 </script>

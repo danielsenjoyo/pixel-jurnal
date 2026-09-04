@@ -61,3 +61,13 @@ const emptyDescription = computed(() => {
 
 - The empty state and the table are mutually exclusive (`v-if="filteredRows.length"` / `v-else`) — never render both.
 - The illustration source is 1500×1250 (6:5); display width is what controls its size, height auto-scales.
+
+## Gotchas
+
+- **Don't substitute an `MpIcon` for the illustration.** `MpIcon name="empty"`
+  type-checks — `"empty"` is in the icon-name union and `get-icon-name` returns
+  it — but it is not actually wired, and renders as a ~626px unstyled SVG that
+  swallows the panel. Same trap `details-page-format.md` records for
+  `"pdf-document"`. Use `/illustrations/search-not-found.png`, sized down if
+  the slate sits somewhere tighter than a full page (the price-history drawer
+  uses 120px against the page-level 180px).

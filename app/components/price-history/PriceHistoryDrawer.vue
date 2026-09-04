@@ -3,7 +3,7 @@
     :is-open="isOpen"
     :is-keep-alive="true"
     placement="right"
-    :size="mode === 'apply' ? 'lg' : 'md'"
+    size="lg"
     @close="$emit('close')"
   >
     <MpDrawerOverlay />

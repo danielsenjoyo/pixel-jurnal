@@ -48,3 +48,19 @@ const STATUS_TYPE: Record<Status, BadgeType> = {
 ## Gotchas
 
 - The label text comes from `STATUS_LABEL`, not the raw enum key, so copy stays human-readable and translatable.
+- **A badge is for a lifecycle status or a count — not for an inline annotation.**
+  Across this app `MpBadge` appears in exactly two roles: `for="tableStatus"`
+  driven by a `STATUS_TYPE` map, and `for="additionalInformation"` holding a
+  **number** (tab counts). Reaching for a badge to label a row — "newest",
+  "this vendor", "recommended" — fails the rule above: you have to pick a
+  `type`, every `type` means a status, and none of them mean what you're
+  labelling. The result renders as a loud blue or filled-grey pill that reads
+  as a status the record doesn't have. Use a quiet sub-line instead
+  (`MpText size="label-small" color="gray.600"`), which is also what the
+  Purchases index page uses for its "number + description" cells. The
+  price-history drawer's "this vendor" marker is the reference for this.
+- Ask first whether the annotation is a fact at all. A "newest" marker on the
+  first row of a list that is already sorted newest-first, under a header that
+  already counts the rows, adds a line without adding a fact — the same reason
+  `details-page-format.md` records for dropping the drawer's "draft, read only"
+  tag.
