@@ -44,6 +44,14 @@ jobs:
         # Catches what eslint cannot: none of the sixteen errors this repo
         # started from were lint errors. `pnpm install` above already ran
         # `nuxt prepare`, so the generated types this needs are in place.
+        #
+        # `vue-tsc` is a direct devDependency for this step's sake. Without it
+        # `nuxt typecheck` npx-fetches one into an isolated tree that ignores
+        # this project's `typescript` pin, and resolved TypeScript 7 on the
+        # runner — which dropped the `./lib/tsc` subpath export that vue-tsc
+        # requires, so the step died with ERR_PACKAGE_PATH_NOT_EXPORTED before
+        # checking a single file. It passed locally only because the local npx
+        # cache happened to hold TypeScript 6.
         run: pnpm typecheck
 
       - name: Pixel Police — token/component check on changed .vue
