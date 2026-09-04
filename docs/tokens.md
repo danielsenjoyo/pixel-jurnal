@@ -15,28 +15,25 @@ Do not import v2.4 tokens.
 
 ## 1. How to use tokens
 
-```vue
-<style scoped>
-.card {
-  background: var(--mp-colors-white);
-  color: var(--mp-colors-dark);
-  padding: var(--mp-spacing-4);
-  border-radius: var(--mp-radii-lg);
-  box-shadow: var(--mp-shadows-sm);
-}
-</style>
-```
-
-In `css()` calls, prefer Panda CSS shorthand aliases (which resolve to
-`--mp-*` under the hood):
+Styling goes through Panda `css()` — there are no `<style>` blocks in this
+codebase. Prefer the shorthand aliases, which resolve to `--mp-*` underneath:
 
 ```ts
-css({
+const cardClass = css({
   bg: "white", // → var(--mp-colors-white)
   color: "dark", // → var(--mp-colors-dark)
   p: 4, // → var(--mp-spacing-4)
   rounded: "lg", // → var(--mp-radii-lg)
   shadow: "sm" // → var(--mp-shadows-sm)
+});
+```
+
+Drop to a raw `var(--mp-*)` only where no shorthand expresses the value:
+
+```ts
+const railClass = css({
+  width: "var(--layout-sidebar-width)", // project-local layout primitive
+  transitionTimingFunction: "var(--motion-ease-in-out)" // Pixel ships no easing token
 });
 ```
 
@@ -68,13 +65,13 @@ mekari, qontak, talenta, university.)
 
 ### Blue scale
 
-| Token                  | Value     | Used for                              |
-| ---------------------- | --------- | ------------------------------------- |
-| `--mp-colors-blue-50`  | `#EAECFB` | (reserved — emphasis surfaces)        |
-| `--mp-colors-blue-100` | `#D5DEFF` | Selected-nav background, focus ring   |
-| `--mp-colors-blue-400` | `#4B61DD` | Primary action; submenu heading label |
-| `--mp-colors-blue-500` | `#1C44D5` | Active text/icon on selected-nav rows |
-| `--mp-colors-blue-700` | `#0031BE` | Pressed primary                       |
+| Token                  | Value     | Used for                                        |
+| ---------------------- | --------- | ----------------------------------------------- |
+| `--mp-colors-blue-50`  | `#EAECFB` | Selected-nav row background (sidebar + submenu) |
+| `--mp-colors-blue-100` | `#D5DEFF` | Focus ring                                      |
+| `--mp-colors-blue-400` | `#4B61DD` | Primary action; submenu heading label           |
+| `--mp-colors-blue-500` | `#1C44D5` | Active text/icon on selected-nav rows           |
+| `--mp-colors-blue-700` | `#0031BE` | Pressed primary                                 |
 
 ### Neutral / Gray scale
 
@@ -105,7 +102,7 @@ mekari, qontak, talenta, university.)
 | Token                    | Value                | Used for                  |
 | ------------------------ | -------------------- | ------------------------- |
 | `--mp-colors-background` | `#F1F5F9`            | App shell page background |
-| `--mp-colors-white`      | `#FFFFFF`            | PageStage, AppHeader      |
+| `--mp-colors-white`      | `#FFFFFF`            | Page stage, TheNavbar     |
 | `--mp-colors-overlay`    | `rgba(22,26,32,0.8)` | Modal backdrop            |
 
 ---
@@ -143,7 +140,7 @@ mekari, qontak, talenta, university.)
 | `--mp-radii-full` | `50%`      | ellipse | **Circles only — see warning** |
 
 > ⚠️ `--mp-radii-full: 50%` creates ellipses on non-square boxes. For
-> stadium-shape pills (notification badge, search bar), use the
+> stadium-shape pills (notification badge, SidebarChild expand pill), use the
 > project-local [`--border-radius-full`](#10-project-local-layer) (`9999px`).
 
 ---
@@ -207,16 +204,16 @@ For easing curves, use the project-local `--motion-ease-{in,out,in-out}`
 
 ## 9. Z-index (`--mp-z-index-*`)
 
-| Token                  | Value | Use                    |
-| ---------------------- | ----- | ---------------------- |
-| `--mp-z-index-hide`    | -1    | Hidden                 |
-| `--mp-z-index-base`    | 0     | Default                |
-| `--mp-z-index-docked`  | 10    | AppSidebar             |
-| `--mp-z-index-sticky`  | 1100  | AppHeader              |
-| `--mp-z-index-overlay` | 1300  | Drawer/sheet backdrops |
-| `--mp-z-index-modal`   | 1400  | Modals                 |
-| `--mp-z-index-popover` | 1500  | Popovers, dropdowns    |
-| `--mp-z-index-tooltip` | 1800  | Tooltips               |
+| Token                  | Value | Use                      |
+| ---------------------- | ----- | ------------------------ |
+| `--mp-z-index-hide`    | -1    | Hidden                   |
+| `--mp-z-index-base`    | 0     | Default                  |
+| `--mp-z-index-docked`  | 10    | TheSidebar, SidebarChild |
+| `--mp-z-index-sticky`  | 1100  | TheNavbar                |
+| `--mp-z-index-overlay` | 1300  | Drawer/sheet backdrops   |
+| `--mp-z-index-modal`   | 1400  | Modals                   |
+| `--mp-z-index-popover` | 1500  | Popovers, dropdowns      |
+| `--mp-z-index-tooltip` | 1800  | Tooltips                 |
 
 ---
 
@@ -229,18 +226,18 @@ extend Pixel — they don't replace it.
 
 | Token                              | Value | Use                                          |
 | ---------------------------------- | ----- | -------------------------------------------- |
-| `--layout-header-height`           | 56px  | AppHeader fixed height                       |
-| `--layout-sidebar-width`           | 216px | AppSidebar — expanded width                  |
-| `--layout-sidebar-collapsed-width` | 56px  | AppSidebar — collapsed or with-submenu width |
+| `--layout-header-height`           | 56px  | TheNavbar fixed height                       |
+| `--layout-sidebar-width`           | 216px | TheSidebar — expanded rail width             |
+| `--layout-sidebar-collapsed-width` | 56px  | TheSidebar — collapsed or with-submenu width |
 | `--layout-submenu-width`           | 208px | Sidebar submenu panel width                  |
-| `--layout-page-title-height`       | 72px  | PageTitle fixed height                       |
+| `--layout-page-title-height`       | 72px  | DefaultPageContent title band min-height     |
 | `--layout-sidebar-item-height`     | 36px  | Sidebar menu row min-height                  |
 
 ### Pill radius (Pixel `--mp-radii-full` is ellipse-only)
 
-| Token                  | Value    | Use                                           |
-| ---------------------- | -------- | --------------------------------------------- |
-| `--border-radius-full` | `9999px` | Stadium-pill (notification badge, search bar) |
+| Token                  | Value    | Use                                                         |
+| ---------------------- | -------- | ----------------------------------------------------------- |
+| `--border-radius-full` | `9999px` | Stadium-pill — notification badge, SidebarChild expand pill |
 
 ### Motion easings (Pixel ships durations but no cubic-beziers)
 
@@ -260,6 +257,13 @@ Not in scope. Token mode is locked to v2.1 via `setNextTheme(false)`.
 
 ## Changelog
 
+- **v1.1.0** — Corrected "Used for" columns against the source, as part of the
+  `design.md` reconciliation: the selected-nav row background is `blue.50`
+  (not `blue.100`, which is the focus ring); the stadium pill is used by the
+  notification badge and the `SidebarChild` expand pill (there is no search
+  bar); component names updated to `TheNavbar` / `TheSidebar` /
+  `DefaultPageContent`. §1's example no longer shows a `<style scoped>` block —
+  this codebase has none.
 - **v1.0.0** — Refactor to consume Pixel `--mp-*` tokens directly. Project-local
   `--color-*`/`--spacing-*`/`--shadow-*`/etc. surface removed. Surviving
   project-local layer: layout primitives, stadium-pill radius, motion easings.
