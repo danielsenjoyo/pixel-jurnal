@@ -39,6 +39,40 @@ const tableFixedClass = css({ tableLayout: "fixed", minWidth: "800px" });
 - **Checkbox column = fixed `44px`; Actions column = fixed `140px`.** The middle columns are **percentages summing to 100%**, so they absorb remaining width and the two fixed columns never grow.
 - `min-width: 800px` preserves natural width: on a narrow container `MpTableContainer` **scrolls horizontally** instead of squeezing columns.
 
+### Per-column px widths (Purchases, Products)
+
+A screen whose columns hold very different content sizes should give each `<col>`
+a **px width chosen for that column's longest realistic value**, not a share of
+an even percentage split — an even split makes every column as narrow as the
+narrowest one needs to be, which is what clipped `Purchase Invoice #14026` down
+to `rchase Invoice #140`. Add one trailing **width-less `<col>`** (with a
+matching blank `<th>`/`<td>` on every row) to soak up leftover space on a wide
+viewport.
+
+Then the table itself needs exactly one declaration:
+
+```ts
+const tableFixedClass = css({ tableLayout: "fixed", width: "100%" });
+```
+
+`width: 100%` covers both directions: the table lays out at whichever is larger,
+the container or the sum of the `<colgroup>` widths — so it fills a wide viewport
+(the filler `<col>` takes the surplus) and overflows a narrow one, where
+`MpTableContainer` scrolls. Measured at 1714px in a 1015px container and 2400px
+in a 2400px one.
+
+Two nearby variants do **not** work:
+
+- **`width: auto`** silently opts the table back into the _automatic_ table
+  layout algorithm (CSS 2.1 §17.5.2), which treats the `<colgroup>` as a hint
+  and squeezes the columns — Product name came out at 142px instead of 260px.
+  `table-layout: fixed` alone does not prevent this; the `width` has to be
+  something other than `auto`.
+- **an extra `min-width: <sum>px`** is redundant, and since the sum changes with
+  the active tab it can only be an inline style — which the compliance gate
+  flags (only `<col>` widths may be inline) and Panda can't extract into a
+  class. The Purchases list still carries one; it doesn't need it.
+
 ## Header
 
 - `MpTableHead is-fixed` (sticky). The library draws its bottom border as a **2px box-shadow on `<thead>`** — override to **1px** via `tableHeadClass` (`box-shadow: 0 1px 0 0 var(--mp-colors-gray-100)`).
