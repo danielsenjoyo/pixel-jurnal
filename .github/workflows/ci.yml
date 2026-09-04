@@ -1,8 +1,8 @@
 name: CI
 
-# Gate every change into main: lint + formatting must pass AND no new Pixel
-# token/component violations may be introduced. Make this a required status
-# check in the branch-protection settings so a red run blocks the merge.
+# Gate every change into main: lint, formatting and types must pass AND no new
+# Pixel token/component violations may be introduced. Make this a required
+# status check in the branch-protection settings so a red run blocks the merge.
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   gate:
-    name: Lint + Pixel Police
+    name: Lint + Types + Pixel Police
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (full history for the diff)
@@ -39,6 +39,12 @@ jobs:
 
       - name: Format check
         run: pnpm format:check
+
+      - name: Typecheck
+        # Catches what eslint cannot: none of the sixteen errors this repo
+        # started from were lint errors. `pnpm install` above already ran
+        # `nuxt prepare`, so the generated types this needs are in place.
+        run: pnpm typecheck
 
       - name: Pixel Police — token/component check on changed .vue
         run: |

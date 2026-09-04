@@ -57,5 +57,6 @@ Design-system compliance, as opposed to `/pixel-review`'s UX quality audit. Two 
   conformance, state coverage, copy, a11y), emits findings, and rewrites the code to comply. Its
   `references/rules.md` is the full two-tier rule list.
 
-Run `bash scripts/pixel-police.sh` before handing work back. Never silence a finding with
-`pixel-police-allow` to make the gate pass.
+Run `pnpm lint`, `pnpm typecheck` and `bash scripts/pixel-police.sh` before handing work
+back — all three also run on `git push` (husky `pre-push`) and in CI. Never silence a
+finding with `pixel-police-allow` to make the gate pass.

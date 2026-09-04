@@ -124,7 +124,7 @@ copy), rewrite the code:
 
 ```bash
 bash scripts/pixel-police.sh   # added lines vs. merge-base with origin/main (working tree included)
-pnpm lint && pnpm format:check
+pnpm lint && pnpm format:check && pnpm typecheck
 ```
 
 The same script runs on `git push` (husky `pre-push`) and on every PR to `main`
@@ -142,7 +142,7 @@ marked _reviewer-only_ is on you — the script cannot see it.
 1. **Findings** — grouped by dimension, most-severe first, with sources.
 2. **The corrected code** (or a diff).
 3. **Open decisions** — the `decisionQuestion` items with `suggestedOwner`.
-4. **Gate status** — the `scripts/pixel-police.sh` + lint result, verbatim.
+4. **Gate status** — the `scripts/pixel-police.sh` + lint + typecheck result, verbatim.
 
 Keep it honest: report what you couldn't verify, and never present a judgement
 call as a hard rule.

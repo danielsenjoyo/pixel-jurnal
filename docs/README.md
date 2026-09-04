@@ -64,6 +64,12 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 
 ### Compliance gate
 
+Three checks run on `git push` (husky `pre-push`) and on every PR to `main`
+(`.github/workflows/ci.yml`): **`pnpm lint`**, **`pnpm typecheck`**
+(`nuxt typecheck`), and Pixel Police. Typecheck earns its place because eslint
+cannot see what it sees — none of the sixteen type errors this repo carried
+until they were cleared were lint errors.
+
 - **`scripts/pixel-police.sh`** — Pixel Police: the mechanical rules below, checked on the **added
   lines** of changed `.vue` files — commits since the base **and the working tree**, including
   untracked files, so uncommitted work is checked too. Runs on `git push` (husky `pre-push`) and on

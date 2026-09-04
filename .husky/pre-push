@@ -10,6 +10,18 @@ export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 pnpm lint && pnpm lint:fix && pnpm format || exit 1
 
+# Types. Slower than lint (it builds .nuxt's generated types first), so it runs
+# once here on push rather than on every commit. `nuxt typecheck` is clean as of
+# the commit that added this line — it only stays clean if something enforces
+# it, and eslint does not: none of the sixteen errors it started from were lint
+# errors. Emergency escape hatch, same as Pixel Police below:
+#   TYPECHECK_SKIP=1 git push
+if [ "${TYPECHECK_SKIP:-0}" = "1" ]; then
+  echo "Typecheck: skipped (TYPECHECK_SKIP=1)"
+else
+  pnpm typecheck || exit 1
+fi
+
 # Pixel Police — block the push on NEW token/component violations in the
 # commits being pushed (added lines only, vs. the merge-base with origin/main).
 # It also reads the working tree, so a violation sitting in an uncommitted edit
