@@ -8,4 +8,14 @@
 # /usr/local/bin on Intel), or corepack.
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-pnpm lint && pnpm lint:fix && pnpm format
+pnpm lint && pnpm lint:fix && pnpm format || exit 1
+
+# Pixel Police — block the push on NEW token/component violations in the
+# commits being pushed (added lines only, vs. the merge-base with origin/main).
+# Escape hatch for a genuine emergency: PIXEL_POLICE_SKIP=1 git push
+if [ "${PIXEL_POLICE_SKIP:-0}" = "1" ]; then
+  echo "Pixel Police: skipped (PIXEL_POLICE_SKIP=1)"
+else
+  git fetch --quiet --no-tags origin main 2>/dev/null || true
+  bash scripts/pixel-police.sh || exit 1
+fi
