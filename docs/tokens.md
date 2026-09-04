@@ -247,6 +247,17 @@ extend Pixel — they don't replace it.
 | `--motion-ease-in`     | `cubic-bezier(0.4, 0, 1, 1)`   | Element leaving       |
 | `--motion-ease-in-out` | `cubic-bezier(0.4, 0, 0.2, 1)` | Default UI transition |
 
+### Documented literal-colour exceptions
+
+Two spots paint a literal colour instead of a `--mp-*` token because neither
+has a token equivalent. Both carry a trailing `pixel-police-allow` comment —
+don't "fix" them into the nearest token, it would just be visibly wrong.
+
+| Where                                                                                    | Value                                                                                         | Why no token                                                                                                                                                                             |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Horizontal scroll-shadow gradient (`docs/patterns/TablePage.md`)                         | `linear-gradient(to right, var(--mp-colors-white) 30%, transparent), … rgba(29,31,36,0.16) …` | The rgba fade has no token equivalent.                                                                                                                                                   |
+| Home add-ons card background ([`HomeAddOns.vue`](../app/components/home/HomeAddOns.vue)) | `linear-gradient(340deg, #66CFFF 9.7%, #00A8FD 47.12%, #0087D9 84.53%)`                       | A distinct marketing-brand sky-blue, not the Pixel `blue` scale (`#EAECFB`/`#D5DEFF`/`#4B61DD`/`#1C44D5`/`#0031BE`) — production paints the same literal gradient over a decorative PNG. |
+
 ---
 
 ## Migration notes (v2.1 → v2.4)

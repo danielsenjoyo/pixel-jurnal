@@ -22,12 +22,13 @@ with `origin/main`. Comment-only lines are skipped. Any line carrying a trailing
 
 ### Built-in exceptions (already whitelisted — don't "fix" them)
 
-| Exception                                                                                     | Why                                                                                                         |
-| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Sortable table-header `<button>` (`sortHeaderClass`)                                          | A real button is the accessible control for a sortable header — `docs/patterns/TablePage.md`                |
-| Search-clear `<button data-search-clear>`                                                     | `MpInput is-clearable` emits `undefined` on clear and doesn't reliably reset — `docs/patterns/FilterBar.md` |
-| Inline width on a `<col>` in a `<colgroup>`                                                   | `table-layout: fixed` needs authoritative per-column widths — `docs/patterns/TablePage.md`                  |
-| The horizontal scroll-shadow gradient (`linear-gradient(to right, var(--mp-colors-white) …)`) | The rgba fade has no token equivalent                                                                       |
+| Exception                                                                                      | Why                                                                                                         |
+| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Sortable table-header `<button>` (`sortHeaderClass`)                                           | A real button is the accessible control for a sortable header — `docs/patterns/TablePage.md`                |
+| Search-clear `<button data-search-clear>`                                                      | `MpInput is-clearable` emits `undefined` on clear and doesn't reliably reset — `docs/patterns/FilterBar.md` |
+| Inline width on a `<col>` in a `<colgroup>`                                                    | `table-layout: fixed` needs authoritative per-column widths — `docs/patterns/TablePage.md`                  |
+| The horizontal scroll-shadow gradient (`linear-gradient(to right, var(--mp-colors-white) …)`)  | The rgba fade has no token equivalent                                                                       |
+| Home add-ons card gradient (`HomeAddOns.vue` — `linear-gradient(340deg, #66CFFF … #0087D9 …)`) | A marketing sky-blue distinct from the Pixel `blue` scale, no token equivalent — `docs/tokens.md` §10       |
 
 Width / height / `top` in px are **not** flagged: `docs/design.md` §8.3 permits
 Figma-spec'd layout sizes that have no token. Comment the source next to them.
@@ -52,7 +53,8 @@ Figma-spec'd layout sizes that have no token. Comment the source next to them.
   pages put lifecycle actions in the **title band**. Getting these backwards is
   the most common drift.
 - Tables: `table-layout: fixed` + `<colgroup>`, pinned 44px checkbox / 140px
-  Actions column, header swaps to the bulk bar as a single `colspan` cell.
+  Actions column. The bulk bar renders as its **own row above** the header —
+  never swapped in for it — per `docs/patterns/BulkActionBar.md`.
 - `PageStage` padding comes from the `padding` prop, never a style override.
 
 **Forms**
