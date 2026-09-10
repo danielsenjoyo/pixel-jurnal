@@ -76,13 +76,6 @@
           </PriceHistoryRows>
         </div>
       </MpDrawerBody>
-
-      <MpDrawerFooter>
-        <MpText size="label-small" color="gray.600">
-          Tax not included. Prices reflect a discount on that line only — not a discount given on the
-          whole document.
-        </MpText>
-      </MpDrawerFooter>
     </MpDrawerContent>
   </MpDrawer>
 </template>
@@ -98,7 +91,6 @@ import {
   MpDrawerBody,
   MpDrawerCloseButton,
   MpDrawerContent,
-  MpDrawerFooter,
   MpDrawerHeader,
   MpDrawerOverlay,
   MpSegmentedControl,

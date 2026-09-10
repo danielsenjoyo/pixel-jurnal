@@ -49,7 +49,7 @@ everything else does.
 
 | Component | Responsibility |
 |---|---|
-| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, the banner, and the footer disclaimer. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. |
+| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, and the banner. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. |
 | `PriceHistoryRows.vue` | The rows table. Exposes an `#action` scoped slot per row (only used when `showAction` is true) so the drawer decides what renders there. |
 | `PriceHistoryCurrentCard.vue` | The read-only "this document · current" card — `mode="reference"` only. |
 | `HistoricalPriceCell.vue` | One historical price cell: money + "for 1 {unit}" + the hover/tap IDR estimate. The one place the disclosed currency exception lives. Uses `~/utils/currency`'s `formatMoney` — a multi-currency formatter kept separate from the Purchase module's own `formatCurrency` (see `docs/patterns/MoneyField.md` for why that's the right call, not a violation of the module's "one formatter per value type" rule). |
