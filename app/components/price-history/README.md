@@ -1,12 +1,29 @@
 # Price history components — reuse contract
 
 Built for the real Purchase module: [`app/pages/purchase/invoice/[id].vue`](../../pages/purchase/invoice/%5Bid%5D.vue)
-(read-only) and [`PurchaseTransactionForm.vue`](../purchase/PurchaseTransactionForm.vue)
+(read-only, and only while the record is awaiting approval — see "When the
+reference appears" below) and [`PurchaseTransactionForm.vue`](../purchase/PurchaseTransactionForm.vue)
 (interactive, gated to `type === "invoice"` — see that file's `onApplyPrice`
 and the trigger in its line-items table). Everything here is document-type
 -agnostic — extending to Purchase Order is a one-line guard change in
 `PurchaseTransactionForm.vue` (it already renders Order via the same
 component), not a new component set.
+
+## When the reference appears
+
+Price history is a **pre-approval check**. It helps someone judge a price they
+can still change or reject; once a record is approved and posted, the price is
+committed and the reference is a fact with no available action.
+
+| Surface | Shown? |
+|---|---|
+| Create / edit form (`PurchaseTransactionForm.vue`) | Always — a price is being entered. |
+| Detail page (`invoice/[id].vue`) | Only when `needsApproval` is true. |
+
+`needsApproval` is independent of `status` in this dataset, so an invoice can
+read "Paid" and still be awaiting approval — don't gate on the status badge.
+Same status-conditional principle as the bottom action bar in
+`docs/patterns/details-page-format.md`.
 
 ## Non-negotiable rules (carry these into any new caller)
 

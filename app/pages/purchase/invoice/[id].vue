@@ -189,18 +189,27 @@
               <MpTableCell as="td" :class="numCellClass">
                 <div :class="priceCellClass">
                   <MpText weight="semiBold">{{ formatCurrency(line.unitPrice) }}</MpText>
-                  <MpTextlink
-                    v-if="hasHistory(line.product)"
-                    as="button"
-                    variant="primary"
-                    :class="textlinkAlignClass"
-                    @click="activeLineId = line.id"
-                  >
-                    See past prices
-                  </MpTextlink>
-                  <MpText v-else size="label-small" color="gray.600" :class="priceNoteClass">
-                    No purchase history found
-                  </MpText>
+                  <!-- Price history is a pre-approval check (OD-006): it helps
+                       an approver judge a price they can still reject. Once the
+                       record is approved and posted the price is committed, so
+                       the reference has nothing to act on — hence gated on
+                       needsApproval rather than shown on every detail page.
+                       Same status-conditional principle as the bottom action
+                       bar (docs/patterns/details-page-format.md). -->
+                  <template v-if="showPriceHistory">
+                    <MpTextlink
+                      v-if="hasHistory(line.product)"
+                      as="button"
+                      variant="primary"
+                      :class="textlinkAlignClass"
+                      @click="activeLineId = line.id"
+                    >
+                      See past prices
+                    </MpTextlink>
+                    <MpText v-else size="label-small" color="gray.600" :class="priceNoteClass">
+                      No purchase history found
+                    </MpText>
+                  </template>
                 </div>
               </MpTableCell>
               <MpTableCell as="td" :class="numCellClass">{{ line.discountPercent }}%</MpTableCell>
@@ -501,6 +510,7 @@
          the panel's open transition always has a real closed→open state to
          animate from. -->
     <PriceHistoryDrawer
+      v-if="showPriceHistory"
       :is-open="activeLineId !== null"
       mode="reference"
       :product="activeLine?.product ?? ''"
@@ -605,6 +615,10 @@ const isDeleteModalOpen = ref(false);
 
 const activeLineId = ref<number | null>(null);
 const activeLine = computed(() => invoice.value?.lines.find((line) => line.id === activeLineId.value));
+// OD-006 is a pre-approval check — only surface it while the record can still
+// be rejected. A posted/paid invoice's price is committed, so a reference to
+// past prices there is a fact with no available action.
+const showPriceHistory = computed(() => invoice.value?.needsApproval === true);
 function hasHistory(product: string) {
   return hasPriceHistory(product);
 }
