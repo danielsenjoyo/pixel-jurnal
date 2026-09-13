@@ -181,15 +181,15 @@
                             })
                           "
                         >
-                            <Pixel.button
-                              v-for="q in questions"
-                              :key="q"
-                              :class="questionPillClass"
-                              :disabled="isSending"
-                              @click="send(q)"
-                            >
-                              <MpText size="body" color="blue.400">{{ q }}</MpText>
-                            </Pixel.button>
+                          <Pixel.button
+                            v-for="q in questions"
+                            :key="q"
+                            :class="questionPillClass"
+                            :disabled="isSending"
+                            @click="send(q)"
+                          >
+                            <MpText size="body" color="blue.400">{{ q }}</MpText>
+                          </Pixel.button>
                         </Pixel.div>
                       </template>
 
@@ -312,69 +312,71 @@
                                       </MpText>
                                     </template>
                                     <template v-else>
-                                    <MpText
-                                      size="body"
-                                      color="gray.900"
-                                      :class="
-                                        css({
-                                          display: 'block',
-                                          fontWeight: 'semiBold',
-                                          fontSize: 'lg',
-                                          marginBottom: '2'
-                                        })
-                                      "
-                                      >{{ msg.answer.title }}</MpText
-                                    >
-                                    <MpText
-                                      size="body"
-                                      color="gray.900"
-                                      :class="css({ display: 'block' })"
-                                      >{{ msg.answer.intro }}</MpText
-                                    >
-
-                                    <Pixel.div
-                                      v-if="msg.answer.list?.length"
-                                      :class="answerListWrapperClass"
-                                    >
-                                      <Pixel.ol :class="answerListClass">
-                                      <Pixel.li
-                                        v-for="(item, i) in msg.answer.list"
-                                        :key="i"
-                                        :class="answerListItemClass"
+                                      <MpText
+                                        size="body"
+                                        color="gray.900"
+                                        :class="
+                                          css({
+                                            display: 'block',
+                                            fontWeight: 'semiBold',
+                                            fontSize: 'lg',
+                                            marginBottom: '2'
+                                          })
+                                        "
+                                        >{{ msg.answer.title }}</MpText
                                       >
-                                        <MpText size="body" color="gray.900">{{ item }}</MpText>
-                                      </Pixel.li>
-                                      </Pixel.ol>
-                                    </Pixel.div>
-
-                                    <Pixel.div
-                                      v-if="msg.answer.chart?.items.length"
-                                      :class="css({ marginTop: '4' })"
-                                    >
-                                      <AireneComparisonChart :chart="msg.answer.chart" />
-                                    </Pixel.div>
-
-                                    <MpText
-                                      v-if="msg.answer.outro"
-                                      size="body"
-                                      color="gray.900"
-                                      :class="css({ display: 'block', marginTop: '1' })"
-                                    >
-                                      {{ msg.answer.outro }}
-                                      <template v-for="(lnk, i) in msg.answer.links || []" :key="i"
-                                        ><MpText
-                                          as="a"
-                                          size="body"
-                                          color="blue.400"
-                                          :href="lnk.url"
-                                          target="_blank"
-                                          rel="noopener"
-                                          >{{ lnk.label }}</MpText
-                                        ><template v-if="i < (msg.answer.links?.length || 0) - 1"
-                                          >,
-                                        </template></template
+                                      <MpText
+                                        size="body"
+                                        color="gray.900"
+                                        :class="css({ display: 'block' })"
+                                        >{{ msg.answer.intro }}</MpText
                                       >
-                                    </MpText>
+
+                                      <Pixel.div
+                                        v-if="msg.answer.list?.length"
+                                        :class="answerListWrapperClass"
+                                      >
+                                        <Pixel.ol :class="answerListClass">
+                                          <Pixel.li
+                                            v-for="(item, i) in msg.answer.list"
+                                            :key="i"
+                                            :class="answerListItemClass"
+                                          >
+                                            <MpText size="body" color="gray.900">{{ item }}</MpText>
+                                          </Pixel.li>
+                                        </Pixel.ol>
+                                      </Pixel.div>
+
+                                      <Pixel.div
+                                        v-if="msg.answer.chart?.items.length"
+                                        :class="css({ marginTop: '4' })"
+                                      >
+                                        <AireneComparisonChart :chart="msg.answer.chart" />
+                                      </Pixel.div>
+
+                                      <MpText
+                                        v-if="msg.answer.outro"
+                                        size="body"
+                                        color="gray.900"
+                                        :class="css({ display: 'block', marginTop: '1' })"
+                                      >
+                                        {{ msg.answer.outro }}
+                                        <template
+                                          v-for="(lnk, i) in msg.answer.links || []"
+                                          :key="i"
+                                          ><MpText
+                                            as="a"
+                                            size="body"
+                                            color="blue.400"
+                                            :href="lnk.url"
+                                            target="_blank"
+                                            rel="noopener"
+                                            >{{ lnk.label }}</MpText
+                                          ><template v-if="i < (msg.answer.links?.length || 0) - 1"
+                                            >,
+                                          </template></template
+                                        >
+                                      </MpText>
                                     </template>
                                   </Pixel.div>
 
@@ -697,7 +699,9 @@ function selectPrompt(prompt: string, onClosePopover: () => void) {
 function advancePromptStage(question: string) {
   const matchedStageIndex = getPromptStageIndexForQuestion(question);
   const nextStageIndex =
-    matchedStageIndex === AIRENE_PROMPT_STAGES.length - 1 ? matchedStageIndex : matchedStageIndex + 1;
+    matchedStageIndex === AIRENE_PROMPT_STAGES.length - 1
+      ? matchedStageIndex
+      : matchedStageIndex + 1;
 
   activePromptStageIndex.value = Math.max(activePromptStageIndex.value, nextStageIndex);
 }
@@ -709,11 +713,19 @@ function getPromptStageIndexForQuestion(question: string) {
     return getPromptStageIndex("What-if");
   }
 
-  if (/tindakan|action|lakukan|rekomendasi|prioritas|prioritaskan|action plan|bottleneck/i.test(normalizedQuestion)) {
+  if (
+    /tindakan|action|lakukan|rekomendasi|prioritas|prioritaskan|action plan|bottleneck/i.test(
+      normalizedQuestion
+    )
+  ) {
     return getPromptStageIndex("Take Action");
   }
 
-  if (/produk|product|profitable|opportunity|potential|capture|impactful|cost-saving|saving/i.test(normalizedQuestion)) {
+  if (
+    /produk|product|profitable|opportunity|potential|capture|impactful|cost-saving|saving/i.test(
+      normalizedQuestion
+    )
+  ) {
     return getPromptStageIndex("Explore");
   }
 

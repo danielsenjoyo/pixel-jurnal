@@ -93,7 +93,11 @@ export default defineEventHandler(async (event) => {
   }
 });
 
-async function askGemini(question: string, history: ChatTurn[], apiKey: string): Promise<AireneAnswer> {
+async function askGemini(
+  question: string,
+  history: ChatTurn[],
+  apiKey: string
+): Promise<AireneAnswer> {
   const modelCandidates = [
     process.env.GEMINI_MODEL,
     "gemini-flash-lite-latest",
@@ -248,7 +252,9 @@ function isOutOfDemoScope(question: string) {
   const clearlyOffTopicPattern =
     /resep|masak|nasi goreng|cuaca|weather|presiden|president|politik|movie|film|lagu|song|musik|music|joke|cerita lucu|translate|terjemah|coding|programming|javascript|python|hotel|travel|tiket|crypto|bitcoin|saham|football|sepak bola/i;
 
-  return clearlyOffTopicPattern.test(normalizedQuestion) && !inScopePattern.test(normalizedQuestion);
+  return (
+    clearlyOffTopicPattern.test(normalizedQuestion) && !inScopePattern.test(normalizedQuestion)
+  );
 }
 
 function getOutOfScopeAnswer(): AireneAnswer {
@@ -323,7 +329,8 @@ function sanitizeMalformedAnswer(answer: AireneAnswer, question: string): Airene
 
   return {
     ...answer,
-    intro: "Airene belum bisa menyusun jawaban yang rapi untuk pertanyaan ini. Coba pilih suggested question lain."
+    intro:
+      "Airene belum bisa menyusun jawaban yang rapi untuk pertanyaan ini. Coba pilih suggested question lain."
   };
 }
 
