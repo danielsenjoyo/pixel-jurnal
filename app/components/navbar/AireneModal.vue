@@ -30,7 +30,7 @@
                     :class="css({ display: 'flex', flexDirection: 'column', lineHeight: 'none' })"
                   >
                     <MpText size="overline" color="gray.500">mekari</MpText>
-                    <MpText size="body" color="gray.900" :class="css({ fontWeight: 'bold' })"
+                    <MpText size="body" color="gray.900" :class="css({ fontWeight: 'semiBold' })"
                       >airene</MpText
                     >
                   </Pixel.div>
@@ -168,7 +168,7 @@
                             })
                           "
                         >
-                          Question examples
+                          Suggested questions
                         </MpText>
 
                         <Pixel.div
@@ -181,14 +181,15 @@
                             })
                           "
                         >
-                          <Pixel.button
-                            v-for="q in questions"
-                            :key="q"
-                            :class="questionPillClass"
-                            @click="send(q)"
-                          >
-                            <MpText size="body" color="blue.400">{{ q }}</MpText>
-                          </Pixel.button>
+                            <Pixel.button
+                              v-for="q in questions"
+                              :key="q"
+                              :class="questionPillClass"
+                              :disabled="isSending"
+                              @click="send(q)"
+                            >
+                              <MpText size="body" color="blue.400">{{ q }}</MpText>
+                            </Pixel.button>
                         </Pixel.div>
                       </template>
 
@@ -235,12 +236,9 @@
                                 >
                                 <MpIcon name="profile" size="md" color="gray.700" />
                               </Pixel.div>
-                              <MpText
-                                size="body"
-                                color="gray.900"
-                                :class="css({ display: 'block', textAlign: 'right' })"
-                                >{{ msg.text }}</MpText
-                              >
+                              <Pixel.div :class="userBubbleClass">
+                                <MpText size="body" color="gray.900">{{ msg.text }}</MpText>
+                              </Pixel.div>
                             </Pixel.div>
 
                             <!-- Airene message (left) -->
@@ -303,14 +301,24 @@
                                     </Pixel.div>
                                   </Pixel.div>
 
-                                  <Pixel.div :class="bubbleClass">
+                                  <Pixel.div>
+                                    <template v-if="msg.isLoading">
+                                      <MpText
+                                        size="body"
+                                        color="gray.700"
+                                        :class="css({ display: 'block' })"
+                                      >
+                                        Airene is analyzing the demo knowledge base...
+                                      </MpText>
+                                    </template>
+                                    <template v-else>
                                     <MpText
                                       size="body"
                                       color="gray.900"
                                       :class="
                                         css({
                                           display: 'block',
-                                          fontWeight: 'bold',
+                                          fontWeight: 'semiBold',
                                           fontSize: 'lg',
                                           marginBottom: '2'
                                         })
@@ -326,16 +334,24 @@
 
                                     <Pixel.div
                                       v-if="msg.answer.list?.length"
-                                      :class="css({ marginTop: '1' })"
+                                      :class="answerListWrapperClass"
                                     >
-                                      <MpText
+                                      <Pixel.ol :class="answerListClass">
+                                      <Pixel.li
                                         v-for="(item, i) in msg.answer.list"
                                         :key="i"
-                                        size="body"
-                                        color="gray.900"
-                                        :class="css({ display: 'block' })"
-                                        >{{ i + 1 }}. {{ item }}</MpText
+                                        :class="answerListItemClass"
                                       >
+                                        <MpText size="body" color="gray.900">{{ item }}</MpText>
+                                      </Pixel.li>
+                                      </Pixel.ol>
+                                    </Pixel.div>
+
+                                    <Pixel.div
+                                      v-if="msg.answer.chart?.items.length"
+                                      :class="css({ marginTop: '4' })"
+                                    >
+                                      <AireneComparisonChart :chart="msg.answer.chart" />
                                     </Pixel.div>
 
                                     <MpText
@@ -359,6 +375,7 @@
                                         </template></template
                                       >
                                     </MpText>
+                                    </template>
                                   </Pixel.div>
 
                                   <!-- Actions -->
@@ -434,13 +451,54 @@
                   "
                 >
                   <Pixel.div :class="[inputBarClass, 'airene-input-bar']">
-                    <MpIcon name="text-editor-list" size="md" color="gray.500" />
+                    <MpPopover
+                      id="airene-prompt-suggestions"
+                      placement="top-start"
+                      is-close-on-select
+                      use-portal
+                    >
+                      <template #default="{ onClosePopover }">
+                        <MpPopoverTrigger>
+                          <MpButton
+                            variant="ghost"
+                            size="sm"
+                            left-icon="text-editor-list"
+                            aria-label="Show prompt suggestions"
+                            :is-disabled="isSending"
+                          />
+                        </MpPopoverTrigger>
+
+                        <MpPopoverContent :class="suggestionPopoverClass">
+                          <Pixel.div :class="suggestionHeaderClass">
+                            <MpText
+                              size="label-small"
+                              color="gray.500"
+                              :class="suggestionTitleClass"
+                            >
+                              Suggested questions
+                            </MpText>
+                          </Pixel.div>
+
+                          <MpPopoverList>
+                            <MpPopoverListItem
+                              v-for="prompt in activePromptStage.prompts"
+                              :key="prompt"
+                              :is-disabled="isSending"
+                              @click="selectPrompt(prompt, onClosePopover)"
+                            >
+                              <MpText size="body" color="gray.900">{{ prompt }}</MpText>
+                            </MpPopoverListItem>
+                          </MpPopoverList>
+                        </MpPopoverContent>
+                      </template>
+                    </MpPopover>
                     <MpInput
                       id="airene-input"
                       v-model="query"
                       variant="unstyled"
                       placeholder="Search or ask a question..."
                       aria-label="Ask Airene"
+                      :is-disabled="isSending"
                       @keydown.enter="send(query)"
                     />
                     <MpButton
@@ -448,6 +506,8 @@
                       is-rounded
                       left-icon="arrows-up"
                       aria-label="Send"
+                      :is-loading="isSending"
+                      :is-disabled="isSending"
                       @click="send(query)"
                     />
                   </Pixel.div>
@@ -477,10 +537,24 @@
 </template>
 
 <script setup lang="ts">
-import { css, Pixel, MpIcon, MpText, MpButton, MpInput } from "@mekari/pixel3";
-import { ref, reactive, watch, nextTick } from "vue";
+import {
+  css,
+  Pixel,
+  MpIcon,
+  MpText,
+  MpButton,
+  MpInput,
+  MpPopover,
+  MpPopoverTrigger,
+  MpPopoverContent,
+  MpPopoverList,
+  MpPopoverListItem
+} from "@mekari/pixel3";
+import { computed, ref, reactive, watch, nextTick } from "vue";
 import { usePixelLayout } from "~/composables/usePixelLayout";
+import { AIRENE_PROMPT_STAGES, AIRENE_SUGGESTED_QUESTIONS } from "~/data/airene-knowledge";
 import { resolveAireneAnswer, type AireneAnswer } from "~/data/airene-answers";
+import AireneComparisonChart from "~/components/navbar/AireneComparisonChart.vue";
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ close: [] }>();
@@ -498,22 +572,28 @@ interface AssistantMessage {
   role: "assistant";
   answer: AireneAnswer;
   showReasoning: boolean;
+  isLoading?: boolean;
 }
 
 type ChatMessage = UserMessage | AssistantMessage;
 
 const query = ref("");
+const isSending = ref(false);
 /** Sidebar starts collapsed by default. */
 const collapsed = ref(true);
+const activePromptStageIndex = ref(0);
 const messages = reactive<ChatMessage[]>([]);
 const threadNode = ref<unknown>(null);
 let nextId = 1;
 
-const questions = [
-  "How to set approval rules in Jurnal?",
-  "What is the top-selling product this month?",
-  "What is cash link?"
-];
+const questions = AIRENE_SUGGESTED_QUESTIONS;
+const defaultPromptStage = {
+  label: "Understand",
+  prompts: AIRENE_SUGGESTED_QUESTIONS
+};
+const activePromptStage = computed(
+  () => AIRENE_PROMPT_STAGES[activePromptStageIndex.value] ?? defaultPromptStage
+);
 
 const dateLabel = new Date().toLocaleDateString("en-GB", {
   weekday: "long",
@@ -553,24 +633,110 @@ function scrollToBottom(smooth = false) {
   });
 }
 
-/** Simulated send: push the user turn, show Airene "typing", then reveal the reply. */
-function send(text: string) {
+async function send(text: string) {
   const q = text.trim();
-  if (!q) return;
+  if (!q || isSending.value) return;
+
+  isSending.value = true;
   messages.push({ id: nextId++, role: "user", text: q });
-  messages.push({
+  const pendingMessage: AssistantMessage = {
     id: nextId++,
     role: "assistant",
-    answer: resolveAireneAnswer(q),
-    showReasoning: false
-  });
+    answer: {
+      title: "Airene is thinking",
+      intro: "",
+      reasoning: []
+    },
+    showReasoning: false,
+    isLoading: true
+  };
+  messages.push(pendingMessage);
+  const pendingIndex = messages.length - 1;
   query.value = "";
   scrollToBottom(true);
+
+  try {
+    const response = await $fetch<{ answer: AireneAnswer }>("/api/airene/chat", {
+      method: "POST",
+      body: {
+        question: q,
+        history: messages
+          .filter((message) => !("isLoading" in message && message.isLoading))
+          .map((message) => ({
+            role: message.role,
+            text: message.role === "user" ? message.text : message.answer.intro
+          }))
+      }
+    });
+
+    const assistantMessage = messages[pendingIndex];
+    if (assistantMessage?.role === "assistant") {
+      assistantMessage.answer = response.answer;
+    }
+  } catch {
+    const assistantMessage = messages[pendingIndex];
+    if (assistantMessage?.role === "assistant") {
+      assistantMessage.answer = resolveAireneAnswer(q);
+    }
+  } finally {
+    const assistantMessage = messages[pendingIndex];
+    if (assistantMessage?.role === "assistant") {
+      assistantMessage.isLoading = false;
+    }
+    advancePromptStage(q);
+    isSending.value = false;
+    scrollToBottom(true);
+  }
+}
+
+function selectPrompt(prompt: string, onClosePopover: () => void) {
+  onClosePopover();
+  send(prompt);
+}
+
+function advancePromptStage(question: string) {
+  const matchedStageIndex = getPromptStageIndexForQuestion(question);
+  const nextStageIndex =
+    matchedStageIndex === AIRENE_PROMPT_STAGES.length - 1 ? matchedStageIndex : matchedStageIndex + 1;
+
+  activePromptStageIndex.value = Math.max(activePromptStageIndex.value, nextStageIndex);
+}
+
+function getPromptStageIndexForQuestion(question: string) {
+  const normalizedQuestion = question.toLowerCase();
+
+  if (/what.?if|simulasi|kalau|jika|terjadi kalau|roi|budget/i.test(normalizedQuestion)) {
+    return getPromptStageIndex("What-if");
+  }
+
+  if (/tindakan|action|lakukan|rekomendasi|prioritas|prioritaskan|action plan|bottleneck/i.test(normalizedQuestion)) {
+    return getPromptStageIndex("Take Action");
+  }
+
+  if (/produk|product|profitable|opportunity|potential|capture|impactful|cost-saving|saving/i.test(normalizedQuestion)) {
+    return getPromptStageIndex("Explore");
+  }
+
+  if (
+    /hpp|production|produksi|output|labou?r|tenaga kerja|sales order|revenue|margin|vendor|material|fabric|kain|stock|stok|fg|invoice/i.test(
+      normalizedQuestion
+    )
+  ) {
+    return getPromptStageIndex("Investigate");
+  }
+
+  return getPromptStageIndex("Understand");
+}
+
+function getPromptStageIndex(label: string) {
+  const stageIndex = AIRENE_PROMPT_STAGES.findIndex((stage) => stage.label === label);
+  return stageIndex >= 0 ? stageIndex : 0;
 }
 
 function resetChat() {
   messages.splice(0, messages.length);
   query.value = "";
+  activePromptStageIndex.value = 0;
 }
 
 /** Close on Escape while open. */
@@ -687,10 +853,30 @@ const questionPillClass = css({
   _hover: { bg: "blue.50" }
 });
 
-const bubbleClass = css({
-  bg: "blue.50",
-  borderRadius: "lg",
-  padding: "4"
+const userBubbleClass = css({
+  bg: "gray.50",
+  borderRadius: "var(--mp-spacing-5)",
+  padding: "4",
+  marginLeft: "auto",
+  width: "fit-content",
+  maxWidth: "240px",
+  textAlign: "left"
+});
+
+const answerListWrapperClass = css({
+  marginTop: "3"
+});
+
+const answerListClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "2",
+  listStyleType: "decimal",
+  paddingLeft: "5"
+});
+
+const answerListItemClass = css({
+  paddingLeft: "1"
 });
 
 const reasoningToggleClass = css({
@@ -738,5 +924,25 @@ const inputBarClass = css({
   paddingRight: "2",
   paddingY: "2",
   bg: "white"
+});
+
+const suggestionPopoverClass = css({
+  width: "360px",
+  maxWidth: "360px",
+  maxHeight: "320px",
+  overflowY: "auto"
+});
+
+const suggestionHeaderClass = css({
+  display: "flex",
+  alignItems: "center",
+  paddingX: "3",
+  paddingTop: "3",
+  paddingBottom: "1",
+  textTransform: "uppercase"
+});
+
+const suggestionTitleClass = css({
+  fontWeight: "semiBold"
 });
 </script>

@@ -11,10 +11,22 @@ export interface AireneLink {
   url: string;
 }
 
+export interface AireneChartItem {
+  label: string;
+  value: number;
+  displayValue: string;
+}
+
+export interface AireneChart {
+  title: string;
+  items: AireneChartItem[];
+}
+
 export interface AireneAnswer {
   title: string;
   intro: string;
   list?: string[];
+  chart?: AireneChart;
   outro?: string;
   links?: AireneLink[];
   related?: string[];

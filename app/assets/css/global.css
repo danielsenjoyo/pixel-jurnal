@@ -11,6 +11,11 @@
 @layer base, pixel_reset, pixel_base, pixel_tokens, pixel_recipes, pixel_utilities;
 
 @layer base {
+  :root {
+    --airene-chart-cat01-bold: #387ceb;
+    --airene-chart-cat05: #b2b9c4;
+  }
+
   *,
   *::before,
   *::after {
@@ -70,7 +75,7 @@
 }
 
 .airene-input-bar {
-  border: 1.5px solid transparent;
+  border: 2px solid transparent;
   border-radius: var(--border-radius-full);
   background:
     linear-gradient(var(--mp-colors-white), var(--mp-colors-white)) padding-box,
@@ -120,6 +125,53 @@
   background-color: var(--mp-colors-blue-400);
   display: inline-block;
   animation: airene-typing-bounce 1.2s ease-in-out infinite;
+}
+
+.airene-comparison-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.airene-comparison-grid {
+  stroke: var(--mp-colors-gray-50);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+}
+
+.airene-comparison-track {
+  fill: var(--mp-colors-gray-25);
+}
+
+.airene-comparison-bar-august {
+  fill: var(--airene-chart-cat05);
+}
+
+.airene-comparison-bar-september {
+  fill: var(--airene-chart-cat01-bold);
+}
+
+.airene-comparison-label,
+.airene-comparison-value {
+  font-family: var(--mp-fonts-body);
+  font-size: var(--mp-font-sizes-label-small);
+}
+
+.airene-comparison-label {
+  fill: var(--mp-colors-gray-600);
+}
+
+.airene-comparison-value {
+  font-weight: 600;
+}
+
+.airene-comparison-value-august {
+  fill: var(--mp-colors-gray-800);
+}
+
+.airene-comparison-value-september {
+  fill: var(--mp-colors-blue-700);
 }
 .airene-typing-dot:nth-child(2) {
   animation-delay: 0.15s;
