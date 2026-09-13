@@ -61,14 +61,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const fallback = resolveAireneAnswer(question);
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY ?? process.env.NUXT_GEMINI_API_KEY;
 
   if (!apiKey) {
     return {
       answer: fallback,
       meta: {
         provider: "local-fallback",
-        reason: "GEMINI_API_KEY is not configured"
+        reason: "Gemini API key is not configured"
       }
     };
   }
