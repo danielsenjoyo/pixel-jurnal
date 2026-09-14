@@ -81,9 +81,12 @@
                   })
                 "
               >
-                <Pixel.div ref="creditsNode" :class="creditsWrapperClass">
+                <Pixel.div
+                  ref="creditsNode"
+                  :class="collapsed ? creditsCollapsedWrapperClass : creditsWrapperClass"
+                >
                   <Pixel.button
-                    :class="sidebarLinkClass"
+                    :class="collapsed ? sidebarLinkCollapsedClass : sidebarLinkClass"
                     :aria-expanded="isCreditsPopoverOpen"
                     aria-controls="airene-credits-popover"
                     aria-label="Ask credits"
@@ -122,7 +125,10 @@
                     </Pixel.div>
                   </Transition>
                 </Pixel.div>
-                <Pixel.button :class="sidebarLinkClass" aria-label="Help">
+                <Pixel.button
+                  :class="collapsed ? sidebarLinkCollapsedClass : sidebarLinkClass"
+                  aria-label="Help"
+                >
                   <MpIcon name="help" size="sm" color="gray.700" />
                   <MpText v-if="!collapsed" size="body" color="gray.700">Help</MpText>
                 </Pixel.button>
@@ -954,6 +960,11 @@ const creditsWrapperClass = css({
   width: "full"
 });
 
+const creditsCollapsedWrapperClass = css({
+  position: "relative",
+  width: "fit-content"
+});
+
 const creditsPopoverClass = css({
   position: "absolute",
   left: "0",
@@ -992,6 +1003,13 @@ const sidebarLinkClass = css({
   alignItems: "center",
   gap: "2",
   width: "full",
+  cursor: "pointer"
+});
+
+const sidebarLinkCollapsedClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   cursor: "pointer"
 });
 
