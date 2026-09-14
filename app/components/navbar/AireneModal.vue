@@ -835,7 +835,7 @@ const newChatClass = css({
   borderRadius: "md",
   bg: "transparent",
   cursor: "pointer",
-  _hover: { bg: "gray.50" }
+  _hover: { bg: "blue.100" }
 });
 
 const newChatCollapsedClass = css({
@@ -846,7 +846,7 @@ const newChatCollapsedClass = css({
   borderRadius: "md",
   bg: "transparent",
   cursor: "pointer",
-  _hover: { bg: "gray.50" }
+  _hover: { bg: "blue.100" }
 });
 
 const sidebarLinkClass = css({
