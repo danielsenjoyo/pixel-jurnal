@@ -8,11 +8,11 @@
       <Pixel.div :class="chartLegendClass">
         <Pixel.div :class="chartLegendItemClass">
           <Pixel.div :class="augustMarkerClass" />
-          <MpText size="label" color="gray.600">August</MpText>
+          <MpText size="label" color="gray.600" :class="chartLegendTextClass">August</MpText>
         </Pixel.div>
         <Pixel.div :class="chartLegendItemClass">
           <Pixel.div :class="septemberMarkerClass" />
-          <MpText size="label" color="gray.600">September</MpText>
+          <MpText size="label" color="gray.600" :class="chartLegendTextClass">September</MpText>
         </Pixel.div>
       </Pixel.div>
     </Pixel.div>
@@ -217,6 +217,10 @@ const chartLegendItemClass = css({
   display: "flex",
   alignItems: "center",
   gap: "1.5"
+});
+
+const chartLegendTextClass = css({
+  fontWeight: "normal"
 });
 
 const augustMarkerClass = css({

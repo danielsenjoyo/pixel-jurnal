@@ -23,17 +23,13 @@
               >
                 <Pixel.div
                   v-if="!collapsed"
-                  :class="css({ display: 'flex', alignItems: 'center', gap: '2' })"
+                  :class="css({ display: 'flex', alignItems: 'center' })"
                 >
-                  <MpIcon name="airene-brand" size="md" />
-                  <Pixel.div
-                    :class="css({ display: 'flex', flexDirection: 'column', lineHeight: 'none' })"
-                  >
-                    <MpText size="overline" color="gray.500">mekari</MpText>
-                    <MpText size="body" color="gray.900" :class="css({ fontWeight: 'semiBold' })"
-                      >airene</MpText
-                    >
-                  </Pixel.div>
+                  <Pixel.img
+                    src="/logo-mekari-airene.svg"
+                    alt="Mekari Airene"
+                    :class="aireneSidebarLogoClass"
+                  />
                 </Pixel.div>
 
                 <MpButton
@@ -272,6 +268,11 @@
                                       :aria-expanded="msg.showReasoning"
                                       @click="msg.showReasoning = !msg.showReasoning"
                                     >
+                                      <MpIcon
+                                        :name="msg.showReasoning ? 'caret-down' : 'caret-right'"
+                                        size="0.75rem"
+                                        color="text.secondary"
+                                      />
                                       <MpText
                                         size="label"
                                         color="text.secondary"
@@ -392,14 +393,14 @@
                                     "
                                   >
                                     <Pixel.button
-                                      :class="sidebarLinkClass"
+                                      :class="copyResponseClass"
                                       aria-label="Copy response"
                                     >
-                                      <MpIcon name="copy" size="sm" color="blue.400" />
+                                      <MpIcon name="copy" size="1rem" color="blue.400" />
                                       <MpText
-                                        size="body"
+                                        size="label-small"
                                         color="blue.400"
-                                        :class="css({ fontWeight: 'medium' })"
+                                        :class="copyResponseTextClass"
                                         >Copy response</MpText
                                       >
                                     </Pixel.button>
@@ -410,15 +411,15 @@
                                     >
                                       <Pixel.button
                                         aria-label="Good response"
-                                        :class="css({ cursor: 'pointer', display: 'flex' })"
+                                        :class="reactionButtonClass"
                                       >
-                                        <MpIcon name="like" size="sm" color="gray.500" />
+                                        <MpIcon name="like" size="1rem" color="gray.500" />
                                       </Pixel.button>
                                       <Pixel.button
                                         aria-label="Bad response"
-                                        :class="css({ cursor: 'pointer', display: 'flex' })"
+                                        :class="reactionButtonClass"
                                       >
-                                        <MpIcon name="dislike" size="sm" color="gray.500" />
+                                        <MpIcon name="dislike" size="1rem" color="gray.500" />
                                       </Pixel.button>
                                     </Pixel.div>
                                   </Pixel.div>
@@ -852,6 +853,30 @@ const sidebarLinkClass = css({
   alignItems: "center",
   gap: "2",
   cursor: "pointer"
+});
+
+const aireneSidebarLogoClass = css({
+  display: "block",
+  width: "7.5625rem",
+  height: "2.125rem"
+});
+
+const copyResponseClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "1.5",
+  cursor: "pointer"
+});
+
+const copyResponseTextClass = css({
+  fontSize: "sm"
+});
+
+const reactionButtonClass = css({
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
 });
 
 const questionPillClass = css({
