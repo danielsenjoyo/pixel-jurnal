@@ -81,10 +81,47 @@
                   })
                 "
               >
-                <Pixel.button :class="sidebarLinkClass" aria-label="Ask credits">
-                  <MpIcon name="wallet" size="sm" color="gray.700" />
-                  <MpText v-if="!collapsed" size="body" color="gray.700">Ask credits</MpText>
-                </Pixel.button>
+                <Pixel.div ref="creditsNode" :class="creditsWrapperClass">
+                  <Pixel.button
+                    :class="sidebarLinkClass"
+                    :aria-expanded="isCreditsPopoverOpen"
+                    aria-controls="airene-credits-popover"
+                    aria-label="Ask credits"
+                    @click.stop="isCreditsPopoverOpen = !isCreditsPopoverOpen"
+                  >
+                    <MpIcon name="wallet" size="sm" color="gray.700" />
+                    <MpText v-if="!collapsed" size="body" color="gray.700">Ask credits</MpText>
+                  </Pixel.button>
+                  <Transition name="airene-jump">
+                    <Pixel.div
+                      v-if="isCreditsPopoverOpen"
+                      id="airene-credits-popover"
+                      :class="creditsPopoverClass"
+                    >
+                      <MpText size="label" color="gray.900" :class="creditsPopoverTitleClass">
+                        Demo usage
+                      </MpText>
+                      <Pixel.div :class="creditsMetricClass">
+                        <MpText size="label" color="gray.600">People tried</MpText>
+                        <MpText size="body" color="gray.900" :class="creditsMetricValueClass">
+                          {{ totalDemoTryCount }}
+                        </MpText>
+                      </Pixel.div>
+                      <Pixel.div :class="creditsMetricClass">
+                        <MpText size="label" color="gray.600">Questions asked</MpText>
+                        <MpText size="body" color="gray.900" :class="creditsMetricValueClass">
+                          {{ demoQuestionCount }}
+                        </MpText>
+                      </Pixel.div>
+                      <Pixel.div :class="creditsMetricClass">
+                        <MpText size="label" color="gray.600">Estimated cost</MpText>
+                        <MpText size="body" color="gray.900" :class="creditsMetricValueClass">
+                          {{ estimatedDemoCost }}
+                        </MpText>
+                      </Pixel.div>
+                    </Pixel.div>
+                  </Transition>
+                </Pixel.div>
                 <Pixel.button :class="sidebarLinkClass" aria-label="Help">
                   <MpIcon name="help" size="sm" color="gray.700" />
                   <MpText v-if="!collapsed" size="body" color="gray.700">Help</MpText>
@@ -553,7 +590,7 @@ import {
   MpPopoverList,
   MpPopoverListItem
 } from "@mekari/pixel3";
-import { computed, ref, reactive, watch, nextTick } from "vue";
+import { computed, ref, reactive, watch, nextTick, onMounted, onUnmounted } from "vue";
 import { usePixelLayout } from "~/composables/usePixelLayout";
 import { AIRENE_PROMPT_STAGES, AIRENE_SUGGESTED_QUESTIONS } from "~/data/airene-knowledge";
 import { resolveAireneAnswer, type AireneAnswer } from "~/data/airene-answers";
@@ -587,7 +624,14 @@ const collapsed = ref(true);
 const activePromptStageIndex = ref(0);
 const messages = reactive<ChatMessage[]>([]);
 const threadNode = ref<unknown>(null);
+const creditsNode = ref<unknown>(null);
+const isCreditsPopoverOpen = ref(false);
+const demoTryCount = ref(0);
+const demoQuestionCount = ref(0);
 let nextId = 1;
+const demoTryCountKey = "aireneDemoTryCount";
+const demoQuestionCountKey = "aireneDemoQuestionCount";
+const estimatedGeminiCostPerQuestion = 0.0002;
 
 const questions = AIRENE_SUGGESTED_QUESTIONS;
 const defaultPromptStage = {
@@ -606,6 +650,12 @@ const dateLabel = new Date().toLocaleDateString("en-GB", {
 
 const atBottom = ref(true);
 let suppressScrollCheck = false;
+
+const totalDemoTryCount = computed(() => demoTryCount.value);
+const estimatedDemoCost = computed(() => {
+  const cost = demoQuestionCount.value * estimatedGeminiCostPerQuestion;
+  return cost > 0 && cost < 0.01 ? "< $0.01" : `$${cost.toFixed(2)}`;
+});
 
 /** `threadNode` is a Pixel.div component ref — reach through to its DOM root. */
 function getScrollEl(): HTMLElement | null {
@@ -636,11 +686,37 @@ function scrollToBottom(smooth = false) {
   });
 }
 
+function getRootEl(node: unknown): HTMLElement | null {
+  if (!node) return null;
+  return ((node as { $el?: HTMLElement }).$el ?? node) as HTMLElement;
+}
+
+function readDemoMetric(key: string) {
+  if (typeof window === "undefined") return 0;
+  const value = Number(window.localStorage.getItem(key));
+  return Number.isFinite(value) ? value : 0;
+}
+
+function writeDemoMetric(key: string, value: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, String(value));
+}
+
+function recordDemoQuestion(isFirstQuestionInThread: boolean) {
+  demoQuestionCount.value += 1;
+  writeDemoMetric(demoQuestionCountKey, demoQuestionCount.value);
+
+  if (!isFirstQuestionInThread) return;
+  demoTryCount.value += 1;
+  writeDemoMetric(demoTryCountKey, demoTryCount.value);
+}
+
 async function send(text: string) {
   const q = text.trim();
   if (!q || isSending.value) return;
 
   isSending.value = true;
+  recordDemoQuestion(!messages.some((message) => message.role === "user"));
   messages.push({ id: nextId++, role: "user", text: q });
   const pendingMessage: AssistantMessage = {
     id: nextId++,
@@ -754,7 +830,20 @@ function resetChat() {
 
 /** Close on Escape while open. */
 function onKeydown(event: KeyboardEvent) {
-  if (event.key === "Escape") emit("close");
+  if (event.key !== "Escape") return;
+  if (isCreditsPopoverOpen.value) {
+    isCreditsPopoverOpen.value = false;
+    return;
+  }
+  emit("close");
+}
+
+function onDocumentClick(event: MouseEvent) {
+  if (!isCreditsPopoverOpen.value) return;
+  const root = getRootEl(creditsNode.value);
+  const target = event.target as Node | null;
+  if (!root || !target || root.contains(target)) return;
+  isCreditsPopoverOpen.value = false;
 }
 
 watch(
@@ -765,6 +854,17 @@ watch(
     else window.removeEventListener("keydown", onKeydown);
   }
 );
+
+onMounted(() => {
+  demoTryCount.value = readDemoMetric(demoTryCountKey);
+  demoQuestionCount.value = readDemoMetric(demoQuestionCountKey);
+  document.addEventListener("click", onDocumentClick);
+});
+
+onUnmounted(() => {
+  if (typeof window !== "undefined") window.removeEventListener("keydown", onKeydown);
+  document.removeEventListener("click", onDocumentClick);
+});
 
 const overlayClass = css({
   position: "fixed",
@@ -849,10 +949,49 @@ const newChatCollapsedClass = css({
   _hover: { bg: "blue.100" }
 });
 
+const creditsWrapperClass = css({
+  position: "relative",
+  width: "full"
+});
+
+const creditsPopoverClass = css({
+  position: "absolute",
+  left: "0",
+  bottom: "calc(100% + var(--mp-spacing-2))",
+  zIndex: "docked",
+  width: "212px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "2",
+  padding: "3",
+  bg: "white",
+  borderWidth: "sm",
+  borderColor: "gray.100",
+  borderRadius: "lg",
+  boxShadow: "md"
+});
+
+const creditsPopoverTitleClass = css({
+  fontWeight: "semiBold",
+  marginBottom: "1"
+});
+
+const creditsMetricClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "4"
+});
+
+const creditsMetricValueClass = css({
+  fontWeight: "semiBold"
+});
+
 const sidebarLinkClass = css({
   display: "flex",
   alignItems: "center",
   gap: "2",
+  width: "full",
   cursor: "pointer"
 });
 
