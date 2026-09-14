@@ -56,11 +56,11 @@
                   aria-label="New chat"
                   @click="resetChat"
                 >
-                  <MpIcon name="chat" size="sm" color="gray.900" />
+                  <MpIcon name="chat" size="sm" color="white" />
                   <MpText
                     v-if="!collapsed"
                     size="body"
-                    color="gray.900"
+                    color="white"
                     :class="css({ fontWeight: 'medium' })"
                     >New chat</MpText
                   >
@@ -833,9 +833,10 @@ const newChatClass = css({
   paddingX: "3",
   paddingY: "2.5",
   borderRadius: "md",
-  bg: "transparent",
+  bg: "gray.900",
   cursor: "pointer",
-  _hover: { bg: "gray.50" }
+  _hover: { bg: "gray.800" },
+  _active: { bg: "gray.700" }
 });
 
 const newChatCollapsedClass = css({
@@ -844,9 +845,10 @@ const newChatCollapsedClass = css({
   justifyContent: "center",
   padding: "2.5",
   borderRadius: "md",
-  bg: "transparent",
+  bg: "gray.900",
   cursor: "pointer",
-  _hover: { bg: "gray.50" }
+  _hover: { bg: "gray.800" },
+  _active: { bg: "gray.700" }
 });
 
 const sidebarLinkClass = css({
