@@ -833,10 +833,10 @@ const newChatClass = css({
   paddingX: "3",
   paddingY: "2.5",
   borderRadius: "md",
-  bg: "gray.900",
+  bg: "dark",
   cursor: "pointer",
-  _hover: { bg: "gray.800" },
-  _active: { bg: "gray.700" }
+  _hover: { bg: "gray.600" },
+  _active: { bg: "dark" }
 });
 
 const newChatCollapsedClass = css({
@@ -845,10 +845,10 @@ const newChatCollapsedClass = css({
   justifyContent: "center",
   padding: "2.5",
   borderRadius: "md",
-  bg: "gray.900",
+  bg: "dark",
   cursor: "pointer",
-  _hover: { bg: "gray.800" },
-  _active: { bg: "gray.700" }
+  _hover: { bg: "gray.600" },
+  _active: { bg: "dark" }
 });
 
 const sidebarLinkClass = css({
