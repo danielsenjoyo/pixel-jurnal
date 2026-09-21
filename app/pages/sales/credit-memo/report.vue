@@ -26,7 +26,7 @@
          queued-job confirmation is an inline notice; swap it for the standard
          toast once this is wired to the real export queue. -->
     <div v-if="exportNotice" :class="exportNoticeClass">
-      <span :class="exportNoticeDotClass" />
+      <MpIcon name="check" size="sm" color="green.400" />
       <MpText size="body-small" color="dark">{{ exportNotice }}</MpText>
     </div>
 
@@ -1168,8 +1168,24 @@ const groupSuggestions = computed(() => [
   { id: "__none__", label: "Tidak ada grup ditetapkan", value: "__none__" }
 ]);
 
-const customerTagIds = computed(() => customerTagData.value.map((t) => t.value as string));
-const groupTagValues = computed(() => groupTagData.value.map((t) => t.value as string));
+/** MpInputTag does not hand back the suggestion you gave it. Each picked tag is
+ *  wrapped as `{ text, id: "tag-<text>", value: <the whole suggestion object> }`
+ *  — so `t.value` is `{ id, label, value }`, not the scalar in its `value` key.
+ *  Reading `t.value` directly yielded objects, `includes(c.id)` never matched,
+ *  and picking any customer emptied the report instead of narrowing it. */
+function tagValue(t: DataInterface): string {
+  const v = t.value as unknown;
+  if (v && typeof v === "object" && "value" in (v as Record<string, unknown>))
+    return String((v as Record<string, unknown>).value);
+  return String(v ?? t.text ?? "");
+}
+/** Display string for a tag — `text` is what MpInputTag renders in the chip. */
+function tagLabel(t: DataInterface): string {
+  return String(t.text ?? tagValue(t));
+}
+
+const customerTagIds = computed(() => customerTagData.value.map(tagValue));
+const groupTagValues = computed(() => groupTagData.value.map(tagValue));
 
 function parseRp(v: string): number | null {
   const n = Number(v.replace(/[^0-9]/g, ""));
@@ -1262,7 +1278,7 @@ function toggleCm(id: string) {
 // ── Computed customer/CM blocks — the single source of truth for what renders,
 //    per the four Key Logic rules (customer inclusion, header total, zero-
 //    balance principles, balance range). ─────────────────────────────────────
-const customerBlocks = computed(() => {
+function buildCustomerBlocks(includeZeroBalance: boolean) {
   const minCustTotal = parseRp(customerTotalMin.value);
   const maxCustTotal = parseRp(customerTotalMax.value);
   const minCm = parseRp(cmBalanceMin.value);
@@ -1280,7 +1296,7 @@ const customerBlocks = computed(() => {
       const cms = customer.creditMemos
         .map((cm) => ({ cm, computed: computeCM(cm, asOfDateISO.value) }))
         .filter((x) => x.computed.hasAnyVisible)
-        .filter((x) => showZeroBalance.value || x.computed.balance > 0)
+        .filter((x) => includeZeroBalance || x.computed.balance > 0)
         .filter(
           (x) =>
             (minCm === null || x.computed.balance >= minCm) &&
@@ -1302,7 +1318,13 @@ const customerBlocks = computed(() => {
         (maxCustTotal === null || block.custTotal <= maxCustTotal)
     )
     .sort((a, b) => b.custTotal - a.custTotal);
-});
+}
+
+const customerBlocks = computed(() => buildCustomerBlocks(showZeroBalance.value));
+// Same filters, zero balances allowed — lets the empty state tell "your filters
+// match nothing" apart from "your filters match only used-up CMs", which is the
+// one case the user can fix with a single toggle.
+const blocksIfZeroShown = computed(() => buildCustomerBlocks(true));
 
 // Single source of truth for the table's shape. The header is rendered twice
 // (report + loading skeleton) and the column count drives two colspans, so a
@@ -1345,12 +1367,19 @@ const hasAnyFilterActive = computed(
 const emptyReason = computed<"no-activity" | "all-zero-toggle-off" | "filter-no-match" | null>(
   () => {
     if (customerBlocks.value.length > 0) return null;
-    if (hasAnyFilterActive.value) return "filter-no-match";
+
     const anyCmVisibleIgnoringZero = CUSTOMERS.some((c) =>
       c.creditMemos.some((cm) => computeCM(cm, asOfDateISO.value).hasAnyVisible)
     );
     if (!anyCmVisibleIgnoringZero) return "no-activity";
-    if (!showZeroBalance.value) return "all-zero-toggle-off";
+
+    // Checked BEFORE the filter case: narrowing to one customer whose CMs are
+    // all used up is a filter match, but "turn the toggle on" is the answer the
+    // user actually needs. Testing filter-first made this variant unreachable
+    // whenever any filter was set — which is exactly when it applies.
+    if (!showZeroBalance.value && blocksIfZeroShown.value.length > 0) return "all-zero-toggle-off";
+
+    if (hasAnyFilterActive.value) return "filter-no-match";
     return "no-activity";
   }
 );
@@ -1378,9 +1407,9 @@ const freshnessLabel = computed(() => {
 const activeFilterSummary = computed(() => {
   const parts: string[] = [];
   if (customerTagData.value.length)
-    parts.push(`Customer: ${customerTagData.value.map((t) => t.label).join(", ")}`);
+    parts.push(`Customer: ${customerTagData.value.map(tagLabel).join(", ")}`);
   if (groupTagData.value.length)
-    parts.push(`Grup customer: ${groupTagData.value.map((t) => t.label).join(", ")}`);
+    parts.push(`Grup customer: ${groupTagData.value.map(tagLabel).join(", ")}`);
 
   const range = (label: string, min: string, max: string) => {
     const lo = parseRp(min);
@@ -1648,11 +1677,4 @@ const exportNoticeClass = css({
   mb: 4
 });
 const filterDrawerFooterActionsClass = css({ display: "flex", alignItems: "center", gap: 2 });
-const exportNoticeDotClass = css({
-  width: "6px",
-  height: "6px",
-  rounded: "full",
-  bg: "green.400",
-  flexShrink: 0
-});
 </script>

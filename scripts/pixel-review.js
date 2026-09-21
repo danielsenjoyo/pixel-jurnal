@@ -248,6 +248,9 @@ async function executeFlowStep(page, trigger) {
       // aren't <button>/<a> (e.g. MpPopoverList items, custom <li>/<div> options).
       // Picks the innermost element whose exact trimmed text matches, so a
       // wrapping row doesn't get clicked instead of its inner label.
+      // Beware: this matches the WHOLE page, so a label that also exists behind
+      // an open drawer/popover can win. Scope with click: and a container
+      // selector (e.g. .mp-popover-list-item:has-text("...")) when that happens.
       const text = step.slice(12);
       await page
         .evaluate((t) => {
@@ -261,6 +264,22 @@ async function executeFlowStep(page, trigger) {
             (e) => !matches.some((other) => other !== e && e.contains(other))
           );
           (el || matches[0])?.click();
+        }, text)
+        .catch(() => {});
+    } else if (step.startsWith("click-text-last:")) {
+      // click-text-last:<label> — same match as click-text, but takes the LAST
+      // hit instead of the first. Needed when a label appears twice and the one
+      // you want is the later of the two, e.g. an "Ekspor" button on the page
+      // and the confirming "Ekspor" in the drawer footer it opens.
+      const text = step.slice(16);
+      await page
+        .evaluate((t) => {
+          const matches = [
+            ...document.querySelectorAll(
+              "button, a, [role=button], [role=option], [role=menuitem], li, .mp-button"
+            )
+          ].filter((e) => e.textContent?.trim() === t);
+          matches[matches.length - 1]?.click();
         }, text)
         .catch(() => {});
     } else if (step.startsWith("select-option:")) {

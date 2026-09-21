@@ -91,6 +91,28 @@ For destructive confirmation or a focused single-task dialog, use a [`Modal`](./
 
 ## Gotchas
 
+- **`MpInputTag` does not give back the suggestion you gave it.** Each picked
+  tag is emitted as `{ text, id: "tag-<text>", value: <the whole suggestion
+object>, isInvalid, isReadOnly }` — so for a suggestion of
+  `{ id, label, value }`, `tag.value` is that **entire object**, not the scalar
+  in its `value` key, and `tag.label` is `undefined` (the display string lives
+  in `tag.text`). Reading `tag.value` directly and matching it against ids
+  silently matches nothing, which looks exactly like "the filter returned no
+  results" rather than a bug. Always unwrap:
+
+  ```ts
+  function tagValue(t: DataInterface): string {
+    const v = t.value as unknown;
+    if (v && typeof v === "object" && "value" in (v as Record<string, unknown>))
+      return String((v as Record<string, unknown>).value);
+    return String(v ?? t.text ?? ""); // free-typed tag: value is the string
+  }
+  const tagLabel = (t: DataInterface) => String(t.text ?? tagValue(t));
+  ```
+
+  Verify a tag filter by **applying it and checking the rows that come back** —
+  a rendered suggestion list proves only that the dropdown works.
+
 - **`MpFormControl` injects its `id` into every descendant input, overriding an
   `id` set on the input itself.** Two inputs in one control (a min/max range,
   say) therefore end up sharing one `id` — invalid HTML — and `MpFormLabel`'s
