@@ -259,6 +259,17 @@ async function executeFlowStep(page, trigger) {
           (el || matches[0])?.click();
         }, text)
         .catch(() => {});
+    } else if (step.startsWith("select-option:")) {
+      // select-option:<selector>|<option label> — pick an option in a native
+      // <select> (MpSelect renders one). `click-text`/`select-text` can't reach
+      // <option> elements: the browser renders the option list outside the DOM
+      // the page can click. Fires `change` the way a real pick does, so Vue's
+      // v-model and any @change handler run.
+      const rest = step.slice(14);
+      const sepIdx = rest.indexOf("|");
+      const sel = sepIdx === -1 ? rest : rest.slice(0, sepIdx);
+      const label = sepIdx === -1 ? "" : rest.slice(sepIdx + 1);
+      await page.selectOption(sel, { label }, { timeout: 5000 }).catch(() => {});
     } else if (step.startsWith("type:")) {
       // type:<selector>|<text> — click the selector to focus it, then type the
       // text via real keystrokes (so autocomplete/input listeners fire), e.g.

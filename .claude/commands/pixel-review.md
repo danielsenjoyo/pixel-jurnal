@@ -198,6 +198,7 @@ table, and mapping rules below.
 | `click:<css-selector>`    | Click element by CSS selector                                                                                                                                                                                               |
 | `click-text:<label>`      | Click a `button`/`a`/`[role=button]`/`.mp-button` by exact text content                                                                                                                                                     |
 | `select-text:<label>`     | Click a dropdown/autocomplete option row by exact text — broader match than `click-text` (also matches `li`, `[role=option]`, popover/list items), use for MpAutocomplete/MpPopoverList options that aren't real buttons    |
+| `select-option:<selector>\|<label>` | Pick an option in a native `<select>` (what `MpSelect` renders) by its exact visible label — `click-text`/`select-text` can't reach `<option>` elements. Fires `change`, so `v-model`/`@change` run |
 | `type:<selector>\|<text>` | Click `<selector>` to focus it, then type `<text>` via real keystrokes (fires input/autocomplete listeners). Omit `<selector>\|` to type into whatever already has focus (chain right after a `click:`/`select-text:` step) |
 | `wait:<ms>`               | Wait N milliseconds                                                                                                                                                                                                         |
 | `scroll`                  | Scroll to page bottom                                                                                                                                                                                                       |
@@ -217,6 +218,9 @@ table, and mapping rules below.
   chain a `type:` step: `"trigger": "type:input[placeholder='Enter template name']|pixel_review_test,click-text:Continue,wait:800"`.
 - If a state requires picking an option from a custom dropdown/autocomplete (not a native `<select>`),
   use `select-text:` instead of `click-text:`: `"trigger": "click:#audience-select,select-text:Most valuable customers,wait:500"`.
+- If a state requires picking from a native `<select>` (`MpSelect`), use `select-option:` — and prefer a
+  structural selector with Playwright's `>> nth=` over an `id`, since Pixel generates a fresh random id
+  per render: `"trigger": "select-option:table select >> nth=0|Wireless Mouse,wait:600"`.
 - If a US maps to a state that requires backend data to exist (e.g. a results table only shows after
   AI processing completes), mark it with `"us": ["US-XX"]` and `"trigger": null` — Playwright will
   screenshot whatever is visible; you'll assess the gap in Framework 1.
