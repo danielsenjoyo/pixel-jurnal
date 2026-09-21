@@ -74,6 +74,19 @@
               <MpText v-else size="label-small" color="gray.400">Different currency</MpText>
             </template>
           </PriceHistoryRows>
+
+          <!-- Ends a short vendor-scoped list instead of letting one or two
+               rows float in an otherwise empty panel — and ends it with the
+               thing the reader would go looking for next, since the count of
+               purchases elsewhere is already known here. Suppressed when the
+               vendor has no rows at all: the banner above is already telling
+               them to switch scope, and saying it twice is worse than once. -->
+          <div v-if="showOtherVendorsNote" :class="tailRowClass">
+            <MpText size="body-small" color="gray.600">{{ otherVendorsText }}</MpText>
+            <MpTextlink as="button" variant="primary" @click="scope = 'all'">
+              See all vendors
+            </MpTextlink>
+          </div>
         </div>
       </MpDrawerBody>
     </MpDrawerContent>
@@ -95,6 +108,7 @@ import {
   MpDrawerOverlay,
   MpSegmentedControl,
   MpText,
+  MpTextlink,
   css
 } from "@mekari/pixel3";
 import PriceHistoryRows from "./PriceHistoryRows.vue";
@@ -120,7 +134,10 @@ defineEmits<{
 
 const productRef = computed(() => props.product);
 const vendorNameRef = computed(() => props.vendorName);
-const { vendorHasHistory, resultFor, resolveDefaultScope } = usePriceHistory(productRef, vendorNameRef);
+const { vendorHasHistory, resultFor, resolveDefaultScope } = usePriceHistory(
+  productRef,
+  vendorNameRef
+);
 
 const scope = ref<PriceHistoryScope>("all");
 const isLoading = ref(false);
@@ -169,6 +186,17 @@ const countText = computed(() => {
   return text;
 });
 
+// Two independent per-scope queries, never one sliced pool — see this
+// directory's README, rule 3. The difference is what the tail line reports.
+const otherVendorCount = computed(() => resultFor("all").total - resultFor("vendor").total);
+const showOtherVendorsNote = computed(
+  () => scope.value === "vendor" && rows.value.length > 0 && otherVendorCount.value > 0
+);
+const otherVendorsText = computed(() => {
+  const n = otherVendorCount.value;
+  return `${n} more ${n === 1 ? "purchase" : "purchases"} from other vendors`;
+});
+
 const showBanner = computed(
   () => !props.vendorName || (scope.value === "vendor" && !vendorHasHistory.value)
 );
@@ -182,11 +210,17 @@ const bannerText = computed(() => {
   return `${props.vendorName} has no recorded purchases for this product. Switch to All vendors to see prices from other vendors.`;
 });
 
-const hoverExceptionNote = computed(() =>
-  props.mode === "apply"
-    ? "Prices in another currency show the rupiah estimate when you hover over them. Using them to fill this line is off — see below."
-    : "Prices in another currency show the rupiah estimate when you hover over them."
-);
+// Apply mode adds the one rule the action column can't state on its own: the
+// greyed "Different currency" cells say what a row is, never what the rule is,
+// and never name the currency this document is actually in. An earlier draft
+// deferred to them ("… is off — see below"), which read like a setting that
+// had been switched off and promised an explanation those two words don't give.
+const hoverExceptionNote = computed(() => {
+  const base = "Prices in another currency show the rupiah estimate when you hover over them.";
+  return props.mode === "apply"
+    ? `${base} You can't use one to fill this line — the line stays in ${props.documentCurrency}.`
+    : base;
+});
 
 // Every side effect of "Use this price" is previewed before the click, not
 // just the vendor one: the unit moves with the price (a per-box price on a
@@ -195,7 +229,9 @@ const hoverExceptionNote = computed(() =>
 function applyPreviewText(row: PriceHistoryEntry) {
   const parts: string[] = [];
   if (row.vendorName !== props.vendorName) {
-    parts.push(props.vendorName ? `change vendor to ${row.vendorName}` : `set vendor to ${row.vendorName}`);
+    parts.push(
+      props.vendorName ? `change vendor to ${row.vendorName}` : `set vendor to ${row.vendorName}`
+    );
   }
   if (props.currentLine && row.unit !== props.currentLine.unit) {
     parts.push(`change the unit to ${row.unit}`);
@@ -212,6 +248,14 @@ const scopeRowClass = css({
   justifyContent: "space-between",
   gap: 3,
   flexWrap: "wrap"
+});
+const tailRowClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 3,
+  flexWrap: "wrap",
+  pt: 1
 });
 const actionStackClass = css({
   display: "flex",

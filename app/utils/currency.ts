@@ -10,7 +10,10 @@
 // docs/patterns/MoneyField.md.
 
 const idrWhole = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 });
-const twoDecimal = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const twoDecimal = new Intl.NumberFormat("id-ID", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
 
 export function currencySymbol(currency: string): string {
   if (currency === "USD") return "US$";
@@ -18,10 +21,17 @@ export function currencySymbol(currency: string): string {
   return "Rp";
 }
 
+/**
+ * Money for reading, in its original currency. Every currency gets two
+ * decimals, IDR included: the Purchase module renders the same rupiah value
+ * as `Rp125.000,00` (`formatCurrency`, two decimals), and a price-history row
+ * sitting beside that document has to be recognisable as the same number at a
+ * glance. Rounding rupiah to whole units here made a reader verify twice that
+ * `Rp125.000` and `Rp125.000,00` were one value — which is the opposite of
+ * what a price reference is for.
+ */
 export function formatMoney(amount: number, currency: string): string {
-  return currency === "IDR"
-    ? `${currencySymbol(currency)}${idrWhole.format(Math.round(amount))}`
-    : `${currencySymbol(currency)}${twoDecimal.format(amount)}`;
+  return `${currencySymbol(currency)}${twoDecimal.format(amount)}`;
 }
 
 export function formatQty(qty: number): string {

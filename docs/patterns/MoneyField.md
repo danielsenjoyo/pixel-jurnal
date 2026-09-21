@@ -45,12 +45,12 @@ foreign-currency historical price) — and that estimate must:
 
 ## What `~/utils/currency.ts` exports
 
-| Function | Use |
-|---|---|
-| `formatMoney(amount, currency)` | `Rp`/`US$`/`SGD` display — IDR whole numbers, everything else 2 decimals. |
-| `currencySymbol(currency)` | Just the symbol, for a label or addon. |
-| `formatRate(rate)` | An exchange rate, always IDR-denominated: `Rp16,470`. |
-| `historicalIdrEstimate(price, rate)` | The disclosed hover-estimate calculation itself. |
+| Function                             | Use                                                                                                                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `formatMoney(amount, currency)`      | `Rp`/`US$`/`SGD` display — 2 decimals for every currency, IDR included, so a historical rupiah figure is recognisable as the same value the Purchase module renders with `formatCurrency`. |
+| `currencySymbol(currency)`           | Just the symbol, for a label or addon.                                                                                                                                                     |
+| `formatRate(rate)`                   | An exchange rate, always IDR-denominated: `Rp16,470`.                                                                                                                                      |
+| `historicalIdrEstimate(price, rate)` | The disclosed hover-estimate calculation itself.                                                                                                                                           |
 
 There is no editable multi-currency input here — historical rows are
 read-only display only. An editable **document-currency** money field still
