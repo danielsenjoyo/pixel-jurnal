@@ -99,6 +99,26 @@ const groupHeaderRowClass = css({
   general bias toward showing data over hiding it behind interaction.
 - Sort groups and detail rows server-side (or in the computed that builds
   `groupedRows`) — never re-sort in the template.
+- **Declare the columns once and derive everything from that array.** The header
+  is rendered at least twice (the real table and the loading skeleton), the
+  skeleton's cells-per-row must match it, and `columnCount` feeds every
+  `colspan`. A literal column count silently desyncs the skeleton the moment a
+  column is added:
+
+  ```ts
+  const COLUMNS = [
+    { key: "date", label: "Tanggal", width: "130px", numeric: false },
+    { key: "desc", label: "Deskripsi", width: "", numeric: false }, // auto-width
+    { key: "saldo", label: "Saldo", width: "150px", numeric: true }
+  ] as const;
+  const columnCount = COLUMNS.length;
+  ```
+
+- **A column that only applies to detail rows stays blank on group rows** — do
+  not repurpose it at the group level. In the credit-memo report, `Mutasi` (the
+  signed movement) is blank on customer and CM rows, which is what makes the
+  column read as "only ledger lines move". Pair it with a running-balance column
+  rather than making one column mean two different things by row depth.
 
 ## Gotchas
 

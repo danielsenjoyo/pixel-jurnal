@@ -53,7 +53,19 @@ For destructive confirmation or a focused single-task dialog, use a [`Modal`](./
 - **Open state:** drive with `:is-open` + `@close` — this version emits `open`/`close`, **not** `update:isOpen`, so there is **no `v-model:is-open`**. `@close` covers the × button, overlay click, and Esc.
 - **Close button placement:** `MpDrawerCloseButton` does **not** self-position — it must live **inside `MpDrawerHeader`** (a flex `space-between` container). As a bare sibling it drops to the top-left.
 - **Header title size:** the header recipe sizes text at `md` (14px). Wrap the title in `<span :class="drawerTitleClass">` to bump it to **`lg` (16px)**; weight is inherited from the recipe.
-- **Live filters → Apply just closes.** Because fields bind shared refs via `v-model`, filtering happens as you type/select. `Apply` only closes; `Reset` clears the shared refs.
+- **Stage filter edits; `Apply` commits them.** Bind the fields to _draft_ refs
+  and copy draft → applied only in the `Apply` handler; reseed the draft from
+  the applied state every time the drawer opens. Binding fields straight to the
+  shared refs makes filtering happen as you type, which turns `Apply` into a
+  button that only closes — it promises a commit that already happened, leaves
+  no way to back out, and lets an invalid combination reach the report. It also
+  buys nothing, because the drawer covers the surface being filtered. Staging
+  gives you a real `Cancel`, and lets validation disable `Apply` instead of
+  silently emptying the result.
+- **`Reset` inside the drawer clears the draft, not the report.** Applied state
+  changes only on `Apply`. A blank-slate "Reset filter" button _outside_ the
+  drawer is the exception — there is no drawer open to commit from, so it clears
+  applied state directly.
 - Form fields are wrapped in `MpFormControl` + `MpFormLabel` — see [`Form`](./Form.md).
 - **A multi-select field that filters by picking known entities** (customers,
   tags, groups) uses `MpInputTag` instead of a checkbox list or a plain
@@ -78,6 +90,16 @@ For destructive confirmation or a focused single-task dialog, use a [`Modal`](./
   Customer and Grup Customer filter fields.
 
 ## Gotchas
+
+- **`MpFormControl` injects its `id` into every descendant input, overriding an
+  `id` set on the input itself.** Two inputs in one control (a min/max range,
+  say) therefore end up sharing one `id` — invalid HTML — and `MpFormLabel`'s
+  `for` only ever resolves to the first, leaving the second field with no
+  accessible name. Give each input **its own nested `MpFormControl`** with a
+  unique id, keep the outer control for the group label and
+  `MpFormErrorMessage`, and add an explicit `aria-label` per input. Unknown
+  attrs like `aria-label` and `inputmode` _do_ reach the real `<input>`, so
+  those work as written.
 
 - `placement="right"`, `size="sm"` for the filter use case. A panel whose body
   needs real table width (e.g. a transaction history panel) should use

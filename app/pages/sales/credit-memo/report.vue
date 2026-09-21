@@ -2,7 +2,7 @@
   <DefaultPageContent title="Laporan Detail Kredit Memo" subtitle="(dalam IDR)">
     <!-- Dev-only state switcher — lets reviewers see all 4 states without a backend.
          Not part of the shipped product; drop this box once wired to a real API. -->
-    <div :class="devSwitcherClass">
+    <div v-if="showDemoSwitcher" :class="devSwitcherClass">
       <MpText size="body-small" weight="semiBold" color="gray.600"
         >Contoh status (khusus prototipe)</MpText
       >
@@ -18,10 +18,16 @@
     </div>
 
     <div :class="freshnessRowClass">
-      <span :class="freshnessDotClass" />
-      <MpText size="body-small" color="gray.600"
-        >Data per {{ formatDateID(REPORT_TODAY_ISO) }}, 15:30 (GMT+7)</MpText
-      >
+      <span :class="[freshnessDotClass, isReportBusy ? freshnessDotMutedClass : '']" />
+      <MpText size="body-small" color="gray.600">{{ freshnessLabel }}</MpText>
+    </div>
+
+    <!-- Export acknowledgement. This Pixel build ships no toast primitive, so the
+         queued-job confirmation is an inline notice; swap it for the standard
+         toast once this is wired to the real export queue. -->
+    <div v-if="exportNotice" :class="exportNoticeClass">
+      <span :class="exportNoticeDotClass" />
+      <MpText size="body-small" color="dark">{{ exportNotice }}</MpText>
     </div>
 
     <!-- Controls: date, Periode, Tampilkan and Filter all sit on the top row
@@ -60,7 +66,7 @@
         <MpButton
           variant="primary"
           :class="controlButtonClass"
-          :is-disabled="!pendingDate"
+          :is-disabled="isReportBusy || !pendingDate"
           @click="generateReport"
           >Tampilkan</MpButton
         >
@@ -69,6 +75,7 @@
           variant="secondary"
           left-icon="filter"
           :class="controlButtonClass"
+          :is-disabled="isReportBusy"
           @click="openDrawer('filter')"
           >Filter</MpButton
         >
@@ -77,6 +84,7 @@
           variant="secondary"
           left-icon="download"
           :class="rightAlignedClass"
+          :is-disabled="isReportBusy"
           @click="openDrawer('export')"
           >Ekspor</MpButton
         >
@@ -84,26 +92,28 @@
 
       <div :class="controlsRowClass">
         <div :class="[searchGroupClass, rightAlignedClass]">
-          <MpInputGroup>
-            <MpInputLeftAddon>
-              <MpIcon name="search" size="sm" color="gray.400" />
-            </MpInputLeftAddon>
-            <MpInput
-              v-model="search"
-              placeholder="Cari No. CM, dokumen, atau No. transaksi"
-              @keydown.enter="runSearch"
-            />
-          </MpInputGroup>
-          <button
-            v-if="searchTerm"
-            type="button"
-            data-search-clear
-            aria-label="Bersihkan pencarian"
-            :class="searchClearClass"
-            @click="clearSearch"
-          >
-            <MpIcon name="reset" size="sm" color="gray.400" />
-          </button>
+          <div :class="searchFieldClass">
+            <MpInputGroup>
+              <MpInputLeftAddon>
+                <MpIcon name="search" size="sm" color="gray.400" />
+              </MpInputLeftAddon>
+              <MpInput
+                v-model="search"
+                placeholder="Cari No. CM, dokumen, atau No. transaksi"
+                @keydown.enter="runSearch"
+              />
+            </MpInputGroup>
+            <button
+              v-if="searchTerm"
+              type="button"
+              data-search-clear
+              aria-label="Bersihkan pencarian"
+              :class="searchClearClass"
+              @click="clearSearch"
+            >
+              <MpIcon name="reset" size="sm" color="gray.400" />
+            </button>
+          </div>
           <MpText
             v-if="searchNoMatch"
             size="body-small"
@@ -119,10 +129,12 @@
     <!-- Informational banner (NOT a warning) — only when the as-of date is in the future. -->
     <div v-if="isFutureAsOfDate" :class="infoBannerClass">
       <MpText weight="semiBold" size="body-small" color="dark"
-        >Menampilkan data hingga hari ini.</MpText
+        >Tanggal yang dipilih melewati hari ini.</MpText
       >
       <MpText size="body-small" color="gray.600">
-        Transaksi bertanggal setelah hari ini belum tercermin di laporan ini.
+        Laporan memperhitungkan seluruh transaksi bertanggal sampai
+        {{ formatDateID(asOfDateISO) }} &mdash; termasuk transaksi yang tanggalnya setelah hari ini,
+        sehingga saldo di sini bisa berbeda dari posisi hari ini.
       </MpText>
     </div>
 
@@ -131,15 +143,17 @@
       <MpTableContainer :class="tableWrapClass">
         <MpTable :is-hoverable="false" :class="tableFixedClass">
           <colgroup>
-            <col v-for="(w, i) in colWidths" :key="i" :style="{ width: w }" />
+            <col v-for="col in COLUMNS" :key="col.key" :style="{ width: col.width }" />
           </colgroup>
           <MpTableHead is-fixed>
             <MpTableRow>
-              <MpTableCell as="th">Tanggal</MpTableCell>
-              <MpTableCell as="th">No. CM</MpTableCell>
-              <MpTableCell as="th">Deskripsi</MpTableCell>
-              <MpTableCell as="th">Status</MpTableCell>
-              <MpTableCell as="th" :class="numCellClass">Saldo</MpTableCell>
+              <MpTableCell
+                v-for="col in COLUMNS"
+                :key="col.key"
+                as="th"
+                :class="col.numeric ? numCellClass : undefined"
+                >{{ col.label }}</MpTableCell
+              >
             </MpTableRow>
           </MpTableHead>
           <MpTableBody>
@@ -177,7 +191,7 @@
                 <template v-for="entry in block.cms" :key="entry.cm.id">
                   <MpTableRow
                     :id="`cm-row-${entry.cm.id}`"
-                    :class="flashCmId === entry.cm.id ? flashRowClass : cmRowClass"
+                    :class="[cmRowClass, flashCmId === entry.cm.id ? flashRowClass : '']"
                   >
                     <MpTableCell as="td" :class="cmFirstCellClass">
                       <button
@@ -206,6 +220,9 @@
                         {{ STATUS_LABEL[entry.computed.status] }}
                       </MpBadge>
                     </MpTableCell>
+                    <!-- Mutasi is a ledger-line concept: deliberately blank at CM
+                         level, so the column reads as "only transaction rows move". -->
+                    <MpTableCell as="td" :class="numCellClass" />
                     <MpTableCell as="td" :class="numCellClass">{{
                       formatRp(entry.computed.balance)
                     }}</MpTableCell>
@@ -219,7 +236,7 @@
                       v-for="row in entry.computed.rows"
                       :id="`tx-row-${row.id}`"
                       :key="row.id"
-                      :class="flashTxId === row.id ? flashRowClass : txRowClass"
+                      :class="[txRowClass, flashTxId === row.id ? flashRowClass : '']"
                     >
                       <MpTableCell as="td" :class="txFirstCellClass">{{
                         formatDateID(row.dateISO)
@@ -253,6 +270,11 @@
                           >{{ TX_STATUS_LABEL[row.status] }}</MpBadge
                         >
                       </MpTableCell>
+                      <MpTableCell
+                        as="td"
+                        :class="[numCellClass, row.mutation < 0 ? mutasiDownClass : mutasiUpClass]"
+                        >{{ formatRpSigned(row.mutation) }}</MpTableCell
+                      >
                       <MpTableCell as="td" :class="numCellClass">{{
                         formatRp(row.balance)
                       }}</MpTableCell>
@@ -280,20 +302,22 @@
       <MpTableContainer :class="tableWrapClass">
         <MpTable :is-hoverable="false" :class="tableFixedClass">
           <colgroup>
-            <col v-for="(w, i) in colWidths" :key="i" :style="{ width: w }" />
+            <col v-for="col in COLUMNS" :key="col.key" :style="{ width: col.width }" />
           </colgroup>
           <MpTableHead is-fixed>
             <MpTableRow>
-              <MpTableCell as="th">Tanggal</MpTableCell>
-              <MpTableCell as="th">No. CM</MpTableCell>
-              <MpTableCell as="th">Deskripsi</MpTableCell>
-              <MpTableCell as="th">Status</MpTableCell>
-              <MpTableCell as="th" :class="numCellClass">Saldo</MpTableCell>
+              <MpTableCell
+                v-for="col in COLUMNS"
+                :key="col.key"
+                as="th"
+                :class="col.numeric ? numCellClass : undefined"
+                >{{ col.label }}</MpTableCell
+              >
             </MpTableRow>
           </MpTableHead>
           <MpTableBody>
             <MpTableRow v-for="n in 5" :key="`skeleton-${n}`">
-              <MpTableCell v-for="col in 5" :key="col" as="td">
+              <MpTableCell v-for="col in COLUMNS" :key="col.key" as="td">
                 <MpSkeleton is-loading><span :class="skeletonBarClass" /></MpSkeleton>
               </MpTableCell>
             </MpTableRow>
@@ -304,8 +328,12 @@
 
     <!-- Error: distinct from all 3 empty variants below (EH-005-01). -->
     <div v-else-if="reportState === 'error'" :class="errorStateClass">
+      <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
       <MpText weight="semiBold" color="dark" :class="emptyTitleClass">Laporan gagal dimuat.</MpText>
-      <MpText size="body-small" color="gray.600" :class="emptyDescClass">Silakan coba lagi.</MpText>
+      <MpText size="body-small" color="gray.600" :class="emptyDescClass">
+        Koneksi ke server terputus saat mengambil data laporan. Tidak ada data yang tersimpan atau
+        berubah. Coba muat ulang; bila masih gagal, hubungi tim support dengan kode CMR-500.
+      </MpText>
       <MpButton variant="secondary" @click="demoState = 'normal'">Coba lagi</MpButton>
     </div>
 
@@ -334,7 +362,9 @@
     <MpDrawerOverlay />
     <MpDrawerContent>
       <MpDrawerHeader>
-        <span :class="drawerTitleClass">Filter</span>
+        <span :class="drawerTitleClass">{{
+          drawerPurpose === "export" ? "Ekspor laporan" : "Filter"
+        }}</span>
         <MpDrawerCloseButton />
       </MpDrawerHeader>
       <MpDrawerBody>
@@ -343,12 +373,12 @@
             <MpFormLabel>Customer</MpFormLabel>
             <MpInputTag
               placeholder="Ketik nama customer..."
-              :data="customerTagData"
+              :data="draftCustomerTagData"
               :suggestions="customerSuggestions"
               suggestion-key="label"
               :is-show-suggestions="true"
               :is-enable-create-new-tag="false"
-              @change="customerTagData = $event"
+              @change="draftCustomerTagData = $event"
             />
           </MpFormControl>
 
@@ -356,38 +386,96 @@
             <MpFormLabel>Grup customer</MpFormLabel>
             <MpInputTag
               placeholder="Ketik nama grup..."
-              :data="groupTagData"
+              :data="draftGroupTagData"
               :suggestions="groupSuggestions"
               suggestion-key="label"
               :is-show-suggestions="true"
               :is-enable-create-new-tag="false"
-              @change="groupTagData = $event"
+              @change="draftGroupTagData = $event"
             />
             <MpFormHelpText>Tanpa tag = semua grup, termasuk yang tidak ditetapkan.</MpFormHelpText>
           </MpFormControl>
 
-          <MpFormControl id="filter-customer-total-range">
+          <!-- One MpFormControl per input: a single control injects its own id
+               into EVERY descendant input, so both fields ended up sharing one
+               id — invalid HTML, and the label's `for` only ever resolved to the
+               first of them. The nested controls give each input its own id, and
+               aria-label gives each its own accessible name. -->
+          <MpFormControl id="filter-customer-total" :is-invalid="Boolean(customerTotalError)">
             <MpFormLabel>Rentang total customer</MpFormLabel>
             <div :class="rangeRowClass">
-              <MpInput v-model="customerTotalMin" placeholder="Rp minimum" />
+              <MpFormControl
+                :id="'filter-customer-total-min'"
+                :is-invalid="Boolean(customerTotalError)"
+                :class="rangeFieldClass"
+              >
+                <MpInput
+                  v-model="draftCustomerTotalMin"
+                  placeholder="Rp minimum"
+                  inputmode="numeric"
+                  aria-label="Total customer minimum"
+                  @blur="formatRangeField('custMin')"
+                />
+              </MpFormControl>
               <MpText color="gray.400">&ndash;</MpText>
-              <MpInput v-model="customerTotalMax" placeholder="Rp maksimum" />
+              <MpFormControl
+                :id="'filter-customer-total-max'"
+                :is-invalid="Boolean(customerTotalError)"
+                :class="rangeFieldClass"
+              >
+                <MpInput
+                  v-model="draftCustomerTotalMax"
+                  placeholder="Rp maksimum"
+                  inputmode="numeric"
+                  aria-label="Total customer maksimum"
+                  @blur="formatRangeField('custMax')"
+                />
+              </MpFormControl>
             </div>
+            <MpFormErrorMessage>{{ customerTotalError }}</MpFormErrorMessage>
           </MpFormControl>
 
-          <MpFormControl id="filter-cm-balance-range">
+          <MpFormControl id="filter-cm-balance" :is-invalid="Boolean(cmBalanceError)">
             <MpFormLabel>Rentang saldo credit memo</MpFormLabel>
             <div :class="rangeRowClass">
-              <MpInput v-model="cmBalanceMin" placeholder="Rp minimum" />
+              <MpFormControl
+                :id="'filter-cm-balance-min'"
+                :is-invalid="Boolean(cmBalanceError)"
+                :class="rangeFieldClass"
+              >
+                <MpInput
+                  v-model="draftCmBalanceMin"
+                  placeholder="Rp minimum"
+                  inputmode="numeric"
+                  aria-label="Saldo credit memo minimum"
+                  @blur="formatRangeField('cmMin')"
+                />
+              </MpFormControl>
               <MpText color="gray.400">&ndash;</MpText>
-              <MpInput v-model="cmBalanceMax" placeholder="Rp maksimum" />
+              <MpFormControl
+                :id="'filter-cm-balance-max'"
+                :is-invalid="Boolean(cmBalanceError)"
+                :class="rangeFieldClass"
+              >
+                <MpInput
+                  v-model="draftCmBalanceMax"
+                  placeholder="Rp maksimum"
+                  inputmode="numeric"
+                  aria-label="Saldo credit memo maksimum"
+                  @blur="formatRangeField('cmMax')"
+                />
+              </MpFormControl>
             </div>
+            <MpFormErrorMessage>{{ cmBalanceError }}</MpFormErrorMessage>
             <MpFormHelpText>
               Kedua rentang di atas dapat diisi bersamaan &mdash; menyaring dengan logika AND.
             </MpFormHelpText>
           </MpFormControl>
 
-          <MpToggle :is-checked="showZeroBalance" @update:is-checked="showZeroBalance = $event">
+          <MpToggle
+            :is-checked="draftShowZeroBalance"
+            @update:is-checked="draftShowZeroBalance = $event"
+          >
             Tampilkan CM habis
             <template #description>Tampilkan customer dan CM dengan saldo Rp 0.</template>
           </MpToggle>
@@ -428,11 +516,20 @@
       </MpDrawerBody>
       <MpDrawerFooter>
         <div :class="filterDrawerFooterClass">
-          <MpButton variant="ghost" @click="resetFilters">Reset filter</MpButton>
-          <MpButton v-if="drawerPurpose === 'export'" variant="primary" @click="handleExport"
-            >Ekspor</MpButton
-          >
-          <MpButton v-else variant="primary" @click="isFilterDrawerOpen = false">Terapkan</MpButton>
+          <MpButton variant="ghost" @click="resetFilterDraft">Reset filter</MpButton>
+          <div :class="filterDrawerFooterActionsClass">
+            <MpButton variant="secondary" @click="closeDrawerDiscardingEdits">Batal</MpButton>
+            <MpButton
+              v-if="drawerPurpose === 'export'"
+              variant="primary"
+              :is-disabled="hasRangeError"
+              @click="handleExport"
+              >Ekspor</MpButton
+            >
+            <MpButton v-else variant="primary" :is-disabled="hasRangeError" @click="applyFilters"
+              >Terapkan</MpButton
+            >
+          </div>
         </div>
       </MpDrawerFooter>
     </MpDrawerContent>
@@ -456,6 +553,7 @@ import {
   MpDrawerOverlay,
   MpFlex,
   MpFormControl,
+  MpFormErrorMessage,
   MpFormHelpText,
   MpFormLabel,
   MpIcon,
@@ -878,6 +976,13 @@ function formatDateID(iso: string) {
   const d = parseISO(iso);
   return `${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
 }
+/** Mutasi is read as a movement, so it always carries its direction. Uses a
+ *  real minus sign (U+2212), not a hyphen — HTML entities don't survive `{{ }}`
+ *  interpolation. */
+function formatRpSigned(v: number) {
+  if (v === 0) return formatRp(0);
+  return `${v > 0 ? "+" : "\u2212"}${formatRp(Math.abs(v))}`;
+}
 function formatRp(v: number) {
   if (v === 0) return "Rp 0";
   const abs = new Intl.NumberFormat("id-ID", {
@@ -1008,9 +1113,11 @@ const drawerPurpose = ref<"filter" | "export">("filter");
 
 function openDrawer(purpose: "filter" | "export") {
   drawerPurpose.value = purpose;
+  syncDraftFromApplied();
   isFilterDrawerOpen.value = true;
 }
 
+// Applied filter state — the ONLY thing customerBlocks reads.
 const showZeroBalance = ref(false); // Defaults OFF, never persisted — resets on every load.
 const customerTagData = ref<DataInterface[]>([]);
 const groupTagData = ref<DataInterface[]>([]);
@@ -1018,6 +1125,37 @@ const customerTotalMin = ref("");
 const customerTotalMax = ref("");
 const cmBalanceMin = ref("");
 const cmBalanceMax = ref("");
+
+// Draft state — what the drawer's fields are bound to. Live-binding the fields
+// straight to the applied state made "Terapkan" a lie (the report had already
+// changed on the first keystroke) and left no way to back out of an edit. It
+// also bought nothing: the drawer covers the table, so there is no live result
+// to watch. Staging fixes the commit semantics, gives Batal something to
+// discard, and is what lets an invalid range block Terapkan instead of silently
+// emptying the report.
+const draftShowZeroBalance = ref(false);
+const draftCustomerTagData = ref<DataInterface[]>([]);
+const draftGroupTagData = ref<DataInterface[]>([]);
+const draftCustomerTotalMin = ref("");
+const draftCustomerTotalMax = ref("");
+const draftCmBalanceMin = ref("");
+const draftCmBalanceMax = ref("");
+
+const draftRangeFields = {
+  custMin: draftCustomerTotalMin,
+  custMax: draftCustomerTotalMax,
+  cmMin: draftCmBalanceMin,
+  cmMax: draftCmBalanceMax
+} as const;
+
+/** Re-render a range field with thousands separators once the user leaves it —
+ *  a bare "9000000" is too easy to misread as 90 million on the very field that
+ *  decides what the report covers. parseRp strips the separators again. */
+function formatRangeField(key: keyof typeof draftRangeFields) {
+  const field = draftRangeFields[key];
+  const n = parseRp(field.value);
+  field.value = n === null ? "" : new Intl.NumberFormat("id-ID").format(n);
+}
 
 const customerSuggestions = computed(() =>
   CUSTOMERS.map((c) => ({ id: c.id, label: `${c.code} · ${c.name}`, value: c.id }))
@@ -1038,7 +1176,63 @@ function parseRp(v: string): number | null {
   return v.trim() === "" || Number.isNaN(n) ? null : n;
 }
 
+function rangeError(min: string, max: string): string {
+  const lo = parseRp(min);
+  const hi = parseRp(max);
+  return lo !== null && hi !== null && lo > hi
+    ? "Nilai maksimum tidak boleh lebih kecil dari minimum."
+    : "";
+}
+const customerTotalError = computed(() =>
+  rangeError(draftCustomerTotalMin.value, draftCustomerTotalMax.value)
+);
+const cmBalanceError = computed(() => rangeError(draftCmBalanceMin.value, draftCmBalanceMax.value));
+const hasRangeError = computed(() => Boolean(customerTotalError.value || cmBalanceError.value));
+
+/** Load the applied filters into the draft. Called every time the drawer opens,
+ *  so an abandoned edit never leaks into the next session. */
+function syncDraftFromApplied() {
+  draftShowZeroBalance.value = showZeroBalance.value;
+  draftCustomerTagData.value = [...customerTagData.value];
+  draftGroupTagData.value = [...groupTagData.value];
+  draftCustomerTotalMin.value = customerTotalMin.value;
+  draftCustomerTotalMax.value = customerTotalMax.value;
+  draftCmBalanceMin.value = cmBalanceMin.value;
+  draftCmBalanceMax.value = cmBalanceMax.value;
+}
+
+function applyFilters() {
+  if (hasRangeError.value) return;
+  showZeroBalance.value = draftShowZeroBalance.value;
+  customerTagData.value = [...draftCustomerTagData.value];
+  groupTagData.value = [...draftGroupTagData.value];
+  customerTotalMin.value = draftCustomerTotalMin.value;
+  customerTotalMax.value = draftCustomerTotalMax.value;
+  cmBalanceMin.value = draftCmBalanceMin.value;
+  cmBalanceMax.value = draftCmBalanceMax.value;
+  isFilterDrawerOpen.value = false;
+}
+
+/** Clears the fields the user is editing; nothing reaches the report until
+ *  Terapkan, consistent with every other control in this drawer. */
+function resetFilterDraft() {
+  draftShowZeroBalance.value = false;
+  draftCustomerTagData.value = [];
+  draftGroupTagData.value = [];
+  draftCustomerTotalMin.value = "";
+  draftCustomerTotalMax.value = "";
+  draftCmBalanceMin.value = "";
+  draftCmBalanceMax.value = "";
+}
+
+function closeDrawerDiscardingEdits() {
+  isFilterDrawerOpen.value = false;
+}
+
+/** The blank-slate "Reset filter" button acts on the report directly — there is
+ *  no drawer open to commit from. */
 function resetFilters() {
+  resetFilterDraft();
   showZeroBalance.value = false;
   customerTagData.value = [];
   groupTagData.value = [];
@@ -1110,10 +1304,30 @@ const customerBlocks = computed(() => {
     .sort((a, b) => b.custTotal - a.custTotal);
 });
 
-const columnCount = 5;
+// Single source of truth for the table's shape. The header is rendered twice
+// (report + loading skeleton) and the column count drives two colspans, so a
+// literal here desynced the skeleton the moment a column was added.
+const COLUMNS = [
+  { key: "date", label: "Tanggal", width: "130px", numeric: false },
+  { key: "no", label: "No. CM", width: "150px", numeric: false },
+  // Deskripsi is left with no width — in a fixed-layout table only an
+  // unset/auto column absorbs leftover space; a percentage column is sized
+  // literally against the table width and won't "flex" to fill the remainder.
+  { key: "desc", label: "Deskripsi", width: "", numeric: false },
+  { key: "status", label: "Status", width: "120px", numeric: false },
+  { key: "mutasi", label: "Mutasi", width: "150px", numeric: true },
+  { key: "saldo", label: "Saldo", width: "150px", numeric: true }
+] as const;
+const columnCount = COLUMNS.length;
 
 // ── Report state (normal / loading / error / empty) ─────────────────────────
 const demoState = ref<"normal" | "loading" | "error">("normal");
+
+// Prototype-only state switcher. Gated behind ?demo=1 so the default view is
+// just the product surface — reviewers reach the loading/error states with
+// /sales/credit-memo/report?demo=1.
+const route = useRoute();
+const showDemoSwitcher = computed(() => route.query.demo === "1");
 
 // Search is excluded here — it's a jump-to lookup (OD-06), not a list filter,
 // so it never drives the blank-slate reason (see searchNoMatch for its own
@@ -1147,10 +1361,56 @@ const reportState = computed<"normal" | "loading" | "error" | "empty">(() => {
   return customerBlocks.value.length > 0 ? "normal" : "empty";
 });
 
-const emptyTitle = computed(() => "Tidak ada Kredit Memo aktif pada tanggal ini.");
+// Nothing on this page is actionable while the report is loading or has failed —
+// least of all Ekspor, which would queue a file for data that never arrived.
+const isReportBusy = computed(
+  () => reportState.value === "loading" || reportState.value === "error"
+);
+const freshnessLabel = computed(() => {
+  if (reportState.value === "loading") return "Memuat data laporan…";
+  if (reportState.value === "error") return "Data tidak dapat dimuat.";
+  return `Data per ${formatDateID(REPORT_TODAY_ISO)}, 15:30 (GMT+7)`;
+});
+
+/** Names the filters actually in force. The report surface deliberately shows no
+ *  filter chips or count badge, so when the result is empty this copy is the
+ *  user's only way to find out which filter did it. */
+const activeFilterSummary = computed(() => {
+  const parts: string[] = [];
+  if (customerTagData.value.length)
+    parts.push(`Customer: ${customerTagData.value.map((t) => t.label).join(", ")}`);
+  if (groupTagData.value.length)
+    parts.push(`Grup customer: ${groupTagData.value.map((t) => t.label).join(", ")}`);
+
+  const range = (label: string, min: string, max: string) => {
+    const lo = parseRp(min);
+    const hi = parseRp(max);
+    if (lo === null && hi === null) return null;
+    if (lo !== null && hi !== null) return `${label}: ${formatRp(lo)} \u2013 ${formatRp(hi)}`;
+    return lo !== null
+      ? `${label}: min ${formatRp(lo)}`
+      : `${label}: maks ${formatRp(hi as number)}`;
+  };
+  const custRange = range("Rentang total customer", customerTotalMin.value, customerTotalMax.value);
+  const cmRange = range("Rentang saldo credit memo", cmBalanceMin.value, cmBalanceMax.value);
+  if (custRange) parts.push(custRange);
+  if (cmRange) parts.push(cmRange);
+
+  return parts.join(" · ");
+});
+
+// One title per reason. A single hardcoded string blamed the date even when the
+// cause was a filter, contradicting the description right underneath it.
+const emptyTitle = computed(() => {
+  if (emptyReason.value === "filter-no-match") return "Tidak ada data yang cocok dengan filter.";
+  if (emptyReason.value === "all-zero-toggle-off") return "Semua Kredit Memo sudah habis terpakai.";
+  return "Tidak ada Kredit Memo aktif pada tanggal ini.";
+});
 const emptyDescription = computed(() => {
   if (emptyReason.value === "filter-no-match")
-    return "Tidak ada data yang sesuai dengan filter ini.";
+    return activeFilterSummary.value
+      ? `Filter yang sedang aktif — ${activeFilterSummary.value}.`
+      : "Tidak ada data yang sesuai dengan filter ini.";
   if (emptyReason.value === "all-zero-toggle-off")
     return "Aktifkan 'Tampilkan CM habis' untuk melihat kredit memo yang sudah habis.";
   return "Coba ubah tanggal 'per tanggal' yang dipilih.";
@@ -1160,19 +1420,25 @@ const emptyDescription = computed(() => {
 const exportFormat = ref<"xlsx" | "csv">("xlsx");
 const includeTransactionDetails = ref(false);
 
+const exportNotice = ref("");
+let exportNoticeTimer: ReturnType<typeof setTimeout> | undefined;
+
 function handleExport() {
+  if (hasRangeError.value) return;
+  // Export runs against the filters shown in this drawer, so commit them first —
+  // otherwise the file and the on-screen report would disagree.
+  applyFilters();
+
   // Wire to the async export job queue + Riwayat Ekspor in a real build,
   // passing exportFormat.value + includeTransactionDetails.value alongside
   // the current filter state (snapshotted at click time, per PRD IT-011).
-  // Toast: "File sedang disiapkan. Notifikasi akan dikirim saat siap diunduh."
-  isFilterDrawerOpen.value = false;
+  exportNotice.value = `File ${exportFormat.value.toUpperCase()} sedang disiapkan. Notifikasi akan dikirim saat siap diunduh.`;
+  clearTimeout(exportNoticeTimer);
+  exportNoticeTimer = setTimeout(() => (exportNotice.value = ""), 8000);
 }
 
 // ── Table layout ─────────────────────────────────────────────────────────────
-// Deskripsi (index 2) is left with no width — in a fixed-layout table only an
-// unset/auto column absorbs leftover space; a percentage column is sized
-// literally against the table width and won't "flex" to fill the remainder.
-const colWidths = ["130px", "150px", "", "120px", "160px"];
+// Column labels and widths live in COLUMNS above.
 
 // All css() below uses Pixel 3 v2.1 token names only (see docs/tokens.md).
 const devSwitcherClass = css({
@@ -1215,8 +1481,10 @@ const controlButtonClass = css({ flexShrink: 0 });
 const rightAlignedClass = css({ marginLeft: "auto", flexShrink: 0 });
 
 const searchGroupClass = css({
-  position: "relative",
   width: "300px",
+  // Reserves the no-match line's height up front so showing it never shifts the
+  // controls row.
+  minHeight: "62px",
   "& [data-search-clear]": { opacity: 0, transition: "opacity 0.12s ease" },
   "&:hover [data-search-clear], &:focus-within [data-search-clear]": { opacity: 1 }
 });
@@ -1234,9 +1502,12 @@ const searchClearClass = css({
   cursor: "pointer",
   lineHeight: "0"
 });
-// Floats below the search field so it doesn't disturb the controls row's
-// height (the row uses alignItems:"flex-end").
-const searchNoMatchClass = css({ position: "absolute", top: "100%", left: 0, mt: 1 });
+// In normal flow, inside the reserved space above. Absolutely positioned, it
+// escaped the controls container and was painted over by the sticky table head,
+// leaving the only feedback for a failed search half-legible.
+const searchNoMatchClass = css({ mt: 1 });
+// Anchors the clear button to the input itself rather than to the taller group.
+const searchFieldClass = css({ position: "relative" });
 
 const infoBannerClass = css({
   display: "flex",
@@ -1353,8 +1624,35 @@ const filterDrawerFooterClass = css({
   width: "full"
 });
 const rangeRowClass = css({ display: "flex", alignItems: "center", gap: 2, mt: 1 });
+const rangeFieldClass = css({ flex: "1 1 0", minWidth: 0 });
 
 const futureNoteCellClass = css({ bg: "gray.25", p: "3!" });
 const futureNoteClass = css({ fontStyle: "italic" });
 const flashRowClass = css({ bg: "blue.50!" });
+
+// Mutasi: direction carries the meaning, colour only reinforces it.
+const mutasiUpClass = css({ color: "green.400!" });
+const mutasiDownClass = css({ color: "red.400!" });
+
+const freshnessDotMutedClass = css({ bg: "gray.400!" });
+const exportNoticeClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: 2,
+  bg: "gray.25",
+  borderWidth: "sm",
+  borderColor: "gray.100",
+  rounded: "sm",
+  px: 3,
+  py: 2,
+  mb: 4
+});
+const filterDrawerFooterActionsClass = css({ display: "flex", alignItems: "center", gap: 2 });
+const exportNoticeDotClass = css({
+  width: "6px",
+  height: "6px",
+  rounded: "full",
+  bg: "green.400",
+  flexShrink: 0
+});
 </script>
