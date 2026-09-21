@@ -32,8 +32,8 @@
             <MpSegmentedControl
               v-if="canScopeToVendor"
               id="price-history-scope"
-              name="price-history-scope"
               v-model="scope"
+              name="price-history-scope"
               :data="scopeOptions"
             />
             <MpText v-else size="body-small" weight="semiBold">All vendors</MpText>
@@ -63,12 +63,12 @@
                   Use this price
                 </MpButton>
                 <MpText
-                  v-if="row.vendorName !== vendorName"
+                  v-if="applyPreviewText(row)"
                   size="label-small"
                   color="gray.600"
-                  :class="vendorPreviewClass"
+                  :class="applyPreviewClass"
                 >
-                  {{ vendorPreviewText(row) }}
+                  {{ applyPreviewText(row) }}
                 </MpText>
               </div>
               <MpText v-else size="label-small" color="gray.400">Different currency</MpText>
@@ -113,7 +113,7 @@ const props = defineProps<{
   currentLine?: { price: number; currency: string; unit: string; qty: number };
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "close"): void;
   (e: "apply", entry: PriceHistoryEntry): void;
 }>();
@@ -188,8 +188,19 @@ const hoverExceptionNote = computed(() =>
     : "Prices in another currency show the rupiah estimate when you hover over them."
 );
 
-function vendorPreviewText(row: PriceHistoryEntry) {
-  return props.vendorName ? `and change vendor to ${row.vendorName}` : `and set vendor to ${row.vendorName}`;
+// Every side effect of "Use this price" is previewed before the click, not
+// just the vendor one: the unit moves with the price (a per-box price on a
+// per-pcs line would be off by the packaging factor), and a unit change is
+// the side effect most likely to surprise someone mid-entry.
+function applyPreviewText(row: PriceHistoryEntry) {
+  const parts: string[] = [];
+  if (row.vendorName !== props.vendorName) {
+    parts.push(props.vendorName ? `change vendor to ${row.vendorName}` : `set vendor to ${row.vendorName}`);
+  }
+  if (props.currentLine && row.unit !== props.currentLine.unit) {
+    parts.push(`change the unit to ${row.unit}`);
+  }
+  return parts.length ? `and ${parts.join(", ")}` : "";
 }
 
 const headerTextClass = css({ display: "flex", flexDirection: "column", gap: "0.5" });
@@ -208,10 +219,10 @@ const actionStackClass = css({
   alignItems: "flex-end",
   gap: 1
 });
-// The vendor-change preview carries a full vendor name, so it must wrap rather
-// than clip — a truncated "and set vendor to CV Su…" defeats the point of
-// previewing the side effect at all.
-const vendorPreviewClass = css({
+// The preview carries a full vendor name, so it must wrap rather than clip —
+// a truncated "and set vendor to CV Su…" defeats the point of previewing the
+// side effect at all.
+const applyPreviewClass = css({
   whiteSpace: "normal!",
   wordBreak: "break-word",
   textAlign: "right"

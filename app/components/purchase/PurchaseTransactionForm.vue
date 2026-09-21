@@ -613,6 +613,16 @@
       :product="activeLine?.product ?? ''"
       :vendor-name="form.vendorName || undefined"
       :document-currency="currency"
+      :current-line="
+        activeLine
+          ? {
+              price: activeLine.unitPrice,
+              currency,
+              unit: activeLine.unit,
+              qty: activeLine.quantity
+            }
+          : undefined
+      "
       @close="activeLineKey = null"
       @apply="onApplyPrice"
     />
@@ -772,7 +782,7 @@ const depositAmount = ref(0);
 const attachments = ref<string[]>([]);
 
 // Packaging units offered in the Units select alongside the product's own.
-const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "Gram", "ml"];
+const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "dozen", "Gram", "ml"];
 
 interface LineForm {
   key: number;
@@ -965,23 +975,38 @@ function onApplyPrice(entry: PriceHistoryEntry) {
   const line = activeLine.value;
   if (!line) return;
 
+  const changes: string[] = [];
+
+  // A historical price is only meaningful together with the unit it was
+  // charged for: "Rp2.760.000" means nothing until you know it bought one box,
+  // not one pcs. Applying the price without the unit silently multiplies the
+  // line by the packaging factor, so the two always move together. This is a
+  // copy, not a conversion — the recorded pair is written to the line exactly
+  // as the vendor charged it, which is why `unitFactorAtPurchase` is not
+  // consulted here (see `app/components/price-history/README.md` rule 2).
+  // Every unit price history can carry is in GENERIC_UNITS, so the Units
+  // select always has the applied unit to land on.
+  if (entry.unit !== line.unit) {
+    line.unit = entry.unit;
+    changes.push(`unit set to ${entry.unit}`);
+  }
+
   line.unitPrice = entry.price;
   line.unitPriceText = formatAmount(entry.price);
 
-  // Rule: Use never touches currency — only vendor, and always overwrites an
-  // already-selected vendor (not just when empty).
-  let vendorNote = "";
+  // Rule: Use never touches currency — only vendor and unit, and it always
+  // overwrites an already-selected vendor (not just when empty).
   if (entry.vendorName !== form.vendorName) {
     const hadVendor = !!form.vendorName;
     form.vendorName = entry.vendorName;
-    vendorNote = hadVendor ? ` — vendor changed to ${entry.vendorName}` : ` — vendor set to ${entry.vendorName}`;
+    changes.push(hadVendor ? `vendor changed to ${entry.vendorName}` : `vendor set to ${entry.vendorName}`);
   }
 
   activeLineKey.value = null;
   toast.notify({
     id: `apply-price-${Date.now()}`,
     variant: "success",
-    title: `Price applied${vendorNote}.`
+    title: changes.length ? `Price applied — ${changes.join(", ")}.` : "Price applied."
   });
 }
 

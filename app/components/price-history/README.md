@@ -44,9 +44,16 @@ Same status-conditional principle as the bottom action bar in
 4. **`mode="reference"` has no mutation path.** No apply action, no vendor-set,
    no currency-block logic — there's nothing to guard because there's nothing
    to mutate. Don't add an action slot in reference mode.
-5. **`mode="apply"`'s "Use this price" only ever changes vendor, never
+5. **`mode="apply"`'s "Use this price" changes vendor and unit, never
    currency.** A cross-currency row gets plain "Different currency" text, not
-   a disabled button — there's nothing else it could safely do.
+   a disabled button — there's nothing else it could safely do. The unit is
+   not optional: a price is only meaningful with the unit it was charged for,
+   so writing `entry.price` onto a line whose unit differs multiplies that
+   line by the packaging factor (a per-box price on a per-pcs line was off by
+   24× before this was fixed). Price and unit move together, and both side
+   effects are previewed under the button before the click. This is a copy of
+   the recorded pair, not a conversion — `unitFactorAtPurchase` is never
+   consulted here, which is what keeps rule 2 intact.
 6. **No document-level banner.** `PriceHistoryDrawer`'s `MpBanner` is an
    in-drawer scope explainer, not a document-level "this looks off" signal —
    don't repurpose it as one.
@@ -66,7 +73,7 @@ everything else does.
 
 | Component | Responsibility |
 |---|---|
-| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, and the banner. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. |
+| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, and the banner. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. `currentLine` is used by both modes — it renders the current card in `reference`, and in `apply` it is what the unit-change preview compares against, so pass it there too. |
 | `PriceHistoryRows.vue` | The rows table. Exposes an `#action` scoped slot per row (only used when `showAction` is true) so the drawer decides what renders there. |
 | `PriceHistoryCurrentCard.vue` | The read-only "this document · current" card — `mode="reference"` only. |
 | `HistoricalPriceCell.vue` | One historical price cell: money + "for 1 {unit}" + the hover/tap IDR estimate. The one place the disclosed currency exception lives. Uses `~/utils/currency`'s `formatMoney` — a multi-currency formatter kept separate from the Purchase module's own `formatCurrency` (see `docs/patterns/MoneyField.md` for why that's the right call, not a violation of the module's "one formatter per value type" rule). |
