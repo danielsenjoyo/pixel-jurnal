@@ -31,5 +31,10 @@ const cardClass = css({
   rounded: "md",
   p: 3
 });
-const topRowClass = css({ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 });
+const topRowClass = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 2
+});
 </script>

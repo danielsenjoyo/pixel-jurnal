@@ -1,5 +1,7 @@
 <template>
-  <MpText v-if="showNote" size="label-small" color="gray.600">1 {{ unit }} = {{ factor }} {{ baseUnit }}</MpText>
+  <MpText v-if="showNote" size="label-small" color="gray.600"
+    >1 {{ unit }} = {{ factor }} {{ baseUnit }}</MpText
+  >
 </template>
 
 <script setup lang="ts">

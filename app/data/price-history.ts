@@ -7,7 +7,10 @@ import type { PriceHistoryEntry } from "~/types/price-history";
  * `unitFactorAtPurchase` instead (see `ph-9` below, whose factor deliberately
  * differs from this map to exercise that rule).
  */
-export const UNIT_FACTORS = { pcs: 1, dozen: 12, box: 24 } as const satisfies Record<string, number>;
+export const UNIT_FACTORS = { pcs: 1, dozen: 12, box: 24 } as const satisfies Record<
+  string,
+  number
+>;
 export const BASE_UNIT = "pcs";
 
 /** Keyed to real names from `app/data/purchase-transactions.ts` `PRODUCT_OPTIONS`/`VENDOR_OPTIONS` — see `app/types/price-history.ts` for why there's no id. */

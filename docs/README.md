@@ -18,8 +18,8 @@ and the `@mekari/pixel3` component library.
 | Build a single-record screen                    | [`patterns/details-page-format.md`](./patterns/details-page-format.md)                                                  |
 | Build a create/edit form screen                 | [`patterns/form-page-format.md`](./patterns/form-page-format.md) + [`patterns/Form.md`](./patterns/Form.md)             |
 | Work on the Home landing page                   | [`patterns/home-page-format.md`](./patterns/home-page-format.md)                                                        |
-| Show a one-line confirmation after an action     | [`patterns/Toast.md`](./patterns/Toast.md)                                                                              |
-| Display or enter a currency amount               | [`patterns/MoneyField.md`](./patterns/MoneyField.md)                                                                    |
+| Show a one-line confirmation after an action    | [`patterns/Toast.md`](./patterns/Toast.md)                                                                              |
+| Display or enter a currency amount              | [`patterns/MoneyField.md`](./patterns/MoneyField.md)                                                                    |
 
 ## Map
 

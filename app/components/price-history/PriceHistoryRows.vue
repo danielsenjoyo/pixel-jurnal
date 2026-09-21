@@ -72,8 +72,14 @@
             </div>
           </MpTableCell>
           <MpTableCell as="td" :class="wrapCellClass">
-            <MpText size="body-small" weight="semiBold">{{ formatQty(row.qty) }} {{ row.unit }}</MpText>
-            <UnitConversionNote :unit="row.unit" :factor="row.unitFactorAtPurchase" :base-unit="row.baseUnit" />
+            <MpText size="body-small" weight="semiBold"
+              >{{ formatQty(row.qty) }} {{ row.unit }}</MpText
+            >
+            <UnitConversionNote
+              :unit="row.unit"
+              :factor="row.unitFactorAtPurchase"
+              :base-unit="row.baseUnit"
+            />
           </MpTableCell>
           <MpTableCell as="td" :class="[numCellClass, wrapCellClass]">
             <HistoricalPriceCell
@@ -99,7 +105,11 @@
                  same trap details-page-format.md records for "pdf-document").
                  Scaled down from the page-level 180px — this sits in a drawer. -->
             <div :class="emptyClass">
-              <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
+              <img
+                src="/illustrations/search-not-found.png"
+                alt=""
+                :class="emptyIllustrationClass"
+              />
               <MpText weight="semiBold" color="dark">No purchases found</MpText>
               <MpText size="body-small" color="gray.600">
                 No purchases have been recorded for this product yet.
@@ -150,9 +160,7 @@ const colCount = computed(() => (props.showAction ? 5 : 4));
 // authoritative, and an over-100% set silently pushes the last column
 // (the action cell) off the panel's right edge.
 const colWidths = computed(() =>
-  props.showAction
-    ? ["22%", "22%", "13%", "19%", "24%"]
-    : ["26%", "28%", "16%", "30%"]
+  props.showAction ? ["22%", "22%", "13%", "19%", "24%"] : ["26%", "28%", "16%", "30%"]
 );
 
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
@@ -164,7 +172,12 @@ const numCellClass = css({ textAlign: "right" });
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word" });
 // A value plus its quieter sub-line, stacked — the same shape the Purchases
 // index page uses for "number + description" in one cell.
-const stackClass = css({ display: "flex", flexDirection: "column", gap: "0.5", alignItems: "flex-start" });
+const stackClass = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.5",
+  alignItems: "flex-start"
+});
 // A date and a document number are single tokens — wrapping them mid-token
 // ("BILL/2026/07/050" / "3") is worse than letting the column carry them.
 const nowrapClass = css({ whiteSpace: "nowrap!" });

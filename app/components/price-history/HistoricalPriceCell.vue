@@ -1,6 +1,12 @@
 <template>
   <div :class="wrapClass">
-    <MpTooltip v-if="showEstimate" :label="estimateLabel" is-manual :is-open="isTipOpen" placement="left">
+    <MpTooltip
+      v-if="showEstimate"
+      :label="estimateLabel"
+      is-manual
+      :is-open="isTipOpen"
+      placement="left"
+    >
       <button type="button" :class="priceButtonClass" @click="isTipOpen = !isTipOpen">
         <MpText weight="semiBold">{{ mainAmount }}</MpText>
       </button>
@@ -37,7 +43,12 @@ const estimateLabel = computed(() => {
   return `≈ ${formatMoney(idr, "IDR")} at ${formatRate(props.exchangeRateAtPurchase)}/${props.currency} on ${props.purchasedAtLabel}`;
 });
 
-const wrapClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5" });
+const wrapClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: "0.5"
+});
 const priceButtonClass = css({
   border: "0",
   bg: "transparent",

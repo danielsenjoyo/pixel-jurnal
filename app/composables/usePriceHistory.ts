@@ -21,7 +21,11 @@ const EMPTY_RESULT: ScopeResult = { rows: [], total: 0 };
  * because other vendors bought the same item more recently. "This vendor"
  * and "all vendors" must each get their own independent last-10 window.
  */
-function queryScope(scope: PriceHistoryScope, product: string, vendorName: string | undefined): ScopeResult {
+function queryScope(
+  scope: PriceHistoryScope,
+  product: string,
+  vendorName: string | undefined
+): ScopeResult {
   const matched = PRICE_HISTORY.filter((entry) => entry.product === product)
     .filter((entry) => scope === "all" || entry.vendorName === vendorName)
     .sort((a, b) => (a.purchasedAt < b.purchasedAt ? 1 : -1));
@@ -29,12 +33,17 @@ function queryScope(scope: PriceHistoryScope, product: string, vendorName: strin
   return { rows: matched.slice(0, MAX_LAST), total: matched.length };
 }
 
-export function usePriceHistory(product: Ref<string | undefined>, vendorName: Ref<string | undefined>) {
+export function usePriceHistory(
+  product: Ref<string | undefined>,
+  vendorName: Ref<string | undefined>
+) {
   // Two independent computeds — "this vendor" is never derived by filtering
   // "all vendors"' already-capped result, so the last-10-per-scope bug can't
   // structurally reappear.
   const vendorResult = computed<ScopeResult>(() =>
-    product.value && vendorName.value ? queryScope("vendor", product.value, vendorName.value) : EMPTY_RESULT
+    product.value && vendorName.value
+      ? queryScope("vendor", product.value, vendorName.value)
+      : EMPTY_RESULT
   );
   const allResult = computed<ScopeResult>(() =>
     product.value ? queryScope("all", product.value, undefined) : EMPTY_RESULT
