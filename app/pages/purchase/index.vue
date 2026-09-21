@@ -526,7 +526,7 @@ const STATUS_TYPE = PURCHASE_STATUS_TYPE;
 // `status_options` getter (a switch on `active_tab.key`). Tabs absent from
 // that switch (jpi, ap, rj, fi) get no quick-filter select.
 const STATUS_OPTIONS_BY_TAB: Record<TabKey, StatusValue[]> = {
-  pi: ["open", "overdue", "paid", "partial", "unpaid"],
+  pi: ["draft", "open", "overdue", "paid", "partial", "unpaid"],
   jpi: [],
   pd: ["open", "closed"],
   po: ["open", "partially_sent", "closed"],

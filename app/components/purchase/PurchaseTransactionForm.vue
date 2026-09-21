@@ -316,7 +316,7 @@
                    (gated on props.type; see docs/patterns/details-page-format.md
                    § "Resolved — Purchase Price History"). Extending to Order
                    is a one-line guard change, not a new component. -->
-              <div v-if="props.type === 'invoice' && line.product" :class="priceHistoryCellClass">
+              <div v-if="showPriceHistory && line.product" :class="priceHistoryCellClass">
                 <MpTextlink
                   v-if="hasPriceHistory(line.product)"
                   as="button"
@@ -607,7 +607,7 @@
          unconditionally (not v-if'd on a selected line) so the panel's open
          transition always has a real closed→open state to animate from. -->
     <PriceHistoryDrawer
-      v-if="props.type === 'invoice'"
+      v-if="showPriceHistory"
       :is-open="activeLineKey !== null"
       mode="apply"
       :product="activeLine?.product ?? ''"
@@ -765,6 +765,15 @@ const typeLabel = computed(() => TRANSACTION_TYPE_LABEL[props.type]);
 const isEdit = computed(() => props.recordId != null);
 const existing = computed(() =>
   props.recordId != null ? getTransactionOfType(props.recordId, props.type) : undefined
+);
+
+// Purchase Price History, phase 1: Purchase Invoice only, and only while the
+// price can still change. Creating is always that — nothing is committed yet.
+// Editing is only that while the record is still a draft, which mirrors the
+// detail page's own gate (`app/pages/purchase/invoice/[id].vue`), so the same
+// invoice never offers the reference in one place and hides it in the other.
+const showPriceHistory = computed(
+  () => props.type === "invoice" && (!isEdit.value || existing.value?.status === "draft")
 );
 
 const currency = ref("IDR");
@@ -999,7 +1008,9 @@ function onApplyPrice(entry: PriceHistoryEntry) {
   if (entry.vendorName !== form.vendorName) {
     const hadVendor = !!form.vendorName;
     form.vendorName = entry.vendorName;
-    changes.push(hadVendor ? `vendor changed to ${entry.vendorName}` : `vendor set to ${entry.vendorName}`);
+    changes.push(
+      hadVendor ? `vendor changed to ${entry.vendorName}` : `vendor set to ${entry.vendorName}`
+    );
   }
 
   activeLineKey.value = null;

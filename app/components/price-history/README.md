@@ -11,19 +11,34 @@ component), not a new component set.
 
 ## When the reference appears
 
-Price history is a **pre-approval check**. It helps someone judge a price they
-can still change or reject; once a record is approved and posted, the price is
-committed and the reference is a fact with no available action.
+Price history is a **pre-commit check**. It helps someone judge a price that can
+still be changed; once the invoice leaves draft the price is committed and the
+reference is a fact with no available action.
 
-| Surface | Shown? |
-|---|---|
-| Create / edit form (`PurchaseTransactionForm.vue`) | Always — a price is being entered. |
-| Detail page (`invoice/[id].vue`) | Only when `needsApproval` is true. |
+| Surface                                                    | Shown?                                        |
+| ---------------------------------------------------------- | --------------------------------------------- |
+| Create form (`PurchaseTransactionForm.vue`, no `recordId`) | Always — nothing is committed yet.            |
+| Edit form (`PurchaseTransactionForm.vue`, `recordId` set)  | Only when the record's `status` is `"draft"`. |
+| Detail page (`invoice/[id].vue`)                           | Only when `status` is `"draft"`.              |
 
-`needsApproval` is independent of `status` in this dataset, so an invoice can
-read "Paid" and still be awaiting approval — don't gate on the status badge.
-Same status-conditional principle as the bottom action bar in
-`docs/patterns/details-page-format.md`.
+Both surfaces read the same condition, so one invoice never offers the
+reference in one place and hides it in the other.
+
+**Gate on the status, not on a flag.** An earlier iteration gated the detail
+page on `needsApproval`, which is independent of `status` in this dataset — the
+page could read "Paid" while behaving like a record under review, and nothing
+on screen explained why one invoice carried the link and another did not. The
+draft status sits in the page's own badge, so the condition is visible right
+where the affordance is. Same status-conditional principle as the bottom action
+bar in `docs/patterns/details-page-format.md`.
+
+Phase 1 is Purchase Invoice only. `"draft"` is seeded into the invoice slice of
+`STATUS_POOL` in `app/data/purchase-transactions.ts`, and its position in that
+array is load-bearing: it puts the draft status on invoices 2 and 8, both of
+which carry Wireless Mouse next to products with no history, and both of whose
+vendors have bought it before — so the drawer opens vendor-scoped and every
+state of the feature is reachable from a seeded page. Extending to another
+type means adding `"draft"` to that type's pool as well.
 
 ## Non-negotiable rules (carry these into any new caller)
 
@@ -71,13 +86,13 @@ everything else does.
 
 ## Components
 
-| Component | Responsibility |
-|---|---|
-| `PriceHistoryDrawer.vue` | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, and the banner. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. `currentLine` is used by both modes — it renders the current card in `reference`, and in `apply` it is what the unit-change preview compares against, so pass it there too. |
-| `PriceHistoryRows.vue` | The rows table. Exposes an `#action` scoped slot per row (only used when `showAction` is true) so the drawer decides what renders there. |
-| `PriceHistoryCurrentCard.vue` | The read-only "this document · current" card — `mode="reference"` only. |
-| `HistoricalPriceCell.vue` | One historical price cell: money + "for 1 {unit}" + the hover/tap IDR estimate. The one place the disclosed currency exception lives. Uses `~/utils/currency`'s `formatMoney` — a multi-currency formatter kept separate from the Purchase module's own `formatCurrency` (see `docs/patterns/MoneyField.md` for why that's the right call, not a violation of the module's "one formatter per value type" rule). |
-| `UnitConversionNote.vue` | The "1 box = 24 pcs" note, driven entirely by props. |
+| Component                     | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PriceHistoryDrawer.vue`      | The `MpDrawer` shell. Owns scope state, the scope toggle, the count line, and the banner. Props: `isOpen`, `mode`, `product`, `vendorName?`, `documentCurrency`, `currentLine?`. Emits `close`, `apply(entry)`. `currentLine` is used by both modes — it renders the current card in `reference`, and in `apply` it is what the unit-change preview compares against, so pass it there too.                      |
+| `PriceHistoryRows.vue`        | The rows table. Exposes an `#action` scoped slot per row (only used when `showAction` is true) so the drawer decides what renders there.                                                                                                                                                                                                                                                                         |
+| `PriceHistoryCurrentCard.vue` | The read-only "this document · current" card — `mode="reference"` only.                                                                                                                                                                                                                                                                                                                                          |
+| `HistoricalPriceCell.vue`     | One historical price cell: money + "for 1 {unit}" + the hover/tap IDR estimate. The one place the disclosed currency exception lives. Uses `~/utils/currency`'s `formatMoney` — a multi-currency formatter kept separate from the Purchase module's own `formatCurrency` (see `docs/patterns/MoneyField.md` for why that's the right call, not a violation of the module's "one formatter per value type" rule). |
+| `UnitConversionNote.vue`      | The "1 box = 24 pcs" note, driven entirely by props.                                                                                                                                                                                                                                                                                                                                                             |
 
 ## Data layer
 

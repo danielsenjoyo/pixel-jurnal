@@ -39,16 +39,16 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 
 ## Zone → pattern map
 
-| Zone | Piece                                        | Pattern                                                                                           |
-| ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| —    | Breadcrumb + title + status                  | [`page-title-bar`](./page-title-bar.md) (`breadcrumb`/`breadcrumbTo` props + `#title-badge` slot) |
-| —    | Section tabs                                 | [`Tabs`](./Tabs.md)                                                                               |
-| A    | Identity row                                 | Plain labeled fields, **no** `StatusBadge` here — it's in the title                               |
-| B    | Record KPIs                                  | [`SummaryBox`](./SummaryBox.md)                                                                   |
-| C    | Detail sections / edit form                  | [`Form`](./Form.md)                                                                               |
-| D    | Related records / line items                 | [`TablePage`](./TablePage.md) (compact — often no bulk bar)                                       |
+| Zone | Piece                                        | Pattern                                                                                                                                                                                                                  |
+| ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| —    | Breadcrumb + title + status                  | [`page-title-bar`](./page-title-bar.md) (`breadcrumb`/`breadcrumbTo` props + `#title-badge` slot)                                                                                                                        |
+| —    | Section tabs                                 | [`Tabs`](./Tabs.md)                                                                                                                                                                                                      |
+| A    | Identity row                                 | Plain labeled fields, **no** `StatusBadge` here — it's in the title                                                                                                                                                      |
+| B    | Record KPIs                                  | [`SummaryBox`](./SummaryBox.md)                                                                                                                                                                                          |
+| C    | Detail sections / edit form                  | [`Form`](./Form.md)                                                                                                                                                                                                      |
+| D    | Related records / line items                 | [`TablePage`](./TablePage.md) (compact — often no bulk bar)                                                                                                                                                              |
 | D.1  | Line-level reference affordance              | A per-row trigger (e.g. "See past prices") opening a [`Drawer`](./Drawer.md) scoped to that row — or, when there's nothing to reference, a plain under-value text note. Lives inside a Zone D row, not the identity row. |
-| E    | Delete + primary/secondary lifecycle actions | Bottom action bar (see below) + [`Modal`](./Modal.md) for Delete                                  |
+| E    | Delete + primary/secondary lifecycle actions | Bottom action bar (see below) + [`Modal`](./Modal.md) for Delete                                                                                                                                                         |
 
 ## Rules
 
@@ -348,6 +348,15 @@ the reusable component set: [`app/components/price-history/README.md`](../../app
   `mode="apply"` (an action column, no current-price card) on the form.
   Divergent behavior lives in the drawer's own mode branch, not in two
   forked copies of it.
+- **Gate a conditional affordance on something the page already shows.**
+  The reference only appears while the invoice is a draft, and "Draft" is
+  right there in the Zone A status badge — so a reader who notices the link
+  on one invoice and not another can see why without being told. An earlier
+  iteration gated on a `needsApproval` flag that is independent of `status`
+  in this dataset: the page read "Paid", behaved like a record under review,
+  and the affordance's coming and going was unexplainable from the screen.
+  If a gate's condition isn't visible in a zone, either surface it or pick a
+  different gate.
 - **This is the one place on either page that keys off names, not ids** —
   `purchase-transactions.ts` has no `productId`/`vendorId` (see its own
   file for why), so the price-history lookup joins on `product` and

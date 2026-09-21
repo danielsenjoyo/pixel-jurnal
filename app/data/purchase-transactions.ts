@@ -383,7 +383,17 @@ function buildLines(seq: number): PurchaseTransactionLine[] {
 // "Partially sent"). "rejected" and the needsApproval flag are layered on
 // top of this pool per-record (see buildTransaction), not part of it.
 const STATUS_POOL: Record<TransactionType, PurchaseStatus[]> = {
-  invoice: ["open", "overdue", "paid", "partial", "unpaid"],
+  // "draft" sits second in the invoice pool so invoices 2 and 8 land on it.
+  // The position is load-bearing: the price reference only appears on a draft
+  // (see `app/components/price-history/README.md`), so at least one draft has
+  // to be a record that shows the feature properly. Both of these carry
+  // Wireless Mouse — the product price history is seeded against — next to
+  // products that have none, and both belong to a vendor that has bought that
+  // product before, so the drawer opens vendor-scoped rather than falling
+  // back to All vendors. Invoice-only for now: phase 1 of Purchase Price
+  // History covers Purchase Invoice, and this pool is already per-type
+  // asymmetric on purpose.
+  invoice: ["open", "draft", "overdue", "paid", "partial", "unpaid"],
   join_invoice: ["open", "paid"],
   delivery: ["open", "closed"],
   order: ["open", "partially_sent", "closed"],
@@ -531,8 +541,16 @@ function linkOrdersToDeliveries(all: PurchaseTransaction[]): void {
 // invoices' totals/balances — a join invoice bills exactly what its linked
 // invoices owe, nothing more. Drives the Join Invoice detail page's linked-
 // invoices table + "Total join invoice"/"Total remaining billed" figures.
+// Both linkers below pick from posted invoices only. A draft is not a document
+// anything can be raised against yet — a return crediting an unposted invoice,
+// or a join invoice bundling one, is a state the real product can't reach, and
+// it would show up on the very pages Purchase Price History is demoed from.
+function postedInvoice(t: PurchaseTransaction): boolean {
+  return t.type === "invoice" && t.status !== "draft";
+}
+
 function linkJoinInvoicesToInvoices(all: PurchaseTransaction[]): void {
-  const invoices = all.filter((t) => t.type === "invoice");
+  const invoices = all.filter(postedInvoice);
   if (!invoices.length) return;
   const joinInvoices = all.filter((t) => t.type === "join_invoice");
   joinInvoices.forEach((joinInvoice, i) => {
@@ -554,7 +572,7 @@ function linkJoinInvoicesToInvoices(all: PurchaseTransaction[]): void {
 // invoiced. Runs as a pass over the finished array because the invoices have
 // to exist first — same reason as linkOrdersToDeliveries.
 function linkReturnsToInvoices(all: PurchaseTransaction[]): void {
-  const invoices = all.filter((t) => t.type === "invoice");
+  const invoices = all.filter(postedInvoice);
   if (!invoices.length) return;
   all
     .filter((t) => t.type === "return")

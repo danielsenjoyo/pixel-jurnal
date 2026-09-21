@@ -189,13 +189,18 @@
               <MpTableCell as="td" :class="numCellClass">
                 <div :class="priceCellClass">
                   <MpText weight="semiBold">{{ formatCurrency(line.unitPrice) }}</MpText>
-                  <!-- Price history is a pre-approval check (OD-006): it helps
-                       an approver judge a price they can still reject. Once the
-                       record is approved and posted the price is committed, so
-                       the reference has nothing to act on — hence gated on
-                       needsApproval rather than shown on every detail page.
-                       Same status-conditional principle as the bottom action
-                       bar (docs/patterns/details-page-format.md). -->
+                  <!-- Price history is a pre-commit check (OD-006): it helps
+                       whoever reviews a draft judge a price that can still be
+                       changed. Once the invoice leaves draft the price is
+                       committed, so the reference has nothing to act on —
+                       hence gated on the draft status rather than shown on
+                       every detail page. Gating on the status specifically,
+                       and not on a flag, is what makes the affordance
+                       self-explanatory: the badge at the top of this page
+                       already says "Draft", so the condition that puts this
+                       link here is on screen. Same status-conditional
+                       principle as the bottom action bar
+                       (docs/patterns/details-page-format.md). -->
                   <template v-if="showPriceHistory">
                     <MpTextlink
                       v-if="hasHistory(line.product)"
@@ -614,11 +619,17 @@ useHead({
 const isDeleteModalOpen = ref(false);
 
 const activeLineId = ref<number | null>(null);
-const activeLine = computed(() => invoice.value?.lines.find((line) => line.id === activeLineId.value));
-// OD-006 is a pre-approval check — only surface it while the record can still
-// be rejected. A posted/paid invoice's price is committed, so a reference to
-// past prices there is a fact with no available action.
-const showPriceHistory = computed(() => invoice.value?.needsApproval === true);
+const activeLine = computed(() =>
+  invoice.value?.lines.find((line) => line.id === activeLineId.value)
+);
+// OD-006 is a pre-commit check — only surface it while the price can still
+// change. A posted invoice's price is committed, so a reference to past prices
+// there is a fact with no available action. Phase 1 scopes that to the draft
+// status, which has the side benefit of being visible in the page's own status
+// badge — an earlier iteration gated on `needsApproval`, which is independent
+// of `status` here, so the page could read "Paid" while silently behaving like
+// a record under review.
+const showPriceHistory = computed(() => invoice.value?.status === "draft");
 function hasHistory(product: string) {
   return hasPriceHistory(product);
 }
@@ -694,7 +705,12 @@ const metaFieldClass = css({ display: "flex", flexDirection: "column", gap: 1, m
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const numCellClass = css({ textAlign: "right" });
-const priceCellClass = css({ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 });
+const priceCellClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1
+});
 // The note sits under the price and must stay inside the Unit price column —
 // the cell inherits white-space:nowrap, so without this it runs out across
 // the Discount and Amount columns instead of wrapping under the figure.
