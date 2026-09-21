@@ -221,6 +221,10 @@ async function collectElements(page) {
 
 async function executeFlowStep(page, trigger) {
   if (!trigger) return;
+  // Steps are comma-separated, so a selector or label containing a comma gets
+  // shredded into nonsense steps that then silently no-op. Keep selectors
+  // comma-free — e.g. prefer [placeholder^='Cari No. CM'] over matching the
+  // full "Cari No. CM, dokumen, atau No. transaksi" placeholder.
   const steps = trigger
     .split(",")
     .map((s) => s.trim())
@@ -259,6 +263,32 @@ async function executeFlowStep(page, trigger) {
           (el || matches[0])?.click();
         }, text)
         .catch(() => {});
+    } else if (step.startsWith("select-option:")) {
+      // select-option:<selector>|<value-or-label> — pick an option on a NATIVE
+      // <select>. click-text/select-text can't drive one (the OS renders its
+      // option list outside the DOM), so this uses Playwright's selectOption,
+      // which also fires the change event the app listens on. Tries by value
+      // first, then falls back to the visible label.
+      const rest = step.slice(14);
+      const sepIdx = rest.indexOf("|");
+      const sel = rest.slice(0, sepIdx);
+      const val = rest.slice(sepIdx + 1);
+      try {
+        await page.selectOption(sel, val, { timeout: 5000 });
+      } catch {
+        await page.selectOption(sel, { label: val }, { timeout: 5000 }).catch(() => {});
+      }
+    } else if (step.startsWith("check:")) {
+      // check:<selector> — tick a radio/checkbox whose real <input> is visually
+      // hidden behind a styled label (the Pixel pattern). A plain `click:` times
+      // out on a zero-size input; check() with force drives the input directly
+      // and still fires the change event the v-model listens on.
+      const sel = step.slice(6);
+      try {
+        await page.check(sel, { force: true, timeout: 5000 });
+      } catch {
+        await page.click(sel, { force: true, timeout: 5000 }).catch(() => {});
+      }
     } else if (step.startsWith("type:")) {
       // type:<selector>|<text> — click the selector to focus it, then type the
       // text via real keystrokes (so autocomplete/input listeners fire), e.g.

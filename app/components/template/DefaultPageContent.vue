@@ -73,10 +73,15 @@ const pageTitleClass = css({
   flexShrink: 0
 });
 
+// Title + subtitle sit inline on one baseline (e.g. "Sales by customer (in
+// IDR)") rather than stacked — matches the existing Jurnal report header
+// convention. Only used when a subtitle is actually passed; with no subtitle
+// this is just a single h1, so the row-vs-column distinction is moot.
 const titleColumnClass = css({
   display: "flex",
-  flexDirection: "column",
-  gap: 1,
+  flexDirection: "row",
+  alignItems: "baseline",
+  gap: 2,
   flex: "1 1 auto",
   minWidth: 0
 });

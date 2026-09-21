@@ -3,12 +3,10 @@
   "configurations": [
     {
       "name": "jurnal-nuxt",
-      "runtimeExecutable": "/tmp/node-v22.21.1-darwin-arm64/bin/node",
-      "runtimeArgs": [
-        "/Users/snjoy/Documents/Claude/mekari-jurnal-boilerplate/node_modules/nuxt/bin/nuxt.mjs",
-        "dev"
-      ],
-      "port": 3000
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }

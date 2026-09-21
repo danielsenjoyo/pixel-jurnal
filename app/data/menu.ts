@@ -64,7 +64,25 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
       icon: "bank",
       route: "/cash-bank"
     },
-    { id: "sales", label: "Sales", labelId: "Penjualan", icon: "sales", route: "/sales" },
+    {
+      id: "sales",
+      label: "Sales",
+      labelId: "Penjualan",
+      icon: "sales",
+      route: "/sales",
+      submenu: {
+        title: "Sales",
+        titleId: "Penjualan",
+        items: [
+          {
+            id: "credit-memo-report",
+            label: "Credit Memo Report",
+            labelId: "Laporan Kredit Memo",
+            route: "/sales/credit-memo/report"
+          }
+        ]
+      }
+    },
     { id: "purchase", label: "Purchases", labelId: "Pembelian", icon: "cart", route: "/purchase" },
     { id: "expenses", label: "Expenses", labelId: "Biaya", icon: "expenses", route: "/expenses" },
     {
