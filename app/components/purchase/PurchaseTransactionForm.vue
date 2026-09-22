@@ -317,16 +317,8 @@
                    § "Resolved — Purchase Price History"). Extending to Order
                    is a one-line guard change, not a new component. -->
               <div v-if="showPriceHistory && line.product" :class="priceHistoryCellClass">
-                <MpText
-                  v-if="priceRuleFor(line.product)"
-                  size="label-small"
-                  color="gray.600"
-                  :class="priceNoteClass"
-                >
-                  Price rule: {{ priceRuleFor(line.product)?.name }}
-                </MpText>
                 <MpTextlink
-                  v-else-if="hasPriceHistory(line.product)"
+                  v-if="hasPriceHistory(line.product)"
                   as="button"
                   variant="primary"
                   :class="textlinkAlignClass"
@@ -682,7 +674,6 @@ import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
 import { textlinkAlignClass } from "~/utils/textlink-align";
 import { hasPriceHistory } from "~/data/price-history";
-import { findPriceRule } from "~/data/price-rules";
 import type { PriceHistoryEntry } from "~/types/price-history";
 import {
   CURRENCY_OPTIONS,
@@ -784,16 +775,6 @@ const existing = computed(() =>
 const showPriceHistory = computed(
   () => props.type === "invoice" && (!isEdit.value || existing.value?.status === "draft")
 );
-
-// A price rule outranks the reference: the price for this product from this
-// vendor is already agreed, so offering past prices would invite overwriting a
-// contracted price with an older one. The line names the rule instead of going
-// quiet, so a reader can tell "governed" from "nothing to show". Reads
-// `form.vendorName`, so picking or changing the vendor flips the cell — which
-// is the point: the vendor is what makes a rule apply.
-function priceRuleFor(product: string) {
-  return findPriceRule(product, form.vendorName);
-}
 
 const currency = ref("IDR");
 const priceIncludesTax = ref(false);
