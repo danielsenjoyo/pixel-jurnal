@@ -31,8 +31,32 @@ options:
 Don't ask this when the user explicitly requests a plain `git push` with no vibe-coding context (e.g.
 they're just syncing an already-reviewed branch).
 
+`/pixel-review` (`.claude/commands/pixel-review.md`) is a live browser UX audit of the running
+prototype, distinct from any diff/compliance-checklist review the repo may already have.
+
 ## Design Review Knowledge
 
 Used by `/pixel-review`. Lives in `scripts/pixel-review-principles.md` so it travels as one portable
 asset set with `pixel-review.js` and `report-template.html`. Never guess from memory — always read
 that file first.
+
+## Pixel Police — the compliance gate
+
+Design-system compliance, as opposed to `/pixel-review`'s UX quality audit. Two halves:
+
+- **`scripts/pixel-police.sh`** — 7 mechanical rules (hardcoded colour, raw HTML control, inline
+  `style`, `<style>` block, px spacing/type, non-`pixel3` import, `setNextTheme(true)`) checked on the
+  **added lines only** of changed `.vue` files, versus the merge-base with `origin/main`. "Changed"
+  means every commit since that base **plus the working tree** — staged, unstaged, and untracked
+  `.vue` files alike — so running it on work you haven't committed yet checks that work. Runs
+  automatically on `git push` (husky `pre-push`) and on every PR to `main`
+  (`.github/workflows/ci.yml`). A line that is a genuine documented exception gets a trailing
+  `pixel-police-allow` comment — and the exception written into `docs/` in the same change.
+- **The `pixel-police` skill** (`.agents/skills/pixel-police/`) — the reviewer that runs the same
+  rules plus everything a script can't see (component/prop correctness via the Pixel MCP, pattern
+  conformance, state coverage, copy, a11y), emits findings, and rewrites the code to comply. Its
+  `references/rules.md` is the full two-tier rule list.
+
+Run `pnpm lint`, `pnpm typecheck` and `bash scripts/pixel-police.sh` before handing work
+back — all three also run on `git push` (husky `pre-push`) and in CI. Never silence a
+finding with `pixel-police-allow` to make the gate pass.

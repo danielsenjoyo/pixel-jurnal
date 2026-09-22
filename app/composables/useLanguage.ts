@@ -84,11 +84,34 @@ function localeName(code: AppLocale): string {
   return LOCALE_OPTIONS.find((option) => option.code === code)?.name ?? code;
 }
 
+/**
+ * Translate an English/Indonesian content pair. Data files (`menu.ts`,
+ * `home.ts`, `reports.ts`) carry their copy as `{ someField, someFieldId }` —
+ * pass the record and the English field name, and this picks the `Id` sibling
+ * when the locale is `id`. Reads `locale.value` at call time, so calling it
+ * inside a template or computed makes that render reactive to language changes.
+ *
+ * `T extends object`, deliberately not `Record<string, unknown>`. A plain
+ * interface — `HomeActivity`, `ReportEntry`, `ReportTab` — has no index
+ * signature, so it is NOT assignable to `Record<string, unknown>`; the stricter
+ * bound rejected every real caller and produced fourteen type errors across
+ * Home and Reports for code that was correct. The `Id` sibling is looked up
+ * through a widened view instead, which is honest about what this does: it
+ * reads a key the type doesn't necessarily declare.
+ */
+function tField<T extends object>(item: T, field: string & keyof T): string {
+  const fields = item as Record<string, unknown>;
+  const indonesian = fields[`${field}Id`];
+  if (locale.value === "id" && typeof indonesian === "string" && indonesian) return indonesian;
+  return String(fields[field] ?? "");
+}
+
 export function useLanguage() {
   return {
     locale: readonly(locale),
     setLocale,
     t,
+    tField,
     localeName,
     localeOptions: LOCALE_OPTIONS
   };

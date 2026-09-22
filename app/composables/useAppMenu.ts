@@ -10,12 +10,15 @@ function isRouteActive(currentPath: string, itemRoute: string) {
 }
 
 function getFirstChildRoute(item: AppMenuItem | AppMenuChild): string {
-  if ("submenu" in item && item.submenu?.items[0]) {
-    return getFirstChildRoute(item.submenu.items[0]);
-  }
-  if ("children" in item && (item as AppMenuChild & { children?: AppMenuChild[] }).children?.[0]) {
-    return getFirstChildRoute((item as AppMenuChild & { children: AppMenuChild[] }).children[0]);
-  }
+  // Bind each candidate before recursing rather than testing and re-indexing.
+  // Under `noUncheckedIndexedAccess` a second `[0]` is `T | undefined` again
+  // however the first one was guarded, so the re-index was the type error.
+  const submenuFirst = "submenu" in item ? item.submenu?.items[0] : undefined;
+  if (submenuFirst) return getFirstChildRoute(submenuFirst);
+
+  const childFirst = (item as AppMenuChild & { children?: AppMenuChild[] }).children?.[0];
+  if (childFirst) return getFirstChildRoute(childFirst);
+
   return item.route;
 }
 

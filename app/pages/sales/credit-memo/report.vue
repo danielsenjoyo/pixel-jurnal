@@ -352,27 +352,24 @@
     </template>
 
     <!-- Error: distinct from all 3 empty variants below (EH-005-01). -->
-    <div v-else-if="reportState === 'error'" :class="errorStateClass">
-      <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="emptyTitleClass">Laporan gagal dimuat.</MpText>
-      <MpText size="body-small" color="gray.600" :class="emptyDescClass">
-        Koneksi ke server terputus saat mengambil data laporan. Tidak ada data yang tersimpan atau
-        berubah. Coba muat ulang; bila masih gagal, hubungi tim support dengan kode CMR-500.
-      </MpText>
+    <BlankSlate
+      v-else-if="reportState === 'error'"
+      variant="no-connection"
+      title="Laporan gagal dimuat."
+      description="Koneksi ke server terputus saat mengambil data laporan. Tidak ada data yang tersimpan atau berubah. Coba muat ulang; bila masih gagal, hubungi tim support dengan kode CMR-500."
+    >
       <MpButton variant="secondary" @click="demoState = 'normal'">Coba lagi</MpButton>
-    </div>
+    </BlankSlate>
 
-    <!-- Empty: 3 contextually distinct copy variants, never conflated with the error state. -->
-    <div v-else :class="emptyStateClass">
-      <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="emptyTitleClass">{{ emptyTitle }}</MpText>
-      <MpText size="body-small" color="gray.600" :class="emptyDescClass">{{
-        emptyDescription
-      }}</MpText>
+    <!-- Empty: 3 contextually distinct copy variants, never conflated with the
+         error state above. The illustration follows the cause, per
+         docs/patterns/BlankSlate.md — a magnifier only when a query excluded
+         something. -->
+    <BlankSlate v-else :variant="emptyVariant" :title="emptyTitle" :description="emptyDescription">
       <MpButton v-if="emptyReason === 'filter-no-match'" variant="secondary" @click="resetFilters">
         Reset filter
       </MpButton>
-    </div>
+    </BlankSlate>
   </DefaultPageContent>
 
   <!-- Filter drawer — the ONLY place applied filters are ever visible. The main
@@ -600,6 +597,8 @@ import {
   MpToggle,
   type DataInterface
 } from "@mekari/pixel3";
+import BlankSlate from "~/components/template/BlankSlate.vue";
+import { parseLocalIsoDate, toLocalIsoDate } from "~/utils/dates";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 
 useHead({ title: "Laporan Detail Kredit Memo — Mekari Jurnal" });
@@ -974,7 +973,7 @@ const TX_STATUS_LABEL: Record<TxStatus, string> = {
 // Fixed "today" so the prototype behaves the same regardless of when it's
 // opened — mirrors the reference prototype (credit-memo-report-v3.html).
 const REPORT_TODAY = new Date(2026, 7, 27);
-const REPORT_TODAY_ISO = isoDate(REPORT_TODAY);
+const REPORT_TODAY_ISO = toLocalIsoDate(REPORT_TODAY);
 const MONTHS_ID = [
   "Jan",
   "Feb",
@@ -990,15 +989,10 @@ const MONTHS_ID = [
   "Des"
 ];
 
-function isoDate(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-function parseISO(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
+/** "27 Agu 2026" — the Indonesian short form this report shows. The ISO
+ *  converters it builds on live in ~/utils/dates. */
 function formatDateID(iso: string) {
-  const d = parseISO(iso);
+  const d = parseLocalIsoDate(iso);
   return `${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
 }
 /** Mutasi is read as a movement, so it always carries its direction. Uses a
@@ -1051,7 +1045,7 @@ const pendingDate = ref<Date>(new Date(REPORT_TODAY));
 const appliedDate = ref<Date>(new Date(REPORT_TODAY));
 const activePreset = ref<string | null>(null);
 
-const asOfDateISO = computed(() => isoDate(appliedDate.value));
+const asOfDateISO = computed(() => toLocalIsoDate(appliedDate.value));
 const isFutureAsOfDate = computed(() => asOfDateISO.value > REPORT_TODAY_ISO);
 
 const QUICK_PRESETS = [
@@ -1460,6 +1454,12 @@ const emptyTitle = computed(() => {
   if (emptyReason.value === "all-zero-toggle-off") return "Semua Kredit Memo sudah habis terpakai.";
   return "Tidak ada Kredit Memo aktif pada tanggal ini.";
 });
+// "no-activity" means there is genuinely nothing as of this date; the other two
+// mean the user's own filters or toggle excluded what exists, which is what the
+// magnifier asset says.
+const emptyVariant = computed<"no-data" | "not-found">(() =>
+  emptyReason.value === "no-activity" ? "no-data" : "not-found"
+);
 const emptyDescription = computed(() => {
   if (emptyReason.value === "filter-no-match")
     return activeFilterSummary.value
@@ -1651,26 +1651,6 @@ const txDescTextClass = css({
 });
 
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
-
-const emptyStateClass = css({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 3,
-  py: 16,
-  textAlign: "center"
-});
-const errorStateClass = css({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 3,
-  py: 16,
-  textAlign: "center"
-});
-const emptyIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
-const emptyTitleClass = css({ fontSize: "lg" });
-const emptyDescClass = css({ maxWidth: "320px" });
 
 const drawerTitleClass = css({ fontSize: "lg" });
 const filterDrawerFormClass = css({ display: "flex", flexDirection: "column", gap: 4 });

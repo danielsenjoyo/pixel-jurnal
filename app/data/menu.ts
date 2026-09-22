@@ -74,6 +74,15 @@ export const APP_MENU_GROUPS: AppMenuGroup[] = [
         title: "Sales",
         titleId: "Penjualan",
         items: [
+          // A top-menu item with a submenu resolves to its FIRST child
+          // (useAppMenu's getFirstChildRoute), so the transaction list has to be
+          // listed here or /sales becomes unreachable from the rail.
+          {
+            id: "transactions",
+            label: "Transactions",
+            labelId: "Transaksi",
+            route: "/sales"
+          },
           {
             id: "credit-memo-report",
             label: "Credit Memo Report",

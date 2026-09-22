@@ -18,7 +18,7 @@
       })
     "
   >
-    <div data-slot="leftContent" :class="css({ display: 'flex', alignItems: 'center' })">
+    <div data-slot="leftContent" :class="css({ display: 'flex', alignItems: 'center', flex: '1' })">
       <NuxtLink to="/" :class="logoLinkClass">
         <img
           :class="css({ display: 'block' })"
@@ -28,6 +28,8 @@
           width="auto"
         />
       </NuxtLink>
+
+      <GlobalSearch />
     </div>
 
     <div
@@ -84,6 +86,7 @@
 <script setup lang="ts">
 import { css, MpButton, MpIcon, MpTooltip } from "@mekari/pixel3";
 import { usePixelLayout } from "~/composables/usePixelLayout";
+import GlobalSearch from "~/components/navbar/GlobalSearch.vue";
 import QuickAction from "~/components/navbar/QuickAction.vue";
 import Notification from "~/components/navbar/Notification.vue";
 import SwitchAccount from "~/components/navbar/SwitchAccount.vue";
@@ -103,7 +106,7 @@ const logoLinkClass = css({
   alignItems: "center"
 });
 
-/** Icon-only navbar buttons share `--spacing-2xs` (6px) square padding (Figma spec). */
+/** Icon-only navbar buttons share `padding: 1.5` (--mp-spacing-1.5 = 6px, Figma spec). */
 const iconBtnClass = css({
   padding: "1.5"
 });
