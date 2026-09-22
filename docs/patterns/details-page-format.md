@@ -361,11 +361,15 @@ the reusable component set: [`app/components/price-history/README.md`](../../app
   `purchase-transactions.ts` has no `productId`/`vendorId` (see its own
   file for why), so the price-history lookup joins on `product` and
   `vendorName` strings, same as everything else in this module.
-- **Gating a capability to one `type` value inside a shared form component
-  is enough to keep it from leaking to sibling types** — no fork of
-  `PurchaseTransactionForm.vue` was needed to keep this Invoice-only for
-  now. Extending it to Order later is a one-line guard change, not a new
-  component.
+- **Gating a capability by `type` inside a shared form component is enough
+  to control which siblings get it** — no fork of
+  `PurchaseTransactionForm.vue` was needed. The list lives in one array
+  (`PRICE_HISTORY_TYPES`), so Purchase Order was added by writing `"order"`
+  in it and Quote/Request/Delivery still get nothing. A form capability
+  does not carry to that type's detail page, though: the reference on a
+  detail page needs a draft status in the type's own `STATUS_POOL` slice and
+  a cell in its `[id].vue`, which is why Order has the form half and not the
+  read half.
 
 Update this file when a seventh details page's reference reveals a rule
 these six didn't need, or a real-product screenshot corrects something

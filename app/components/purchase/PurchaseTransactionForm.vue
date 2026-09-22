@@ -312,10 +312,10 @@
                   />
                 </MpInputGroup>
               </div>
-              <!-- Purchase Price History — apply mode, Invoice only for now
-                   (gated on props.type; see docs/patterns/details-page-format.md
-                   § "Resolved — Purchase Price History"). Extending to Order
-                   is a one-line guard change, not a new component. -->
+              <!-- Purchase Price History — apply mode, on the document types in
+                   PRICE_HISTORY_TYPES (see docs/patterns/details-page-format.md
+                   § "Resolved — Purchase Price History"). Adding a type is an
+                   entry in that array, not a new component. -->
               <div v-if="showPriceHistory && line.product" :class="priceHistoryCellClass">
                 <MpTextlink
                   v-if="hasPriceHistory(line.product)"
@@ -603,9 +603,9 @@
       </template>
     </div>
 
-    <!-- Purchase Price History — apply mode, Invoice only for now. Mounted
-         unconditionally (not v-if'd on a selected line) so the panel's open
-         transition always has a real closed→open state to animate from. -->
+    <!-- Purchase Price History — apply mode. Mounted unconditionally (not
+         v-if'd on a selected line) so the panel's open transition always has a
+         real closed→open state to animate from. -->
     <PriceHistoryDrawer
       v-if="showPriceHistory"
       :is-open="activeLineKey !== null"
@@ -767,13 +767,23 @@ const existing = computed(() =>
   props.recordId != null ? getTransactionOfType(props.recordId, props.type) : undefined
 );
 
-// Purchase Price History, phase 1: Purchase Invoice only, and only while the
-// price can still change. Creating is always that — nothing is committed yet.
-// Editing is only that while the record is still a draft, which mirrors the
+// Purchase Price History — Invoice and Order, and only while the price can
+// still change. Creating is always that: nothing is committed yet. Editing is
+// only that while the record is still a draft, which mirrors the invoice
 // detail page's own gate (`app/pages/purchase/invoice/[id].vue`), so the same
-// invoice never offers the reference in one place and hides it in the other.
+// record never offers the reference in one place and hides it in the other.
+//
+// Orders have no draft status in their pool yet (see STATUS_POOL in
+// `app/data/purchase-transactions.ts`), so today this resolves to create-only
+// for Order. That is the correct shape rather than a special case: the day a
+// draft order exists, its edit form picks the reference up with no change
+// here. What history shows is purchase-invoice prices either way — you order
+// against what you actually paid, not against what you previously ordered.
+const PRICE_HISTORY_TYPES: TransactionType[] = ["invoice", "order"];
 const showPriceHistory = computed(
-  () => props.type === "invoice" && (!isEdit.value || existing.value?.status === "draft")
+  () =>
+    PRICE_HISTORY_TYPES.includes(props.type) &&
+    (!isEdit.value || existing.value?.status === "draft")
 );
 
 const currency = ref("IDR");

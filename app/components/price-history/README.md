@@ -1,13 +1,12 @@
 # Price history components — reuse contract
 
 Built for the real Purchase module: [`app/pages/purchase/invoice/[id].vue`](../../pages/purchase/invoice/%5Bid%5D.vue)
-(read-only, and only while the record is awaiting approval — see "When the
-reference appears" below) and [`PurchaseTransactionForm.vue`](../purchase/PurchaseTransactionForm.vue)
-(interactive, gated to `type === "invoice"` — see that file's `onApplyPrice`
-and the trigger in its line-items table). Everything here is document-type
--agnostic — extending to Purchase Order is a one-line guard change in
-`PurchaseTransactionForm.vue` (it already renders Order via the same
-component), not a new component set.
+(read-only, and only on a draft — see "When the reference appears" below) and
+[`PurchaseTransactionForm.vue`](../purchase/PurchaseTransactionForm.vue)
+(interactive, on the document types in that file's `PRICE_HISTORY_TYPES` —
+see also its `onApplyPrice` and the trigger in its line-items table).
+Everything here is document-type-agnostic: Purchase Order was added by putting
+`"order"` in that array, with no change to any component in this directory.
 
 ## When the reference appears
 
@@ -21,8 +20,16 @@ reference is a fact with no available action.
 | Edit form (`PurchaseTransactionForm.vue`, `recordId` set)  | Only when the record's `status` is `"draft"`. |
 | Detail page (`invoice/[id].vue`)                           | Only when `status` is `"draft"`.              |
 
-Both surfaces read the same condition, so one invoice never offers the
+Both surfaces read the same condition, so one record never offers the
 reference in one place and hides it in the other.
+
+The form covers **Purchase Invoice and Purchase Order** (`PRICE_HISTORY_TYPES`).
+Orders have no draft status in their pool yet, so for Order this resolves to
+create-only today — the shape is right rather than special-cased, and a draft
+order would pick the reference up with no code change. Either way what the
+drawer shows is purchase-invoice history: you order against what you actually
+paid, not against what you previously ordered. Purchase Order has no detail-page
+reference — `order/[id].vue` doesn't render one.
 
 **Gate on the status, not on a flag.** An earlier iteration gated the detail
 page on `needsApproval`, which is independent of `status` in this dataset — the
@@ -104,13 +111,18 @@ real data to show on the actual invoice pages, not a disconnected mock
 dataset. A real implementation replaces this with an API call but should
 keep the same per-scope independent-query shape.
 
-## Porting to Purchase Order
+## Porting to another document type
+
+Purchase Order is already done, and it cost one array entry — use it as the
+worked example.
 
 - Reuse every component and the composable as-is.
-- In `PurchaseTransactionForm.vue`, drop (or extend) the `props.type === "invoice"`
-  guard around the trigger and the `<PriceHistoryDrawer>` mount — the rest of
-  the wiring (`activeLineKey`, `activeLine`, `onApplyPrice`) already works for
-  any type that shares this form component.
+- Add the type to `PRICE_HISTORY_TYPES` in `PurchaseTransactionForm.vue`. The
+  rest of the wiring (`activeLineKey`, `activeLine`, `onApplyPrice`) already
+  works for any type that shares this form component.
+- For a detail-page reference, the type needs a draft status in its own
+  `STATUS_POOL` slice and a cell in its `[id].vue` — the form does not give you
+  that for free, and Order deliberately does not have one yet.
 - Keep the line-items table itself page-specific — it isn't part of this
   component set on purpose (see `docs/patterns/details-page-format.md` §
   "Resolved — Purchase Price History").
