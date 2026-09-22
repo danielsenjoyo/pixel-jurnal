@@ -257,9 +257,34 @@
                           <MpText size="body-small" color="gray.400">{{
                             TX_TYPE_LABEL[row.type]
                           }}</MpText>
-                          <MpText size="body-small" color="gray.600" :class="txDescTextClass">{{
-                            txDescription(row)
-                          }}</MpText>
+                          <div :class="txDescLineClass">
+                            <!-- PRD AC-011-01: the number a Finance Manager follows
+                                 from an apply row is the INVOICE number, not the
+                                 apply transaction number (that one stays in the
+                                 No. CM column). A refund carries its bank
+                                 transaction reference in the same slot. -->
+                            <MpTextlink
+                              v-if="row.refDoc"
+                              as="button"
+                              variant="primary"
+                              :class="txLinkClass"
+                            >
+                              {{ row.refDoc }}
+                            </MpTextlink>
+                            <MpText
+                              v-if="row.refDoc && txDescription(row)"
+                              size="body-small"
+                              color="gray.400"
+                              >&middot;</MpText
+                            >
+                            <MpText
+                              v-if="txDescription(row)"
+                              size="body-small"
+                              color="gray.600"
+                              :class="txDescTextClass"
+                              >{{ txDescription(row) }}</MpText
+                            >
+                          </div>
                         </div>
                       </MpTableCell>
                       <MpTableCell as="td">
@@ -1614,12 +1639,15 @@ const txFirstCellClass = css({
 // MpTextlink doesn't expose a size prop — it always renders at the button
 // recipe's md (14px) regardless of an ancestor's font-size, so it must be
 // overridden directly to match the rest of this (smaller) row.
-const txLinkClass = css({ fontSize: "sm!" });
+const txLinkClass = css({ fontSize: "sm!", flexShrink: 0 });
+// Reference document and memo share one line; only the memo may truncate.
+const txDescLineClass = css({ display: "flex", alignItems: "baseline", gap: 1, minWidth: 0 });
 const txDescClass = css({ display: "flex", flexDirection: "column", gap: 1 });
 const txDescTextClass = css({
   overflow: "hidden",
   textOverflow: "ellipsis",
-  whiteSpace: "nowrap"
+  whiteSpace: "nowrap",
+  minWidth: 0
 });
 
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
