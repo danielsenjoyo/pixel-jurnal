@@ -140,11 +140,45 @@ thing rather than a form in a panel:
     is set, and a **Clear filters** action in the [`BlankSlate`](./BlankSlate.md) —
     otherwise a filter that matches nothing leaves an empty screen with no
     visible cause and no way out.
+  - **Under staging, `Reset` inside the drawer clears the draft, not the list.**
+    Applied state still changes only on `Apply`. Label it for what it does
+    (`Clear fields`) if that is likely to surprise — pressing `Reset` and then
+    `Cancel` leaves the old filters in force. A blank-slate reset button
+    _outside_ the drawer is the exception: there is no drawer open to commit
+    from, so it clears applied state directly.
+  - **The dot is one way to pay that debt, not the only one.** The Credit Memo
+    report carries no indicator on its Filter button (a standing product
+    decision) and settles the account in its blank slate instead: the copy names
+    every filter in force and offers the reset. Either route is fine; leaving
+    both out is not.
 - Form fields are wrapped in `MpFormControl` + `MpFormLabel` — see [`Form`](./Form.md).
+- **A multi-select field that filters by picking known entities** (customers,
+  tags, groups) uses `MpInputTag` instead of a checkbox list or a plain
+  `MpSelect`: type to search, click a suggestion, it becomes a removable tag
+  inside the field. Set `is-enable-create-new-tag="false"` so only real
+  matches become tags (no free text), `is-show-suggestions="true"`, and pass
+  `suggestions` as `{ id, label, value }[]`. Bind the current tag list via
+  `:data` + `@change` (not `v-model` — there is no `update:data` event):
+  ```vue
+  <MpFormControl><MpFormLabel>Customer</MpFormLabel>
+    <MpInputTag
+      :data="customerTagData"
+      :suggestions="customerSuggestions"
+      suggestion-key="label"
+      :is-show-suggestions="true"
+      :is-enable-create-new-tag="false"
+      @change="customerTagData = $event"
+    />
+  </MpFormControl>
+  ```
+  Reference impl: [`report.vue`](../../app/pages/sales/credit-memo/report.vue)'s
+  Customer and Grup Customer filter fields.
 
 ## Gotchas
 
-- `placement="right"`, `size="sm"` for the filter use case. Larger forms can use `md`.
+- `placement="right"`, `size="sm"` for the filter use case; larger forms can use
+  `md`. A panel whose body needs real table width (a transaction history panel,
+  say) should use `size="lg"` — don't force wide content into `sm`.
 - The drawer fields and the quick filters bind the **same** state (see [`FilterBar`](./FilterBar.md)).
 - **Not every field belongs on every tab.** Where the list has tabs over
   different record types, hide the controls that have no referent — Purchases
@@ -163,3 +197,41 @@ thing rather than a form in a panel:
   rendered as bare radios, and every checkbox and tab set _already in the app_
   lost its styling too. Nothing is wrong with the code; **restart the dev
   server** and check again before rewriting a component that looks broken.
+- **`MpInputTag` does not give back the suggestion you gave it.** Each picked
+  tag is emitted as `{ text, id: "tag-<text>", value: <the whole suggestion
+object>, isInvalid, isReadOnly }` — so for a suggestion of
+  `{ id, label, value }`, `tag.value` is that **entire object**, not the scalar
+  in its `value` key, and `tag.label` is `undefined` (the display string lives
+  in `tag.text`). Reading `tag.value` directly and matching it against ids
+  silently matches nothing, which looks exactly like "the filter returned no
+  results" rather than a bug. Always unwrap:
+
+  ```ts
+  function tagValue(t: DataInterface): string {
+    const v = t.value as unknown;
+    if (v && typeof v === "object" && "value" in (v as Record<string, unknown>))
+      return String((v as Record<string, unknown>).value);
+    return String(v ?? t.text ?? ""); // free-typed tag: value is the string
+  }
+  const tagLabel = (t: DataInterface) => String(t.text ?? tagValue(t));
+  ```
+
+  Verify a tag filter by **applying it and checking the rows that come back** —
+  a rendered suggestion list proves only that the dropdown works.
+
+- **`MpFormControl` injects its `id` into every descendant input, overriding an
+  `id` set on the input itself.** Two inputs in one control (a min/max range,
+  say) therefore end up sharing one `id` — invalid HTML — and `MpFormLabel`'s
+  `for` only ever resolves to the first, leaving the second field with no
+  accessible name. Give each input **its own nested `MpFormControl`** with a
+  unique id, keep the outer control for the group label and
+  `MpFormErrorMessage`, and add an explicit `aria-label` per input. Unknown
+  attrs like `aria-label` and `inputmode` _do_ reach the real `<input>`, so
+  those work as written.
+- **Every `MpFormLabel` must be a descendant of `MpFormControl`.** `MpFormLabel`
+  reads its required/invalid state through `MpFormControl`'s provide/inject
+  context; used outside one it throws `Cannot read properties of undefined
+(reading 'value')` during render — and that render error wedges reactivity for
+  every later interaction on the page, so the symptom shows up far from the
+  cause. Easy to hit with a bare label above a non-field wrapper such as a
+  min/max range row.

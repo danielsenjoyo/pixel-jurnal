@@ -20,11 +20,15 @@
           <MpText as="h1" size="h1" weight="semiBold" color="dark">
             {{ resolvedTitle }}
           </MpText>
+          <!-- Subtitle sits inline with the title ("Laporan Detail Kredit Memo
+               (dalam IDR)"), matching the Jurnal report header convention. It
+               belongs in this row rather than under the column, which stacks
+               the breadcrumb above the title. -->
+          <MpText v-if="resolvedSubtitle" size="body-small" color="gray.600">
+            {{ resolvedSubtitle }}
+          </MpText>
           <slot name="title-badge" />
         </div>
-        <MpText v-if="resolvedSubtitle" size="body-small" color="gray.600">
-          {{ resolvedSubtitle }}
-        </MpText>
       </div>
 
       <div v-if="$slots.actions" :class="actionsClass">
@@ -104,7 +108,7 @@ const titleColumnClass = css({
 });
 
 const breadcrumbClass = css({ fontSize: "sm" });
-const titleRowClass = css({ display: "flex", alignItems: "center", gap: 3 });
+const titleRowClass = css({ display: "flex", alignItems: "baseline", gap: 3 });
 
 const actionsClass = css({
   display: "flex",

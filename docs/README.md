@@ -55,6 +55,7 @@ implementation [`app/pages/templates/index-template.vue`](../app/pages/templates
 - [`FilterBar.md`](./patterns/FilterBar.md) — quick filters + search.
 - [`Drawer.md`](./patterns/Drawer.md) — right-side filter/form panel.
 - [`TablePage.md`](./patterns/TablePage.md) — fixed-layout table, sticky header + Actions.
+- [`NestedTable.md`](./patterns/NestedTable.md) — two-level table (group header/footer + detail rows).
 - [`BulkActionBar.md`](./patterns/BulkActionBar.md) — selection header swap.
 - [`Pagination.md`](./patterns/Pagination.md) — rows-per-page + page-jump footer.
 - [`StatusBadge.md`](./patterns/StatusBadge.md) — domain status → `MpBadge type`.
