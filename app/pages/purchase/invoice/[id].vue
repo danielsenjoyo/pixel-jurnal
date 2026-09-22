@@ -202,8 +202,16 @@
                        principle as the bottom action bar
                        (docs/patterns/details-page-format.md). -->
                   <template v-if="showPriceHistory">
+                    <MpText
+                      v-if="priceRuleFor(line.product)"
+                      size="label-small"
+                      color="gray.600"
+                      :class="priceNoteClass"
+                    >
+                      Price rule: {{ priceRuleFor(line.product)?.name }}
+                    </MpText>
                     <MpTextlink
-                      v-if="hasHistory(line.product)"
+                      v-else-if="hasHistory(line.product)"
                       as="button"
                       variant="primary"
                       :class="textlinkAlignClass"
@@ -573,6 +581,7 @@ import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { getLandedCostsForPurchase } from "~/data/purchase-landed-cost";
 import { hasPriceHistory } from "~/data/price-history";
+import { findPriceRule } from "~/data/price-rules";
 import {
   deleteTransactions,
   duplicateTransaction,
@@ -630,6 +639,14 @@ const activeLine = computed(() =>
 // of `status` here, so the page could read "Paid" while silently behaving like
 // a record under review.
 const showPriceHistory = computed(() => invoice.value?.status === "draft");
+// A price rule outranks the reference: the price is already agreed with this
+// vendor, so past prices would only invite contradicting a contract. The line
+// says which rule instead of going quiet — a reader comparing rows has to be
+// able to tell "governed" from "nothing to show".
+function priceRuleFor(product: string) {
+  return findPriceRule(product, invoice.value?.vendorName);
+}
+
 function hasHistory(product: string) {
   return hasPriceHistory(product);
 }

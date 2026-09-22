@@ -58,7 +58,17 @@
                    (which must stay visible — the side effect is previewed
                    before the click) sits beneath it in the same
                    value-plus-quieter-sub-line shape the other columns use. -->
-              <div v-if="row.currency === documentCurrency" :class="actionStackClass">
+              <!-- A row whose vendor already has a price rule for this product
+                   can't be applied: "Use this price" sets the vendor to match
+                   the row, which would leave the line carrying a historical
+                   price under a rule that governs a different one — the exact
+                   contradiction the rule exists to prevent. Same shape as the
+                   cross-currency case below: plain text, not a disabled
+                   button, because there is nothing the button could safely do. -->
+              <MpText v-if="ruleGoverns(row)" size="label-small" color="gray.400">
+                Price rule applies
+              </MpText>
+              <div v-else-if="row.currency === documentCurrency" :class="actionStackClass">
                 <MpButton variant="secondary" size="sm" @click="$emit('apply', row)">
                   Use this price
                 </MpButton>
@@ -114,6 +124,7 @@ import {
 import PriceHistoryRows from "./PriceHistoryRows.vue";
 import PriceHistoryCurrentCard from "./PriceHistoryCurrentCard.vue";
 import { usePriceHistory } from "~/composables/usePriceHistory";
+import { findPriceRule } from "~/data/price-rules";
 import type { PriceHistoryEntry, PriceHistoryMode, PriceHistoryScope } from "~/types/price-history";
 
 const props = defineProps<{
@@ -221,6 +232,10 @@ const hoverExceptionNote = computed(() => {
     ? `${base} You can't use one to fill this line — the line stays in ${props.documentCurrency}.`
     : base;
 });
+
+function ruleGoverns(row: PriceHistoryEntry) {
+  return !!findPriceRule(props.product, row.vendorName);
+}
 
 // Every side effect of "Use this price" is previewed before the click, not
 // just the vendor one: the unit moves with the price (a per-box price on a

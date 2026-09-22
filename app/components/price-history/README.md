@@ -32,6 +32,33 @@ draft status sits in the page's own badge, so the condition is visible right
 where the affordance is. Same status-conditional principle as the bottom action
 bar in `docs/patterns/details-page-format.md`.
 
+## Price rules outrank the reference
+
+A line whose product has a **price rule** with the document's vendor shows
+`Price rule: <name>` instead of the trigger, on both surfaces
+(`app/data/price-rules.ts`). The price is already agreed with that supplier,
+so past prices are not decision-support there — they invite contradicting a
+contract, and on the form they invite overwriting the contracted price with an
+older one.
+
+A rule is keyed by **product and vendor**, because a contract is with one
+supplier: the same product can be governed when bought from one vendor and
+open when bought from another. Invoices 2 and 8 show both outcomes for
+Wireless Mouse. On the form the cell therefore swaps as the vendor changes,
+which is correct — the vendor is what makes a rule apply. No vendor means no
+rule, so a half-filled form still offers the reference.
+
+It names the rule rather than going quiet: a reader comparing lines has to be
+able to tell "governed" from "nothing to show", and an empty cell reads as the
+same missing-element problem the draft gate fixed.
+
+**`mode="apply"` cannot apply a governed row.** "Use this price" sets the
+vendor to match the row, so applying a row from a vendor who has a rule for
+this product would leave the line carrying a historical price under a rule
+governing a different one — the exact contradiction the rule exists to
+prevent. Those rows get plain "Price rule applies" text, the same shape as the
+cross-currency case, because there is nothing the button could safely do.
+
 Phase 1 is Purchase Invoice only. `"draft"` is seeded into the invoice slice of
 `STATUS_POOL` in `app/data/purchase-transactions.ts`, and its position in that
 array is load-bearing: it puts the draft status on invoices 2 and 8, both of
