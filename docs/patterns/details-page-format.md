@@ -364,12 +364,13 @@ the reusable component set: [`app/components/price-history/README.md`](../../app
 - **Gating a capability by `type` inside a shared form component is enough
   to control which siblings get it** — no fork of
   `PurchaseTransactionForm.vue` was needed. The list lives in one array
-  (`PRICE_HISTORY_TYPES`), so Purchase Order was added by writing `"order"`
-  in it and Quote/Request/Delivery still get nothing. A form capability
+  (`PRICE_HISTORY_TYPES`), so Purchase Order and Purchase Quote were each
+  added by writing one string in it, and Request/Delivery still get
+  nothing. A form capability
   does not carry to that type's detail page, though: the reference on a
   detail page needs a draft status in the type's own `STATUS_POOL` slice and
-  a cell in its `[id].vue`, which is why Order has the form half and not the
-  read half.
+  a cell in its `[id].vue`, which is why Order and Quote have the form half
+  and not the read half.
 
 Update this file when a seventh details page's reference reveals a rule
 these six didn't need, or a real-product screenshot corrects something

@@ -773,13 +773,14 @@ const existing = computed(() =>
 // detail page's own gate (`app/pages/purchase/invoice/[id].vue`), so the same
 // record never offers the reference in one place and hides it in the other.
 //
-// Orders have no draft status in their pool yet (see STATUS_POOL in
-// `app/data/purchase-transactions.ts`), so today this resolves to create-only
-// for Order. That is the correct shape rather than a special case: the day a
-// draft order exists, its edit form picks the reference up with no change
-// here. What history shows is purchase-invoice prices either way — you order
-// against what you actually paid, not against what you previously ordered.
-const PRICE_HISTORY_TYPES: TransactionType[] = ["invoice", "order"];
+// Neither Order nor Quote has a draft status in its pool yet (see STATUS_POOL
+// in `app/data/purchase-transactions.ts`), so today this resolves to
+// create-only for both. That is the correct shape rather than a special case:
+// the day a draft order or quote exists, its edit form picks the reference up
+// with no change here. What history shows is purchase-invoice prices in every
+// case — you order, and you ask to be quoted, against what you actually paid,
+// not against what you previously ordered or were quoted.
+const PRICE_HISTORY_TYPES: TransactionType[] = ["invoice", "order", "quote"];
 const showPriceHistory = computed(
   () =>
     PRICE_HISTORY_TYPES.includes(props.type) &&

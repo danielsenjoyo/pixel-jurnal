@@ -23,13 +23,14 @@ reference is a fact with no available action.
 Both surfaces read the same condition, so one record never offers the
 reference in one place and hides it in the other.
 
-The form covers **Purchase Invoice and Purchase Order** (`PRICE_HISTORY_TYPES`).
-Orders have no draft status in their pool yet, so for Order this resolves to
-create-only today — the shape is right rather than special-cased, and a draft
-order would pick the reference up with no code change. Either way what the
-drawer shows is purchase-invoice history: you order against what you actually
-paid, not against what you previously ordered. Purchase Order has no detail-page
-reference — `order/[id].vue` doesn't render one.
+The form covers **Purchase Invoice, Purchase Order and Purchase Quote**
+(`PRICE_HISTORY_TYPES`). Neither Order nor Quote has a draft status in its pool
+yet, so for those two this resolves to create-only today — the shape is right
+rather than special-cased, and a draft order or quote would pick the reference
+up with no code change. What the drawer shows is purchase-invoice history in
+every case: you order, and you ask to be quoted, against what you actually
+paid. Only Invoice has a detail-page reference — `order/[id].vue` and
+`quote/[id].vue` don't render one.
 
 **Gate on the status, not on a flag.** An earlier iteration gated the detail
 page on `needsApproval`, which is independent of `status` in this dataset — the
@@ -113,8 +114,8 @@ keep the same per-scope independent-query shape.
 
 ## Porting to another document type
 
-Purchase Order is already done, and it cost one array entry — use it as the
-worked example.
+Purchase Order and Purchase Quote are already done, and each cost one array
+entry — use them as the worked examples.
 
 - Reuse every component and the composable as-is.
 - Add the type to `PRICE_HISTORY_TYPES` in `PurchaseTransactionForm.vue`. The
