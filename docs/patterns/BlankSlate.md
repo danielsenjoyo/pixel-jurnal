@@ -88,7 +88,11 @@ stay and the slate goes **inside the table body**:
   assets."_ `BlankSlate` holds the two this app uses:
   - `no-data` → `NoData_PB_L_01.png` (a folder with its sheets still in it),
   - `not-found` → `NotResultFound_PB_L_01.png` (a card and a magnifier with a
-    red ✕).
+    red ✕),
+  - `no-connection` → `NoConnection_PB_L_01.png` (for a request that failed, so
+    nothing arrived to report on — the Credit Memo report's load-error state
+    uses it; a magnifier there would claim a query matched nothing when it
+    never ran).
 
   Browse the rest with
   `curl -s "https://cdn.mekari.design/?prefix=illustration/blank-slate/&max-keys=1000"`

@@ -46,7 +46,12 @@ const ILLUSTRATIONS = {
   /** Nothing has been created here yet. */
   "no-data": "https://cdn.mekari.design/illustration/blank-slate/NoData_PB_L_01.png",
   /** A search, a filter or a URL asked for something that isn't there. */
-  "not-found": "https://cdn.mekari.design/illustration/blank-slate/NotResultFound_PB_L_01.png"
+  "not-found": "https://cdn.mekari.design/illustration/blank-slate/NotResultFound_PB_L_01.png",
+  /** The request itself failed — nothing is being reported about the data,
+   *  because none arrived. Distinct from the two above on purpose: a magnifier
+   *  would tell the user their query matched nothing, when in fact it never
+   *  ran. */
+  "no-connection": "https://cdn.mekari.design/illustration/blank-slate/NoConnection_PB_L_01.png"
 } as const;
 
 withDefaults(

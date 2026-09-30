@@ -140,6 +140,7 @@ wrapping element.
 | [`FilterBar`](./FilterBar.md)                     | Quick filters + search + Filter button.                    |
 | [`Drawer`](./Drawer.md)                           | Right-side panel for the full filter set / form.           |
 | [`TablePage`](./TablePage.md)                     | Fixed-layout table, sticky header + Actions.               |
+| [`NestedTable`](./NestedTable.md)                 | Two-level table — group header/footer + detail rows.       |
 | [`BulkActionBar`](./BulkActionBar.md)             | Header swap while rows are selected.                       |
 | [`Pagination`](./Pagination.md)                   | Rows-per-page + page-jump footer.                          |
 | [`StatusBadge`](./StatusBadge.md)                 | Domain status → `MpBadge type`.                            |
