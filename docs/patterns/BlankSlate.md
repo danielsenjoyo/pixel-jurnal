@@ -123,3 +123,10 @@ stay and the slate goes **inside the table body**:
 - The empty state and the table are mutually exclusive (`v-if="filteredRows.length"` / `v-else`) — never render both. The in-table case above is the exception, and it is a row of the same table rather than a second block.
 - The illustrations are 1500×1250 (6:5) source PNGs, rendered by `MpImage` at a fixed 240×200. Sizing guidance from the Pixel block is 120–160px on the longest edge, up to 288×240 for a full-page slate.
 - `MpImage` lazy-loads by default; the component turns that **off**. On a blank slate the illustration is the content, and fading it in on scroll is worse than the wait.
+- **Don't substitute an `MpIcon` for the illustration.** `MpIcon name="empty"`
+  type-checks — `"empty"` is in the icon-name union and `get-icon-name` returns
+  it — but it is not actually wired, and renders as a ~626px unstyled SVG that
+  swallows the panel. Same trap `details-page-format.md` records for
+  `"pdf-document"`. Use `<BlankSlate>` — the price-history drawer
+  ([`PriceHistoryRows.vue`](../../app/components/price-history/PriceHistoryRows.vue))
+  puts it inside the table body, as in "Empty table state" above.

@@ -3,6 +3,7 @@
 // the same way — see docs/patterns/StatusBadge.md.
 
 export type PurchaseStatus =
+  | "draft"
   | "open"
   | "overdue"
   | "paid"
@@ -13,6 +14,7 @@ export type PurchaseStatus =
   | "rejected";
 
 export const PURCHASE_STATUS_LABEL: Record<PurchaseStatus, string> = {
+  draft: "Draft",
   open: "Open",
   overdue: "Overdue",
   paid: "Paid",
@@ -27,6 +29,9 @@ export const PURCHASE_STATUS_TYPE: Record<
   PurchaseStatus,
   "completed" | "warning" | "critical" | "information" | "announcement"
 > = {
+  // Neutral grey — a draft is not a state of progress, it is the absence of
+  // one. Per docs/patterns/StatusBadge.md's type table.
+  draft: "announcement",
   open: "information",
   overdue: "critical",
   paid: "completed",

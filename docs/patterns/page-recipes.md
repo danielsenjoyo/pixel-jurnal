@@ -44,6 +44,8 @@ sections) → compact `TablePage` (related lists) → `Modal` (destructive confi
 ## Recipe: Create / edit form page
 
 > A focused data-entry screen. Full recipe: [`form-page-format`](./form-page-format.md).
+> Reference implementation: [`PurchaseTransactionForm.vue`](../../app/components/purchase/PurchaseTransactionForm.vue),
+> rendered by `.../invoice/new.vue` and `.../invoice/edit/[id].vue`.
 
 `page-title-bar` (`{Verb} {Entity}`; `#actions` holds a **record-type switch**,
 _not_ the save buttons) → **stage:** identity row + running total → meta grid →
@@ -151,3 +153,5 @@ wrapping element.
 | [`index-page-format`](./index-page-format.md)     | Index-page zone composition.                               |
 | [`details-page-format`](./details-page-format.md) | Details-page zone composition.                             |
 | [`form-page-format`](./form-page-format.md)       | Create/edit form-page zone composition.                    |
+| [`Toast`](./Toast.md)                             | One-line transient confirmation via `toast()`.             |
+| [`MoneyField`](./MoneyField.md)                   | Currency-aware display/input — never converts.             |

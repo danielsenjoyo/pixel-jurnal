@@ -171,7 +171,7 @@
           </MpTableHead>
           <MpTableBody>
             <MpTableRow v-for="line in invoice.lines" :key="line.id">
-              <MpTableCell as="td">
+              <MpTableCell as="td" :class="topCellClass">
                 <MpTextlink
                   as="button"
                   variant="primary"
@@ -180,16 +180,48 @@
                   >{{ line.product }}</MpTextlink
                 >
               </MpTableCell>
-              <MpTableCell as="td" :class="wrapCellClass">{{
+              <MpTableCell as="td" :class="[wrapCellClass, topCellClass]">{{
                 line.description || "—"
               }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
-              <MpTableCell as="td">{{ line.unit }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{
-                formatCurrency(line.unitPrice)
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]">{{
+                line.quantity
               }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ line.discountPercent }}%</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{
+              <MpTableCell as="td" :class="topCellClass">{{ line.unit }}</MpTableCell>
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]">
+                <div :class="priceCellClass">
+                  <MpText weight="semiBold">{{ formatCurrency(line.unitPrice) }}</MpText>
+                  <!-- Price history is a pre-commit check (OD-006): it helps
+                       whoever reviews a draft judge a price that can still be
+                       changed. Once the invoice leaves draft the price is
+                       committed, so the reference has nothing to act on —
+                       hence gated on the draft status rather than shown on
+                       every detail page. Gating on the status specifically,
+                       and not on a flag, is what makes the affordance
+                       self-explanatory: the badge at the top of this page
+                       already says "Draft", so the condition that puts this
+                       link here is on screen. Same status-conditional
+                       principle as the bottom action bar
+                       (docs/patterns/details-page-format.md). -->
+                  <template v-if="showPriceHistory">
+                    <MpTextlink
+                      v-if="hasHistory(line.product)"
+                      as="button"
+                      variant="primary"
+                      :class="textlinkAlignClass"
+                      @click="activeLineId = line.id"
+                    >
+                      See past prices
+                    </MpTextlink>
+                    <MpText v-else size="label-small" color="gray.600" :class="priceNoteClass">
+                      No purchase history found
+                    </MpText>
+                  </template>
+                </div>
+              </MpTableCell>
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]"
+                >{{ line.discountPercent }}%</MpTableCell
+              >
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]">{{
                 formatCurrency(line.amount)
               }}</MpTableCell>
             </MpTableRow>
@@ -479,6 +511,31 @@
         </MpModalFooter>
       </MpModalContent>
     </MpModal>
+
+    <!-- Purchase Price History — read-only reference mode, per
+         docs/patterns/details-page-format.md § "Resolved — Purchase Price
+         History". Mounted unconditionally (not v-if'd on a selected line) so
+         the panel's open transition always has a real closed→open state to
+         animate from. -->
+    <PriceHistoryDrawer
+      v-if="showPriceHistory"
+      :is-open="activeLineId !== null"
+      mode="reference"
+      :product="activeLine?.product ?? ''"
+      :vendor-name="invoice?.vendorName"
+      :document-currency="invoice?.currency ?? 'IDR'"
+      :current-line="
+        activeLine
+          ? {
+              price: activeLine.unitPrice,
+              currency: invoice?.currency ?? 'IDR',
+              unit: activeLine.unit,
+              qty: activeLine.quantity
+            }
+          : undefined
+      "
+      @close="activeLineId = null"
+    />
   </DefaultPageContent>
 </template>
 
@@ -514,9 +571,11 @@ import {
   MpTooltip
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
 import { textlinkAlignClass, textlinkCellClass } from "~/utils/textlink-align";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import { getLandedCostsForPurchase } from "~/data/purchase-landed-cost";
+import { hasPriceHistory } from "~/data/price-history";
 import {
   deleteTransactions,
   duplicateTransaction,
@@ -561,6 +620,22 @@ useHead({
 });
 
 const isDeleteModalOpen = ref(false);
+
+const activeLineId = ref<number | null>(null);
+const activeLine = computed(() =>
+  invoice.value?.lines.find((line) => line.id === activeLineId.value)
+);
+// OD-006 is a pre-commit check — only surface it while the price can still
+// change. A posted invoice's price is committed, so a reference to past prices
+// there is a fact with no available action. Phase 1 scopes that to the draft
+// status, which has the side benefit of being visible in the page's own status
+// badge — an earlier iteration gated on `needsApproval`, which is independent
+// of `status` here, so the page could read "Paid" while silently behaving like
+// a record under review.
+const showPriceHistory = computed(() => invoice.value?.status === "draft");
+function hasHistory(product: string) {
+  return hasPriceHistory(product);
+}
 
 function goTo(nextId: number | null) {
   if (nextId) navigateTo(`/purchase/invoice/${nextId}`);
@@ -633,6 +708,24 @@ const metaFieldClass = css({ display: "flex", flexDirection: "column", gap: 1, m
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const numCellClass = css({ textAlign: "right" });
+// Line-item rows are one to three lines tall (a wrapped description, a price
+// with its history note). Top-aligned, every first line sits on one baseline.
+const topCellClass = css({ verticalAlign: "top!" });
+const priceCellClass = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  gap: 1
+});
+// The note sits under the price and must stay inside the Unit price column —
+// the cell inherits white-space:nowrap, so without this it runs out across
+// the Discount and Amount columns instead of wrapping under the figure.
+const priceNoteClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  textAlign: "right",
+  maxWidth: "full"
+});
 // MpTableCell defaults to white-space:nowrap + overflow:visible, so text
 // longer than the column spills into the next cell instead of wrapping —
 // see docs/patterns/TablePage.md's truncation gotcha (this table wraps

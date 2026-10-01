@@ -314,6 +314,24 @@
                   />
                 </MpInputGroup>
               </div>
+              <!-- Purchase Price History — apply mode, on the document types in
+                   PRICE_HISTORY_TYPES (see docs/patterns/details-page-format.md
+                   § "Resolved — Purchase Price History"). Adding a type is an
+                   entry in that array, not a new component. -->
+              <div v-if="showPriceHistory && line.product" :class="priceHistoryCellClass">
+                <MpTextlink
+                  v-if="hasPriceHistory(line.product)"
+                  as="button"
+                  variant="primary"
+                  :class="textlinkAlignClass"
+                  @click="activeLineKey = line.key"
+                >
+                  See past prices
+                </MpTextlink>
+                <MpText v-else size="label-small" color="gray.600" :class="priceNoteClass">
+                  No purchase history found
+                </MpText>
+              </div>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpInputGroup>
@@ -592,6 +610,30 @@
         <MpButton variant="primary" @click="onSubmit()">Save &amp; pay with Mekari Pay</MpButton>
       </template>
     </div>
+
+    <!-- Purchase Price History — apply mode. Mounted unconditionally (not
+         v-if'd on a selected line) so the panel's open transition always has a
+         real closed→open state to animate from. -->
+    <PriceHistoryDrawer
+      v-if="showPriceHistory"
+      :is-open="activeLineKey !== null"
+      mode="apply"
+      :product="activeLine?.product ?? ''"
+      :vendor-name="form.vendorName || undefined"
+      :document-currency="currency"
+      :current-line="
+        activeLine
+          ? {
+              price: activeLine.unitPrice,
+              currency,
+              unit: activeLine.unit,
+              qty: activeLine.quantity
+            }
+          : undefined
+      "
+      @close="activeLineKey = null"
+      @apply="onApplyPrice"
+    />
   </DefaultPageContent>
 </template>
 
@@ -631,10 +673,16 @@ import {
   MpTag,
   MpText,
   MpTextarea,
+  MpTextlink,
   MpTooltip,
-  MpUpload
+  MpUpload,
+  toast
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
+import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
+import { textlinkAlignClass } from "~/utils/textlink-align";
+import { hasPriceHistory } from "~/data/price-history";
+import type { PriceHistoryEntry } from "~/types/price-history";
 import {
   CURRENCY_OPTIONS,
   PRODUCT_OPTIONS,
@@ -727,6 +775,26 @@ const existing = computed(() =>
   props.recordId != null ? getTransactionOfType(props.recordId, props.type) : undefined
 );
 
+// Purchase Price History — Invoice and Order, and only while the price can
+// still change. Creating is always that: nothing is committed yet. Editing is
+// only that while the record is still a draft, which mirrors the invoice
+// detail page's own gate (`app/pages/purchase/invoice/[id].vue`), so the same
+// record never offers the reference in one place and hides it in the other.
+//
+// Neither Order nor Quote has a draft status in its pool yet (see STATUS_POOL
+// in `app/data/purchase-transactions.ts`), so today this resolves to
+// create-only for both. That is the correct shape rather than a special case:
+// the day a draft order or quote exists, its edit form picks the reference up
+// with no change here. What history shows is purchase-invoice prices in every
+// case — you order, and you ask to be quoted, against what you actually paid,
+// not against what you previously ordered or were quoted.
+const PRICE_HISTORY_TYPES: TransactionType[] = ["invoice", "order", "quote"];
+const showPriceHistory = computed(
+  () =>
+    PRICE_HISTORY_TYPES.includes(props.type) &&
+    (!isEdit.value || existing.value?.status === "draft")
+);
+
 const currency = ref("IDR");
 const priceIncludesTax = ref(false);
 const shippingInfo = ref(false);
@@ -742,7 +810,7 @@ const depositAmount = ref(0);
 const attachments = ref<string[]>([]);
 
 // Packaging units offered in the Units select alongside the product's own.
-const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "Gram", "ml"];
+const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "dozen", "Gram", "ml"];
 
 interface LineForm {
   key: number;
@@ -911,6 +979,52 @@ function onPriceInput(line: LineForm) {
 function onPriceBlur(line: LineForm) {
   line.unitPrice = parseAmount(line.unitPriceText);
   line.unitPriceText = line.unitPrice ? formatAmount(line.unitPrice) : "";
+}
+
+// Purchase Price History — apply mode, Invoice only for now (see the
+// gating comment on the trigger in the template above).
+const activeLineKey = ref<number | null>(null);
+const activeLine = computed(() => form.lines.find((line) => line.key === activeLineKey.value));
+
+function onApplyPrice(entry: PriceHistoryEntry) {
+  const line = activeLine.value;
+  if (!line) return;
+
+  const changes: string[] = [];
+
+  // A historical price is only meaningful together with the unit it was
+  // charged for: "Rp2.760.000" means nothing until you know it bought one box,
+  // not one pcs. Applying the price without the unit silently multiplies the
+  // line by the packaging factor, so the two always move together. This is a
+  // copy, not a conversion — the recorded pair is written to the line exactly
+  // as the vendor charged it, which is why `unitFactorAtPurchase` is not
+  // consulted here (see `app/components/price-history/README.md` rule 2).
+  // Every unit price history can carry is in GENERIC_UNITS, so the Units
+  // select always has the applied unit to land on.
+  if (entry.unit !== line.unit) {
+    line.unit = entry.unit;
+    changes.push(`unit set to ${entry.unit}`);
+  }
+
+  line.unitPrice = entry.price;
+  line.unitPriceText = formatAmount(entry.price);
+
+  // Rule: Use never touches currency — only vendor and unit, and it always
+  // overwrites an already-selected vendor (not just when empty).
+  if (entry.vendorName !== form.vendorName) {
+    const hadVendor = !!form.vendorName;
+    form.vendorName = entry.vendorName;
+    changes.push(
+      hadVendor ? `vendor changed to ${entry.vendorName}` : `vendor set to ${entry.vendorName}`
+    );
+  }
+
+  activeLineKey.value = null;
+  toast.notify({
+    id: `apply-price-${Date.now()}`,
+    variant: "success",
+    title: changes.length ? `Price applied — ${changes.join(", ")}.` : "Price applied."
+  });
 }
 
 function onAttachmentChange(event: Event) {
@@ -1137,6 +1251,16 @@ const itemsTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "13
 const itemsHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const lineCellClass = css({ verticalAlign: "top" });
 const numCellClass = css({ textAlign: "right" });
+const priceHistoryCellClass = css({ display: "flex", justifyContent: "flex-end", mt: 1 });
+// Keeps the note inside the Unit price column, under the input — the cell
+// inherits white-space:nowrap, so without this it runs out across Discount
+// and Tax instead of wrapping under the box.
+const priceNoteClass = css({
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  textAlign: "right",
+  maxWidth: "full"
+});
 const numInputClass = css({ textAlign: "right" });
 const lineErrorClass = css({ mt: 2 });
 

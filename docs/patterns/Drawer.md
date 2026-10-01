@@ -1,7 +1,10 @@
 # Drawer
 
 > Part of the Mekari Jurnal page-construction pattern set.
-> Reference impl: [`index-template.vue`](../../app/pages/templates/index-template.vue) (filter drawer).
+> Reference impls: [`index-template.vue`](../../app/pages/templates/index-template.vue) (filter drawer)
+> and [`PriceHistoryDrawer.vue`](../../app/components/price-history/PriceHistoryDrawer.vue)
+> (side detail-viewer — "side forms/detail editors where context behind the panel
+> should stay visible", the second use case listed below).
 > See also [`FilterBar`](./FilterBar.md), [`Form`](./Form.md), [`Modal`](./Modal.md).
 
 ## Purpose
@@ -191,6 +194,14 @@ thing rather than a form in a panel:
   CSS only for components it statically finds: the controls rendered as
   zero-height invisible boxes until `.nuxt` and `node_modules/.vite` were
   cleared. Expect that on the first use of any Pixel component.
+- **A table inside `MpDrawerBody` needs `size="lg"` or wider** — `"sm"` (the filter
+  drawer's default) is too narrow for a multi-column table. `PriceHistoryDrawer`
+  uses `"lg"` for its five-column read-only table and `"xl"` once the sixth
+  (action) column is present; at `"lg"` six columns squeeze the price column
+  until a figure breaks mid-number.
+- Content that changes shape while the drawer is open (e.g. a scope toggle that
+  swaps which rows are visible) doesn't need any special handling — it's a normal
+  reactive body, not a drawer-specific concern.
 - **That gotcha bites the whole running app, not just the new component.**
   `MpSegmentedControl`'s first use (the picker drawer above) left the dev
   server serving a stylesheet with no recipe CSS at all — the segmented control

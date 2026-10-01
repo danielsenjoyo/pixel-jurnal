@@ -9,7 +9,8 @@
 > product's Purchase Invoice detail screen. It builds on already-established
 > primitives (the shell + [`SummaryBox`](./SummaryBox.md),
 > [`StatusBadge`](./StatusBadge.md), [`Form`](./Form.md), [`Tabs`](./Tabs.md),
-> [`Modal`](./Modal.md)).
+> [`Modal`](./Modal.md)). Both files also carry the line-level price-history
+> affordance described under "Resolved — Purchase Price History" below.
 
 ## When to use
 
@@ -38,15 +39,16 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 
 ## Zone → pattern map
 
-| Zone | Piece                                        | Pattern                                                                                           |
-| ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| —    | Breadcrumb + title + status                  | [`page-title-bar`](./page-title-bar.md) (`breadcrumb`/`breadcrumbTo` props + `#title-badge` slot) |
-| —    | Section tabs                                 | [`Tabs`](./Tabs.md)                                                                               |
-| A    | Identity row                                 | Plain labeled fields, **no** `StatusBadge` here — it's in the title                               |
-| B    | Record KPIs                                  | [`SummaryBox`](./SummaryBox.md)                                                                   |
-| C    | Detail sections / edit form                  | [`Form`](./Form.md)                                                                               |
-| D    | Related records / line items                 | [`TablePage`](./TablePage.md) (compact — often no bulk bar)                                       |
-| E    | Delete + primary/secondary lifecycle actions | Bottom action bar (see below) + [`Modal`](./Modal.md) for Delete                                  |
+| Zone | Piece                                        | Pattern                                                                                                                                                                                                                  |
+| ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| —    | Breadcrumb + title + status                  | [`page-title-bar`](./page-title-bar.md) (`breadcrumb`/`breadcrumbTo` props + `#title-badge` slot)                                                                                                                        |
+| —    | Section tabs                                 | [`Tabs`](./Tabs.md)                                                                                                                                                                                                      |
+| A    | Identity row                                 | Plain labeled fields, **no** `StatusBadge` here — it's in the title                                                                                                                                                      |
+| B    | Record KPIs                                  | [`SummaryBox`](./SummaryBox.md)                                                                                                                                                                                          |
+| C    | Detail sections / edit form                  | [`Form`](./Form.md)                                                                                                                                                                                                      |
+| D    | Related records / line items                 | [`TablePage`](./TablePage.md) (compact — often no bulk bar)                                                                                                                                                              |
+| D.1  | Line-level reference affordance              | A per-row trigger (e.g. "See past prices") opening a [`Drawer`](./Drawer.md) scoped to that row — or, when there's nothing to reference, a plain under-value text note. Lives inside a Zone D row, not the identity row. |
+| E    | Delete + primary/secondary lifecycle actions | Bottom action bar (see below) + [`Modal`](./Modal.md) for Delete                                                                                                                                                         |
 
 ## Rules
 
@@ -56,6 +58,12 @@ A details page is a single `<DefaultPageContent>` whose default slot stacks:
 - **The title-band `#actions` slot carries only navigation** (prev/next chevrons) on a details page — the real product puts Edit/Print/Actions/Delete in a **bottom action bar** instead (Zone E), not the title band. Don't put lifecycle buttons at the top; put them at the bottom.
 - **Bottom action bar (Zone E):** `Delete` (ghost) on the left; on the right, the secondary actions (`Edit`, a `Print & share` dropdown) then the primary `Actions` dropdown (Duplicate, and anything else that doesn't get its own button) — `justify-content: space-between`, a `gray.100` top border separating it from the content above. Delete opens a confirm [`Modal`](./Modal.md); it does **not** live inside the `Actions` dropdown.
 - **Read vs. edit:** a details page's edit mode is a **separate route** rendering a shared form component (`.../new.vue` and `.../edit/[id].vue` both render the same `<XForm :id="…">`), not an `isEditing` flag toggling sections in place — see [`Form`](./Form.md).
+- **Line-item rows are top-aligned** (`topCellClass`, `verticalAlign: "top!"`).
+  Rows run one to three lines tall — a wrapped description, a price with its
+  history note — and centred cells leave the single-line values floating
+  between the others' lines. Top-aligned, every first line shares a baseline.
+  Reference impl: `invoice/[id].vue` and the price-history drawer's table;
+  the other purchase detail pages still centre theirs.
 - **Related lists are compact tables** — reuse [`TablePage`](./TablePage.md) but usually drop selection/bulk and pagination for short line-item lists. Any cell holding unwrapped text or a link (not an `MpBadge`/`MpTag`) needs explicit `white-space: normal` — `MpTableCell`, `MpTextlink`, and `MpTag` all default to `nowrap`, which spills long content into the next cell instead of wrapping it (see `wrapCellClass` in the reference impl).
 - A grid/flex cell holding a value that can run long (an email tag, a wrapped link) needs `min-width: 0` — a grid/flex item's implicit min-width is its content's natural width, which is what lets that content overflow its column in the first place.
 - Same styling/token discipline as everywhere: Panda `css()` with Pixel token shortcuts, no inline `style`.
@@ -336,6 +344,52 @@ a link leaves its text 2px off the edge every plain-text sibling sits on.
 Quick check when a table looks "off": read `getComputedStyle(td).display`
 — it must be `table-cell` — and confirm one column's `getBoundingClientRect().x`
 is identical across every row.
+
+## Resolved — Purchase Price History (line-level reference affordance)
+
+A capability layered onto the Invoice show page (`purchase/invoice/[id].vue`)
+and its shared edit form (`PurchaseTransactionForm.vue`, gated to
+`type === "invoice"`), not a new page type — this is what Zone D.1 in the
+zone map above refers to. Full product/UX context, non-negotiable rules, and
+the reusable component set: [`app/components/price-history/README.md`](../../app/components/price-history/README.md).
+
+- **The affordance replaces itself with its own absence.** Under the unit
+  price cell: a "See past prices" trigger when the product has purchase
+  history anywhere, or plain text ("No purchase history found for this
+  product.") when it doesn't — never a disabled/dead trigger. The reviewer
+  never opens an empty panel to learn there's nothing there.
+- **The show page and the form page use the same drawer in two different
+  modes**, not two different components — `mode="reference"` (read-only,
+  no action column, the current line shown as meta fields above the table)
+  on the show page, `mode="apply"` (an action column, no current line) on the
+  form. The current line is plain label-over-value meta fields, the same as
+  this page's meta grid — not a tinted card with a badge, which is not a
+  pattern in this app.
+  Divergent behavior lives in the drawer's own mode branch, not in two
+  forked copies of it.
+- **Gate a conditional affordance on something the page already shows.**
+  The reference only appears while the invoice is a draft, and "Draft" is
+  right there in the Zone A status badge — so a reader who notices the link
+  on one invoice and not another can see why without being told. An earlier
+  iteration gated on a `needsApproval` flag that is independent of `status`
+  in this dataset: the page read "Paid", behaved like a record under review,
+  and the affordance's coming and going was unexplainable from the screen.
+  If a gate's condition isn't visible in a zone, either surface it or pick a
+  different gate.
+- **This is the one place on either page that keys off names, not ids** —
+  `purchase-transactions.ts` has no `productId`/`vendorId` (see its own
+  file for why), so the price-history lookup joins on `product` and
+  `vendorName` strings, same as everything else in this module.
+- **Gating a capability by `type` inside a shared form component is enough
+  to control which siblings get it** — no fork of
+  `PurchaseTransactionForm.vue` was needed. The list lives in one array
+  (`PRICE_HISTORY_TYPES`), so Purchase Order and Purchase Quote were each
+  added by writing one string in it, and Request/Delivery still get
+  nothing. A form capability
+  does not carry to that type's detail page, though: the reference on a
+  detail page needs a draft status in the type's own `STATUS_POOL` slice and
+  a cell in its `[id].vue`, which is why Order and Quote have the form half
+  and not the read half.
 
 Update this file when a seventh details page's reference reveals a rule
 these six didn't need, or a real-product screenshot corrects something
