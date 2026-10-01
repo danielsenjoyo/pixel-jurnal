@@ -11,7 +11,11 @@
                is the label the invoice detail page already uses for this value. -->
           <MpTableCell as="th" :class="wrapCellClass">Transaction no.</MpTableCell>
           <MpTableCell as="th" :class="wrapCellClass">Vendor</MpTableCell>
-          <MpTableCell as="th" :class="wrapCellClass">Qty</MpTableCell>
+          <!-- Qty and Units are separate columns, as on the invoice's own
+               line-items table — the number right-aligns and stays scannable
+               down the column, and the unit carries its conversion note. -->
+          <MpTableCell as="th" :class="[numCellClass, wrapCellClass]">Qty</MpTableCell>
+          <MpTableCell as="th" :class="wrapCellClass">Units</MpTableCell>
           <MpTableCell as="th" :class="[numCellClass, wrapCellClass]">Vendor charged</MpTableCell>
           <MpTableCell v-if="showAction" as="th" />
         </MpTableRow>
@@ -27,37 +31,24 @@
 
       <MpTableBody v-else-if="rows.length">
         <MpTableRow v-for="row in rows" :key="row.id">
-          <MpTableCell as="td" :class="wrapCellClass">
+          <MpTableCell as="td" :class="[wrapCellClass, topCellClass]">
             <div :class="stackClass">
               <!-- The transaction number leads: it's the row's identifier, the
-                   same way the Purchases index page leads its Number column.
-                   Inert placeholder, as everywhere else in this prototype — a
-                   real build links this to the source transaction.
-                   MpText as="a" rather than MpTextlink: MpTextlink's recipe
-                   pins its font-size at 14px and an `!important` utility in
-                   pixel_utilities still loses to it (the same reverse
-                   layer-cascade problem app/utils/textlink-align.ts records
-                   for its padding), which would leave this number larger than
-                   the vendor name beside it. MpText has a real `size` prop. -->
-              <MpText
-                as="a"
-                href="#"
-                is-text-link
-                size="body-small"
-                color="blue.400"
-                :class="nowrapClass"
-                @click.prevent
-              >
+                   same way the Purchases index page leads its Number column, and
+                   it is the same record link (docs/patterns/TablePage.md). Inert
+                   placeholder, as everywhere else in this prototype — a real
+                   build links this to the source transaction. -->
+              <MpTextlink as="button" variant="primary" :class="textlinkAlignClass">
                 {{ row.documentNumber }}
-              </MpText>
+              </MpTextlink>
               <MpText size="label-small" color="gray.600" :class="nowrapClass">
                 {{ row.purchasedAtLabel }}
               </MpText>
             </div>
           </MpTableCell>
-          <MpTableCell as="td" :class="wrapCellClass">
+          <MpTableCell as="td" :class="[wrapCellClass, topCellClass]">
             <div :class="stackClass">
-              <MpText size="body-small">{{ row.vendorName }}</MpText>
+              <MpText>{{ row.vendorName }}</MpText>
               <!-- Not an MpBadge: badges in this app are lifecycle statuses
                    (`for="tableStatus"`) or counts (`for="additionalInformation"`),
                    and "this vendor" is neither — see docs/patterns/StatusBadge.md. -->
@@ -71,17 +62,20 @@
               </MpText>
             </div>
           </MpTableCell>
-          <MpTableCell as="td" :class="wrapCellClass">
-            <MpText size="body-small" weight="semiBold"
-              >{{ formatQty(row.qty) }} {{ row.unit }}</MpText
-            >
-            <UnitConversionNote
-              :unit="row.unit"
-              :factor="row.unitFactorAtPurchase"
-              :base-unit="row.baseUnit"
-            />
+          <MpTableCell as="td" :class="[numCellClass, wrapCellClass, topCellClass]">
+            <MpText>{{ formatQty(row.qty) }}</MpText>
           </MpTableCell>
-          <MpTableCell as="td" :class="[numCellClass, wrapCellClass]">
+          <MpTableCell as="td" :class="[wrapCellClass, topCellClass]">
+            <div :class="stackClass">
+              <MpText>{{ row.unit }}</MpText>
+              <UnitConversionNote
+                :unit="row.unit"
+                :factor="row.unitFactorAtPurchase"
+                :base-unit="row.baseUnit"
+              />
+            </div>
+          </MpTableCell>
+          <MpTableCell as="td" :class="[numCellClass, wrapCellClass, topCellClass]">
             <HistoricalPriceCell
               :price="row.price"
               :currency="row.currency"
@@ -90,7 +84,11 @@
               :exchange-rate-at-purchase="row.exchangeRateAtPurchase"
             />
           </MpTableCell>
-          <MpTableCell v-if="showAction" as="td" :class="[numCellClass, wrapCellClass]">
+          <MpTableCell
+            v-if="showAction"
+            as="td"
+            :class="[numCellClass, wrapCellClass, topCellClass]"
+          >
             <slot name="action" :row="row" />
           </MpTableCell>
         </MpTableRow>
@@ -128,11 +126,13 @@ import {
   MpTableHead,
   MpTableRow,
   MpText,
+  MpTextlink,
   css
 } from "@mekari/pixel3";
 import UnitConversionNote from "./UnitConversionNote.vue";
 import HistoricalPriceCell from "./HistoricalPriceCell.vue";
 import { formatQty } from "~/utils/currency";
+import { textlinkAlignClass } from "~/utils/textlink-align";
 import type { PriceHistoryEntry } from "~/types/price-history";
 
 const props = withDefaults(
@@ -149,13 +149,13 @@ defineSlots<{
   action?: (props: { row: PriceHistoryEntry }) => unknown;
 }>();
 
-const colCount = computed(() => (props.showAction ? 5 : 4));
+const colCount = computed(() => (props.showAction ? 6 : 5));
 
 // Must sum to exactly 100% — with tableLayout:fixed these widths are
 // authoritative, and an over-100% set silently pushes the last column
 // (the action cell) off the panel's right edge.
 const colWidths = computed(() =>
-  props.showAction ? ["22%", "22%", "13%", "19%", "24%"] : ["26%", "28%", "16%", "30%"]
+  props.showAction ? ["19%", "21%", "7%", "14%", "17%", "22%"] : ["24%", "25%", "8%", "20%", "23%"]
 );
 
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
@@ -165,6 +165,10 @@ const numCellClass = css({ textAlign: "right" });
 // collide. Wrapping only: never set `display` on a <td> (see
 // docs/patterns/details-page-format.md § "Never set display on a table cell").
 const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word" });
+// Rows are one or two lines tall depending on the cell (a unit with its
+// conversion note, a vendor with "this vendor"). Top-aligned, every first line
+// sits on one baseline; centred, single-line cells float between the others'.
+const topCellClass = css({ verticalAlign: "top!" });
 // A value plus its quieter sub-line, stacked — the same shape the Purchases
 // index page uses for "number + description" in one cell.
 const stackClass = css({

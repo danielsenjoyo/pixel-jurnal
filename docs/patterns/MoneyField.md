@@ -41,7 +41,8 @@ foreign-currency historical price) — and that estimate must:
   never today's rate,
 - never feed into a calculation, sort, filter, or default value,
 - be visually distinct from the actual (non-converted) amount, and
-- be disclosed in the UI (a header note), not a silent hover-only discovery.
+- be disclosed in the UI (the dashed underline on the price), not a silent
+  hover-only discovery.
 
 ## What `~/utils/currency.ts` exports
 

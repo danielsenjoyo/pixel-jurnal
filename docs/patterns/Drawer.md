@@ -194,9 +194,11 @@ thing rather than a form in a panel:
   CSS only for components it statically finds: the controls rendered as
   zero-height invisible boxes until `.nuxt` and `node_modules/.vite` were
   cleared. Expect that on the first use of any Pixel component.
-- **A table inside `MpDrawerBody` needs `size="md"` or `"lg"`** — `"sm"` (the filter
+- **A table inside `MpDrawerBody` needs `size="lg"` or wider** — `"sm"` (the filter
   drawer's default) is too narrow for a multi-column table. `PriceHistoryDrawer`
-  uses `size="md"` for a 4–5 column rows table.
+  uses `"lg"` for its five-column read-only table and `"xl"` once the sixth
+  (action) column is present; at `"lg"` six columns squeeze the price column
+  until a figure breaks mid-number.
 - Content that changes shape while the drawer is open (e.g. a scope toggle that
   swaps which rows are visible) doesn't need any special handling — it's a normal
   reactive body, not a drawer-specific concern.

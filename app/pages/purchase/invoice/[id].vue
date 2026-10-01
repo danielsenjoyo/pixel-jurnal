@@ -171,7 +171,7 @@
           </MpTableHead>
           <MpTableBody>
             <MpTableRow v-for="line in invoice.lines" :key="line.id">
-              <MpTableCell as="td">
+              <MpTableCell as="td" :class="topCellClass">
                 <MpTextlink
                   as="button"
                   variant="primary"
@@ -180,12 +180,14 @@
                   >{{ line.product }}</MpTextlink
                 >
               </MpTableCell>
-              <MpTableCell as="td" :class="wrapCellClass">{{
+              <MpTableCell as="td" :class="[wrapCellClass, topCellClass]">{{
                 line.description || "—"
               }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ line.quantity }}</MpTableCell>
-              <MpTableCell as="td">{{ line.unit }}</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]">{{
+                line.quantity
+              }}</MpTableCell>
+              <MpTableCell as="td" :class="topCellClass">{{ line.unit }}</MpTableCell>
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]">
                 <div :class="priceCellClass">
                   <MpText weight="semiBold">{{ formatCurrency(line.unitPrice) }}</MpText>
                   <!-- Price history is a pre-commit check (OD-006): it helps
@@ -216,8 +218,10 @@
                   </template>
                 </div>
               </MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{ line.discountPercent }}%</MpTableCell>
-              <MpTableCell as="td" :class="numCellClass">{{
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]"
+                >{{ line.discountPercent }}%</MpTableCell
+              >
+              <MpTableCell as="td" :class="[numCellClass, topCellClass]">{{
                 formatCurrency(line.amount)
               }}</MpTableCell>
             </MpTableRow>
@@ -704,6 +708,9 @@ const metaFieldClass = css({ display: "flex", flexDirection: "column", gap: 1, m
 const tableFixedClass = css({ tableLayout: "fixed", width: "full" });
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const numCellClass = css({ textAlign: "right" });
+// Line-item rows are one to three lines tall (a wrapped description, a price
+// with its history note). Top-aligned, every first line sits on one baseline.
+const topCellClass = css({ verticalAlign: "top!" });
 const priceCellClass = css({
   display: "flex",
   flexDirection: "column",

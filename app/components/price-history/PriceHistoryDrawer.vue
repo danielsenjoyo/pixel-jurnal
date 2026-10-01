@@ -3,24 +3,21 @@
     :is-open="isOpen"
     :is-keep-alive="true"
     placement="right"
-    size="lg"
+    :size="drawerSize"
     @close="$emit('close')"
   >
     <MpDrawerOverlay />
     <MpDrawerContent>
       <MpDrawerHeader>
-        <div :class="headerTextClass">
-          <span :class="titleClass">What we paid before</span>
-          <MpText size="body-small" color="gray.600">{{ product }}</MpText>
-        </div>
+        <!-- The product is the title: it is what the reader clicked from, and
+             the one thing that differs between two openings of this drawer. -->
+        <span :class="titleClass">{{ product }}</span>
         <MpDrawerCloseButton />
       </MpDrawerHeader>
 
       <MpDrawerBody>
         <div :class="bodyClass">
-          <MpText size="body-small" color="gray.600">{{ hoverExceptionNote }}</MpText>
-
-          <PriceHistoryCurrentCard
+          <PriceHistoryCurrentLine
             v-if="mode === 'reference' && currentLine"
             :price="currentLine.price"
             :currency="currentLine.currency"
@@ -37,7 +34,6 @@
               :data="scopeOptions"
             />
             <MpText v-else size="body-small" weight="semiBold">All vendors</MpText>
-            <MpText size="body-small" color="gray.600">{{ countText }}</MpText>
           </div>
 
           <MpBanner v-if="showBanner" variant="info" is-inline>
@@ -74,19 +70,6 @@
               <MpText v-else size="label-small" color="gray.400">Different currency</MpText>
             </template>
           </PriceHistoryRows>
-
-          <!-- Ends a short vendor-scoped list instead of letting one or two
-               rows float in an otherwise empty panel — and ends it with the
-               thing the reader would go looking for next, since the count of
-               purchases elsewhere is already known here. Suppressed when the
-               vendor has no rows at all: the banner above is already telling
-               them to switch scope, and saying it twice is worse than once. -->
-          <div v-if="showOtherVendorsNote" :class="tailRowClass">
-            <MpText size="body-small" color="gray.600">{{ otherVendorsText }}</MpText>
-            <MpTextlink as="button" variant="primary" @click="scope = 'all'">
-              See all vendors
-            </MpTextlink>
-          </div>
         </div>
       </MpDrawerBody>
     </MpDrawerContent>
@@ -108,11 +91,10 @@ import {
   MpDrawerOverlay,
   MpSegmentedControl,
   MpText,
-  MpTextlink,
   css
 } from "@mekari/pixel3";
 import PriceHistoryRows from "./PriceHistoryRows.vue";
-import PriceHistoryCurrentCard from "./PriceHistoryCurrentCard.vue";
+import PriceHistoryCurrentLine from "./PriceHistoryCurrentLine.vue";
 import { usePriceHistory } from "~/composables/usePriceHistory";
 import type { PriceHistoryEntry, PriceHistoryMode, PriceHistoryScope } from "~/types/price-history";
 
@@ -138,6 +120,10 @@ const { vendorHasHistory, resultFor, resolveDefaultScope } = usePriceHistory(
   productRef,
   vendorNameRef
 );
+
+// Apply mode carries a sixth column (the "Use this price" action); at "lg" the
+// price column is squeezed until a figure breaks mid-number.
+const drawerSize = computed(() => (props.mode === "apply" ? "xl" : "lg"));
 
 const scope = ref<PriceHistoryScope>("all");
 const isLoading = ref(false);
@@ -176,26 +162,6 @@ const scopeOptions = [
 
 const currentResult = computed(() => resultFor(scope.value));
 const rows = computed(() => currentResult.value.rows);
-const total = computed(() => currentResult.value.total);
-const olderNotShownCount = computed(() => total.value - rows.value.length);
-
-const countText = computed(() => {
-  const n = rows.value.length;
-  let text = `${n} ${n === 1 ? "purchase" : "purchases"} found`;
-  if (olderNotShownCount.value > 0) text += ` · ${olderNotShownCount.value} older, not shown`;
-  return text;
-});
-
-// Two independent per-scope queries, never one sliced pool — see this
-// directory's README, rule 3. The difference is what the tail line reports.
-const otherVendorCount = computed(() => resultFor("all").total - resultFor("vendor").total);
-const showOtherVendorsNote = computed(
-  () => scope.value === "vendor" && rows.value.length > 0 && otherVendorCount.value > 0
-);
-const otherVendorsText = computed(() => {
-  const n = otherVendorCount.value;
-  return `${n} more ${n === 1 ? "purchase" : "purchases"} from other vendors`;
-});
 
 const showBanner = computed(
   () => !props.vendorName || (scope.value === "vendor" && !vendorHasHistory.value)
@@ -208,18 +174,6 @@ const bannerText = computed(() => {
       : "No vendor selected yet. Showing every vendor that has supplied this item.";
   }
   return `${props.vendorName} has no recorded purchases for this product. Switch to All vendors to see prices from other vendors.`;
-});
-
-// Apply mode adds the one rule the action column can't state on its own: the
-// greyed "Different currency" cells say what a row is, never what the rule is,
-// and never name the currency this document is actually in. An earlier draft
-// deferred to them ("… is off — see below"), which read like a setting that
-// had been switched off and promised an explanation those two words don't give.
-const hoverExceptionNote = computed(() => {
-  const base = "Prices in another currency show the rupiah estimate when you hover over them.";
-  return props.mode === "apply"
-    ? `${base} You can't use one to fill this line — the line stays in ${props.documentCurrency}.`
-    : base;
 });
 
 // Every side effect of "Use this price" is previewed before the click, not
@@ -239,7 +193,6 @@ function applyPreviewText(row: PriceHistoryEntry) {
   return parts.length ? `and ${parts.join(", ")}` : "";
 }
 
-const headerTextClass = css({ display: "flex", flexDirection: "column", gap: "0.5" });
 const titleClass = css({ fontSize: "lg", fontWeight: "semiBold" });
 const bodyClass = css({ display: "flex", flexDirection: "column", gap: 4 });
 const scopeRowClass = css({
@@ -248,14 +201,6 @@ const scopeRowClass = css({
   justifyContent: "space-between",
   gap: 3,
   flexWrap: "wrap"
-});
-const tailRowClass = css({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 3,
-  flexWrap: "wrap",
-  pt: 1
 });
 const actionStackClass = css({
   display: "flex",

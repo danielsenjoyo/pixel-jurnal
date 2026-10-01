@@ -1,15 +1,11 @@
 <template>
   <div :class="wrapClass">
-    <MpTooltip
-      v-if="showEstimate"
-      :label="estimateLabel"
-      is-manual
-      :is-open="isTipOpen"
-      placement="left"
-    >
-      <button type="button" :class="priceButtonClass" @click="isTipOpen = !isTipOpen">
-        <MpText weight="semiBold">{{ mainAmount }}</MpText>
-      </button>
+    <!-- The estimate shows on hover, the standard MpTooltip trigger. The
+         dashed underline is what discloses that there is something to hover.
+         This comment sits outside MpTooltip on purpose — the tooltip takes
+         exactly one child, and a comment node counts as one. -->
+    <MpTooltip v-if="showEstimate" :label="estimateLabel" placement="left">
+      <MpText weight="semiBold" :class="estimatePriceClass">{{ mainAmount }}</MpText>
     </MpTooltip>
     <MpText v-else weight="semiBold">{{ mainAmount }}</MpText>
     <MpText size="label-small" color="gray.600">for 1 {{ unit }}</MpText>
@@ -17,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { MpText, MpTooltip, css } from "@mekari/pixel3";
 import { formatMoney, formatRate, historicalIdrEstimate } from "~/utils/currency";
 
@@ -28,8 +24,6 @@ const props = defineProps<{
   purchasedAtLabel: string;
   exchangeRateAtPurchase?: number;
 }>();
-
-const isTipOpen = ref(false);
 
 const mainAmount = computed(() => formatMoney(props.price, props.currency));
 
@@ -43,16 +37,16 @@ const estimateLabel = computed(() => {
   return `≈ ${formatMoney(idr, "IDR")} at ${formatRate(props.exchangeRateAtPurchase)}/${props.currency} on ${props.purchasedAtLabel}`;
 });
 
+// nowrap: the cell around this wraps long text, and a money figure must never
+// break mid-number ("Rp2.760.000," / "00").
 const wrapClass = css({
   display: "flex",
   flexDirection: "column",
   alignItems: "flex-end",
-  gap: "0.5"
+  gap: "0.5",
+  whiteSpace: "nowrap"
 });
-const priceButtonClass = css({
-  border: "0",
-  bg: "transparent",
-  p: 0,
+const estimatePriceClass = css({
   cursor: "help",
   textDecoration: "underline",
   textDecorationStyle: "dashed",
