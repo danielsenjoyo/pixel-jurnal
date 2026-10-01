@@ -400,16 +400,11 @@
       </div>
     </template>
 
-    <div v-else :class="emptyStateClass">
-      <img src="/illustrations/search-not-found.png" alt="" :class="emptyIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="emptyTitleClass">{{ emptyTitle }}</MpText>
-      <MpText size="body-small" color="gray.600" :class="emptyDescClass">{{
-        emptyDescription
-      }}</MpText>
+    <BlankSlate v-else :variant="emptyVariant" :title="emptyTitle" :description="emptyDescription">
       <MpButton v-if="hasActiveFilter" variant="secondary" @click="resetFilters"
         >Clear filters</MpButton
       >
-    </div>
+    </BlankSlate>
   </DefaultPageContent>
 </template>
 
@@ -798,9 +793,15 @@ watch(activeTabIndex, () => {
   // out of view instead of sitting next to the checkbox. Snap it back to the
   // left edge every time the active tab changes.
   nextTick(() => {
-    const container = tableContainerRef.value as { $el?: HTMLElement } | HTMLElement | null;
-    const el = container && "$el" in container ? container.$el : container;
-    el?.scrollTo?.({ left: 0 });
+    // The ref holds either the DOM node or the component instance wrapping it,
+    // depending on how MpTableContainer renders. `in` narrowing doesn't settle
+    // that union when `$el` is optional, so test the DOM case directly.
+    const container: unknown = tableContainerRef.value;
+    const el =
+      container instanceof HTMLElement
+        ? container
+        : ((container as { $el?: HTMLElement } | null)?.$el ?? null);
+    el?.scrollTo({ left: 0 });
   });
 });
 
@@ -944,6 +945,12 @@ function onSummaryClick(status: StatusValue) {
   activeTabIndex.value = TABS.findIndex((t) => t.key === "pi");
   quickStatus.value = quickStatus.value === status ? "" : status;
 }
+
+/** A list that has simply never had a row is not a failed search, and must
+ *  not borrow the magnifier illustration to say so. */
+const emptyVariant = computed(() =>
+  searchTerm.value || hasActiveFilter.value ? "not-found" : "no-data"
+);
 
 const emptyTitle = computed(() => {
   if (searchTerm.value) return `"${searchTerm.value}" not found`;
@@ -1244,18 +1251,6 @@ const skeletonCheckboxClass = css({
   height: "18px",
   rounded: "sm"
 });
-
-const emptyStateClass = css({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 3,
-  py: 16,
-  textAlign: "center"
-});
-const emptyIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
-const emptyTitleClass = css({ fontSize: "lg" });
-const emptyDescClass = css({ maxWidth: "320px" });
 
 const paginationClass = css({
   display: "flex",

@@ -309,7 +309,6 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
-  DATE_INPUT_FORMAT,
   PRODUCT_OPTIONS,
   STAFF,
   TAG_OPTIONS,
@@ -325,6 +324,7 @@ import {
   type PurchaseTransactionInput,
   type TransactionType
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit for a Purchase Request. Its own component rather than a variant
@@ -397,20 +397,6 @@ const attachments = ref<string[]>([]);
 const submitted = ref(false);
 
 const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "Gram", "ml"];
-
-// Local calendar components only — never Date#toISOString(), which shifts the
-// day in any non-UTC timezone.
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
-}
 
 function loadFromExisting() {
   const r = existing.value;

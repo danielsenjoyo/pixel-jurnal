@@ -285,7 +285,6 @@ import {
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import { PURCHASE_STATUS_LABEL, PURCHASE_STATUS_TYPE } from "~/data/purchase-status";
 import {
-  DATE_INPUT_FORMAT,
   TERM_OPTIONS,
   TRANSACTION_TYPE_LABEL,
   TYPE_CAPABILITIES,
@@ -302,6 +301,7 @@ import {
   type PurchaseTransactionInput,
   type TransactionType
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit for a Join Invoice — the reference app's merged_invoices form.
@@ -357,17 +357,6 @@ function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
-}
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
 }
 
 function loadFromExisting() {

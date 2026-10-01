@@ -227,7 +227,9 @@
                form's unit price. -->
           <div :class="shippingFeeInputClass" @focusout="onShippingFeeBlur">
             <MpInputGroup>
-              <MpInputLeftAddon>Rp</MpInputLeftAddon>
+              <MpInputLeftAddon>
+                <MpText weight="semiBold" :class="addonTextClass">Rp</MpText>
+              </MpInputLeftAddon>
               <MpInput
                 v-model="shippingFeeText"
                 type="text"
@@ -300,7 +302,6 @@ import {
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
   CURRENCY_OPTIONS,
-  DATE_INPUT_FORMAT,
   PRODUCT_OPTIONS,
   SHIP_VIA_OPTIONS,
   TAG_OPTIONS,
@@ -317,6 +318,7 @@ import {
   type PurchaseTransactionInput,
   type TransactionType
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit for a Purchase Delivery — its own component, matching the
@@ -381,18 +383,6 @@ const shippingFeeText = ref("");
 const submitted = ref(false);
 
 const GENERIC_UNITS = ["pcs", "pack", "set", "roll", "box", "Gram", "ml"];
-
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
-}
 
 function loadFromExisting() {
   const r = existing.value;
@@ -552,6 +542,10 @@ function onCancel() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
+// The addon supplies no padding of its own: Pixel's "input with prefix and
+// suffix" pattern (docs.mekari.design/patterns/input.html) pads the addon's
+// content by 12px, without which the prefix sits flush against both edges.
+const addonTextClass = css({ px: 3 });
 const typeSelectClass = css({ width: "200px" });
 const topGridClass = css({
   display: "grid",

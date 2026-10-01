@@ -302,7 +302,9 @@
                    type="number". -->
               <div @focusout="onPriceBlur(line)">
                 <MpInputGroup>
-                  <MpInputLeftAddon>Rp</MpInputLeftAddon>
+                  <MpInputLeftAddon>
+                    <MpText weight="semiBold" :class="addonTextClass">Rp</MpText>
+                  </MpInputLeftAddon>
                   <MpInput
                     v-model="line.unitPriceText"
                     type="text"
@@ -333,7 +335,9 @@
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <MpInputGroup>
-                <MpInputLeftAddon>%</MpInputLeftAddon>
+                <MpInputLeftAddon>
+                  <MpText weight="semiBold" :class="addonTextClass">%</MpText>
+                </MpInputLeftAddon>
                 <MpInput
                   v-model.number="line.discountPercent"
                   type="number"
@@ -353,7 +357,9 @@
               <!-- Amount is computed, but still rendered as a (read-only)
                    Rp-addon field so the column lines up with Unit price. -->
               <MpInputGroup>
-                <MpInputLeftAddon>Rp</MpInputLeftAddon>
+                <MpInputLeftAddon>
+                  <MpText weight="semiBold" :class="addonTextClass">Rp</MpText>
+                </MpInputLeftAddon>
                 <MpInput
                   :model-value="formatAmount(computeLineAmount(line))"
                   :class="numInputClass"
@@ -511,7 +517,9 @@
           >
             <div :class="discountInputClass">
               <MpInputGroup>
-                <MpInputLeftAddon>%</MpInputLeftAddon>
+                <MpInputLeftAddon>
+                  <MpText weight="semiBold" :class="addonTextClass">%</MpText>
+                </MpInputLeftAddon>
                 <MpInput v-model.number="withholdingPercent" type="number" :class="numInputClass" />
               </MpInputGroup>
             </div>
@@ -677,7 +685,6 @@ import { hasPriceHistory } from "~/data/price-history";
 import type { PriceHistoryEntry } from "~/types/price-history";
 import {
   CURRENCY_OPTIONS,
-  DATE_INPUT_FORMAT,
   PRODUCT_OPTIONS,
   TAG_OPTIONS,
   TAX_OPTIONS,
@@ -699,6 +706,7 @@ import {
   type PurchaseTransactionInput,
   type TransactionType
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Layout matched to the live app's "Create Purchase Invoice" screen, with
@@ -864,19 +872,6 @@ function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
-}
-function toDmy(date: Date): string {
-  const d = String(date.getDate()).padStart(2, "0");
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  return `${d}/${m}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
 }
 
 function loadFromExisting() {
@@ -1189,6 +1184,10 @@ function onCancel() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
+// The addon supplies no padding of its own: Pixel's "input with prefix and
+// suffix" pattern (docs.mekari.design/patterns/input.html) pads the addon's
+// content by 12px, without which the prefix sits flush against both edges.
+const addonTextClass = css({ px: 3 });
 const typeSelectClass = css({ width: "200px" });
 
 const topGridClass = css({

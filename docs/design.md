@@ -6,372 +6,377 @@
 > the rules and rationale. For building **list/index screens** inside the page
 > stage, see [`index-page-pattern.md`](./index-page-pattern.md).
 
-**Token mode:** Pixel 3 — Design Tokens **v2.1**.
+**Token mode:** Pixel 3 — Design Tokens **v2.1** (`app/app.vue` →
+`setNextTheme(false)`).
 **Reference Figma:** Jurnal Master Pages → node `1:17750` (Master Template).
+
+---
+
+## 0. Token layers
+
+There are exactly **two** layers, and every value in this document resolves to
+one of them.
+
+| Layer             | Namespace                                          | Where it comes from                                                        | How to consume it                                                                                                                             |
+| ----------------- | -------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pixel 3 v2.1**  | `--mp-*`                                           | Auto-injected by `@mekari/pixel3-nuxt`                                     | Panda `css()` shorthands first (`bg: "gray.25"`, `gap: 4`, `rounded: "md"`); raw `var(--mp-colors-*)` only where a shorthand can't express it |
+| **Project-local** | `--layout-*`, `--motion-*`, `--border-radius-full` | [`app/assets/css/tokens.css`](../app/assets/css/tokens.css) — 10 variables | `var(--layout-sidebar-width)` etc.                                                                                                            |
+
+The project-local layer exists only for what Pixel doesn't ship: app-shell
+layout primitives, a stadium-pill radius (Pixel's `--mp-radii-full` is `50%`,
+which makes ellipses, not pills), and cubic-bezier easings (Pixel ships
+durations but no easing tokens).
+
+Pixel also injects `--pixel-navbar-height`, which the sidebar and page column
+use as their top offset. Don't duplicate it.
+
+**There is no `--color-*` / `--spacing-*` layer.** Earlier revisions of this
+document described one; it belonged to the static HTML preview that predated
+the Nuxt build and is defined nowhere in `app/`. If you see those names in an
+old doc or comment, translate them: `--color-border-default` → `gray.100`,
+`--spacing-md` → `4` (16px), `--color-bg-surface` → `white`.
 
 ---
 
 ## 1. Layout system
 
-The Jurnal master template is composed of three regions:
+The Jurnal shell is composed in [`app/layouts/default.vue`](../app/layouts/default.vue):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ AppHeader                                                       (56px)  │
+│ TheNavbar                                       (--layout-header-height)│
 ├──────────────┬──────────────────────────────────────────────────────────┤
-│              │  PageTitle                                       (72px)  │
-│  AppSidebar  ├──────────────────────────────────────────────────────────┤
-│   (216px)    │  PageStage  (white card, rounded-top-left, border-l/t)  │
+│              │  Page title band            (--layout-page-title-height)  │
+│ TheSidebar   ├──────────────────────────────────────────────────────────┤
+│ (+SidebarChild) │  Page stage  (white card, rounded-top-left, border-l/t)│
 │              │                                                          │
 └──────────────┴──────────────────────────────────────────────────────────┘
 ```
 
-| Region          | Component    | Size                                | Tokens                                                                                                            |
-| --------------- | ------------ | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Top bar         | `AppHeader`  | `--layout-header-height` (56px)     | `--color-bg-surface`, `--color-border-default` (bottom)                                                           |
-| Left navigation | `AppSidebar` | `--layout-sidebar-width` (216px)    | `--color-bg-sidebar` — **no right border** (the visual seam comes from PageStage's left border + top-left radius) |
-| Page heading    | `PageTitle`  | `--layout-page-title-height` (72px) | `--color-bg-page` (transparent over shell)                                                                        |
-| Body card       | `PageStage`  | flex `1 1 auto`                     | `--color-bg-surface`, `--border-radius-md` top-left, `--color-border-default` top + left                          |
+| Region          | Component                                      | Size                                                                                   | Surface                                                                                                    |
+| --------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Top bar         | `navbar/index.vue` (`TheNavbar`)               | `var(--layout-header-height)` (56px)                                                   | `bg: white`, `borderBottomWidth: "sm"` + `borderColor: "gray.100"`                                         |
+| Left navigation | `sidebar/index.vue` (`TheSidebar`)             | `var(--layout-sidebar-width)` (216px) / `var(--layout-sidebar-collapsed-width)` (56px) | `background: "gray.25"` — **no right border**; the seam is the stage's left border                         |
+| Submenu panel   | `sidebar/SidebarChild.vue`                     | `var(--layout-submenu-width)` (208px), collapses to `4` (1rem)                         | `background: "gray.25"`, `borderLeftWidth: "sm"` + `gray.100`                                              |
+| Page heading    | `template/DefaultPageContent.vue` → `<header>` | `minHeight: var(--layout-page-title-height)` (72px)                                    | transparent over the `gray.25` shell                                                                       |
+| Body card       | same component → `<section>`                   | `flex: "1 1 auto"`                                                                     | `bg: "white"`, `borderTopWidth`/`borderLeftWidth: "sm"`, `borderColor: "gray.100"`, `roundedTopLeft: "md"` |
 
-**Rule — page composition.** Every Nuxt page renders **exactly one**
-`<PageTitle />` followed by **exactly one** `<PageStage />`. The default
-layout (`layouts/default.vue`) injects the header and sidebar — pages must not
-render those themselves.
+The page shell, sidebar and title band all share `gray.25`; the white stage
+sits on top of it, separated by a `gray.100` hairline.
 
-**One documented exception:** the Home landing page (`app/pages/index.vue`)
-renders a PageStage with no PageTitle band — its first section already opens
-with the greeting and page question, so a band reading "Home" above it would
-repeat itself. See [`patterns/home-page-format.md`](./patterns/home-page-format.md).
-Home is a landing page, not a records screen; nothing else may skip the band.
+**Rule — page composition.** A page renders **one** `<DefaultPageContent>`,
+which owns both the title band and the stage. The default layout injects the
+navbar and sidebar — pages must not render those themselves.
+
+**One documented exception:** the Home landing page
+([`app/pages/index.vue`](../app/pages/index.vue)) renders its stage with no
+title band — its first section already opens with the greeting and page
+question, so a band reading "Home" above it would repeat itself. See
+[`patterns/home-page-format.md`](./patterns/home-page-format.md). Home is a
+landing page, not a records screen; nothing else may skip the band.
 
 ---
 
-## 2. AppHeader
+## 2. TheNavbar
 
-| Slot    | Component            | Spec                                                                                                                                                                                                                              |
-| ------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logo    | `AppLogo`            | 114×40 lockup, mark uses `--color-brand-jurnal`                                                                                                                                                                                   |
-| Search  | `MpInput`            | 480px wide, `rounded="full"`, **`#prefix` slot** with `MpIcon search`, **`#suffix` slot** with a plain `.app-header__search-shortcut` chip (`⌘K`). Do NOT use the `prefix-icon` prop — it conflicts with the suffix slot in v2.1. |
-| Actions | `MpButton` icon-only | `quick-access`, `live-chat`, `gift`, `help`, `time`, `notification`, `shortcut`                                                                                                                                                   |
-| User    | `MpAvatar` + label   | 32px avatar, two-line label (Semibold name + Regular company)                                                                                                                                                                     |
+`position: fixed`, `zIndex: "sticky"`, full width, `px: 6`, height
+`var(--layout-header-height)`.
+
+| Slot    | Component                                                                            | Spec                                                                                                                                                   |
+| ------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Logo    | `<img src="/logo-jurnal.svg">`                                                       | 32px tall, wrapped in a `NuxtLink` to `/`                                                                                                              |
+| Actions | `MpButton variant="ghost" size="md" icon-only` inside `MpTooltip placement="bottom"` | icons `add` (Quick action), `headphone` (Live chat), `gift` (Referral), `help` (Help), `time` (Activity log), `notification`, `shortcuts` (Switch app) |
+| Account | `SwitchAccount` → `MpPopover placement="bottom-end"`                                 | 32px `MpAvatar` (`width: "8!"` — Pixel's `md` is 24 and `lg` is 36) + two-line label                                                                   |
 
 **Rules**
 
-- Header is `position: sticky; top: 0`. Z-index = `--z-header`.
-- All inner gaps come from `MpFlex` props (`gap={24}`, `gap={40}`, `gap={8}`) — no margin/padding overrides.
-- The notification icon shows a `MpBadge variant="danger"` with `9+` when there are unread items. The badge is absolutely positioned at `top: -2px; right: -2px`.
-- Action buttons use `variant="ghost"`, `size="md"`, `icon-only` — never inherit text labels into the visible UI.
-- Search input is always visible at desktop ≥1024px. Collapse behavior on smaller breakpoints is **not yet specified** — track in [#TODO].
+- Icon-only buttons share `padding: "1.5"` (6px square, Figma spec) and always
+  carry an `aria-label` as well as a tooltip label.
+- The right-hand cluster is `display: flex; gap: 1; marginLeft: auto`.
+- Popovers are real Pixel popovers (`MpPopover` + `MpPopoverTrigger` +
+  `MpPopoverContent`, `use-portal`). Don't hand-roll outside-click or Escape
+  handling — the component owns it.
+- **There is no header search input.** Earlier revisions specified a 480px
+  `MpInput` with a `⌘K` chip; it was never built. If it comes back, spec it
+  here first.
 
 ---
 
-## 3. AppSidebar
+## 3. TheSidebar
 
-The sidebar has **three states** (per Figma node `1029:3771`):
+Two states — expanded and collapsed. Both use the **same** `gray.25` surface;
+only the width changes.
 
-| State                        | Rail width                                | Rail background                            | Submenu?                          |
-| ---------------------------- | ----------------------------------------- | ------------------------------------------ | --------------------------------- |
-| Default (expanded)           | `--layout-sidebar-width` (216px)          | `--color-bg-sidebar` (`#F1F5F9`)           | —                                 |
-| User-collapsed               | `--layout-sidebar-collapsed-width` (56px) | `--color-bg-sidebar-collapsed` (`#E7EDF5`) | —                                 |
-| Submenu open (auto-collapse) | 56px (forced)                             | `#E7EDF5` (forced)                         | 208px panel attaches to the right |
+| State                                                 | Rail width                                     | Background |
+| ----------------------------------------------------- | ---------------------------------------------- | ---------- |
+| Default (expanded)                                    | `var(--layout-sidebar-width)` (216px)          | `gray.25`  |
+| Collapsed (user toggle, or forced by an open submenu) | `var(--layout-sidebar-collapsed-width)` (56px) | `gray.25`  |
 
-- Items are grouped. Groups are separated by `border-bottom: 1px solid var(--color-border-default)`. The last group has no separator.
-- Item padding: `var(--spacing-2xs) var(--spacing-xs) var(--spacing-2xs) 10px` (left = 10px to align icons under the logo).
-- Item icon size: 24px. Item label: `--font-size-label` / `--line-height-body`.
-- In collapsed/submenu-open state: items center their icon (no label, no chevron, `justify-content: center`).
+- Groups come from [`app/data/menu.ts`](../app/data/menu.ts) (`APP_MENU_GROUPS`)
+  and are separated by an `<MpDivider>` — not a border rule.
+- The nav list is `pt: 4; px: 2`, height `calc(100vh - var(--layout-header-height))`,
+  with a **hidden-track scrollbar** implemented inside `css()`
+  (`&::-webkit-scrollbar { width: 0 }`) — scrolling still works.
+- Width, opacity and padding transitions all use `transitionDuration: "fast"`
+  - `var(--motion-ease-in-out)`.
+- Collapsed rows hide their label by collapsing it to `maxWidth: 0` +
+  `opacity: 0` (not `display: none`, which snapped mid-transition), so the
+  24px icon centres itself in the 56px rail.
+- The rail is hidden below `md` (`display: { base: "none", md: "block" }`).
 
-### Item states (Pixel 3 v2.1 — Figma node `1029:3771`)
+### Item states — `sidebar/SidebarItem.vue`
 
-Sidebar nav uses Pixel's **"blue text + blue icon, no fill"** recipe. Hover
-and active share the same visual treatment; the only difference is intent
-(transient hover vs. persistent selection). Font weight does **not** change
-across states.
+Row geometry: `minHeight: var(--layout-sidebar-item-height)` (36px),
+`px: 2` (8px), `py: "1.5"` (6px), `rounded: "md"`.
 
-| State    | Background                     | Text                                  | Icon style                                        | Font weight              |
-| -------- | ------------------------------ | ------------------------------------- | ------------------------------------------------- | ------------------------ |
-| Default  | transparent                    | `--color-nav-text-default` (gray-900) | Outline, `--color-nav-icon-default` (gray-500)    | `--font-weight-regular`  |
-| Hover    | transparent                    | `--color-nav-text-active` (`#1C44D5`) | Outline, `--color-nav-icon-active` (`#1C44D5`)    | `--font-weight-regular`  |
-| Active   | `--color-blue-100` (`#E5EAFE`) | `--color-nav-text-active` (`#1C44D5`) | **Filled**, `--color-nav-icon-active` (`#1C44D5`) | `--font-weight-semibold` |
-| Disabled | transparent (60% opacity)      | inherits                              | inherits                                          | `--font-weight-regular`  |
+| State   | Row background | Text                                   | Icon                                                  |
+| ------- | -------------- | -------------------------------------- | ----------------------------------------------------- |
+| Default | `transparent`  | `MpText color="dark" weight="regular"` | `MpIcon variant="outline" size="md" color="gray.600"` |
+| Hover   | `transparent`  | `_groupHover: { color: "blue.500" }`   | `_groupHover: { color: "blue.500" }`                  |
+| Active  | `blue.50`      | `color="blue.500" weight="semiBold"`   | `variant="fill" color="blue.500"`                     |
 
-Hover keeps the no-fill blue-text shift; the active state stacks **three**
-visual signals: Blue/$blue-100 background, SemiBold blue text, and a
-**filled-icon swap**. The boilerplate synthesises the fill via CSS
-(`fill: currentColor` on the icon SVG paths), which works for the
-closed-path Pixel icons. Swap in dedicated `-fill.svg` assets per icon if
-perfect parity is required.
+Active stacks **three** signals — the `blue.50` fill, SemiBold blue text, and
+the filled-icon swap via `MpIcon`'s own `variant` prop (no CSS `fill`
+hacks, no `-fill.svg` files).
 
-The token pair (`--color-nav-text-*`, `--color-nav-icon-*`) drives both the
-main rail items and the submenu items so the recipe stays in lockstep.
-**Background fills are reserved for icon-button surfaces** (header action
-buttons, user chip) via `--color-bg-interactive-hover` — sidebar items must
-never paint a fill. If you find yourself reaching for `--color-bg-interactive-active`
-inside a sidebar style, you're off-spec.
-
-### Trailing chevron
-
-Per Figma, only the **Applications** item shows a trailing `chevron-right`
-(the chevron signals "links outward to the marketplace"). Items that own a
-submenu — like Reports — open an in-rail panel on click and intentionally
-display no chevron. Drive this via the `chevron: true` flag on the
-`SidebarItem`, not by inspecting `submenu`.
-
-**Chevron size: 16px.** The Pixel `chevron-right` icon is a 24×24 viewBox
-with a small ~6×12 mark — rendering it inside a 16×16 slot keeps it visually
-secondary to the 24px row icon.
-
-### Submenu animation
-
-Submenu open/close uses Pixel motion tokens — `200ms` ease-out, with an
-`8px` translateX offset and fade. The Nuxt impl wraps the panel in a
-`<Transition name="app-submenu">` so both enter and leave animate. A
-`@media (prefers-reduced-motion: reduce)` block disables the transitions
-for accessibility.
-
-### Rail collapse animation
-
-The 216 ↔ 56 px rail width change is symmetric, so it uses
-`--motion-duration-slow` (320ms) with `--motion-ease-in-out`. Item labels
-and chevrons fade via `opacity` in parallel — **no** `display: none`
-toggles, which previously caused a snap mid-transition. The rail has
-`overflow-x: hidden` so faded content is clipped automatically. Item
-`padding` also animates so the icon ends up centred in the collapsed
-56 px slot without an abrupt jump.
-
-### Sidebar scrolling
-
-The nav region (`.app-sidebar__scroll`) is **scrollable but has no visible scrollbar**:
-
-```css
-.app-sidebar__scroll {
-  overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge legacy */
-}
-.app-sidebar__scroll::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-```
-
-Apply the same pattern to `.app-submenu__scroll`. Don't disable scrolling itself — keyboard / trackpad scrolling must still work.
+**Trailing chevron.** Only items that link outward (`isExternal`) render one:
+`MpIcon name="chevrons-right" size="sm"` (16px). Items that own a submenu open
+the `SidebarChild` panel on click and show no chevron.
 
 ### Footer (Company ID strip)
 
-- Height: 68px.
-- Contains: collapse toggle (icon button) + `Company ID: <id>` text.
-- Border-top: `1px solid var(--color-border-default)`.
-- **Collapse icon names (Pixel 3 v2.1):**
-  - Rail expanded → click to collapse: `sidebar-collapse` (`|←` — arrow into a left-aligned bar).
-  - Rail collapsed (incl. submenu-open state) → click to expand: `sidebar-expand` (`→|`).
-  - Submenu close button (right-aligned at the submenu footer): `chevrons-left` (double `«`).
+Sticky to the bottom of the rail: `px: 2; py: 3`, `borderTopWidth: "sm"` +
+`borderColor: "gray.100"`, `background: "inherit"`. Contains the collapse
+toggle plus `Company ID : <id>` in `MpText size="body-small"`, which fades to
+`opacity: 0` when collapsed.
 
-### Groups (current Jurnal nav order)
+**Toggle icons:** `sidebar-show` when collapsed (click to expand),
+`sidebar-hide` when expanded. Tooltip carries the `shift + X` shortcut.
 
-UI copy is **English by default**. Layer i18n on top if Bahasa Indonesia is needed — don't fork the source data.
+---
 
-1. **Core** — Home, Dashboard, **Reports** (has submenu), Budget
-2. **Transactions** — Cash & bank, Sales, Purchase, Expenses, Job order, Mekari Pay
-3. **Master data** — Contacts, Products, **Production** (has submenu), **Fulfillment** (has submenu), Assets, Chart of accounts
-4. **Apps** — Applications (trailing chevron)
-5. **Settings** — Other lists, Integrations, **Settings** (has submenu)
+## 4. SidebarChild (submenu panel)
 
-Items with submenus per Figma node `1030:3360`:
+Rendered by the layout when the active menu item owns a submenu — which also
+forces the main rail to collapse (one-way: leaving the section does **not**
+auto-expand the rail).
 
-- **Reports** → Business overview, Sales, Purchase, Products, Assets, Exchange rate, Bank, Tax, Jurnal Insights
-- **Production** → Bill of Material (BOM), Work order, Standard cost, Production account mapping
-- **Fulfillment** → Sales, Purchases, Sold / Released, Depreciation
-- **Settings** → Company, User settings, Sales, Purchases, Products, Production, Templates, Custom fields, Account mapping, Billing, Approval rules, Tagging rules
-
-The grouping is owned by `composables/useNavigation.ts`. Update there, not in the template.
-
-### Submenu
-
-A sidebar item with a `submenu` field doesn't navigate on click — it opens a
-submenu panel and **forces the main rail into collapsed mode**. Spec:
-
-| Element          | Value                                                                                                                                                    |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Panel width      | `--layout-submenu-width` (208px)                                                                                                                         |
-| Panel background | `--color-bg-sidebar` (`#F1F5F9`, Extra/$background) — **not white**                                                                                      |
-| Panel borders    | `border-left`: `1px solid var(--color-border-default)` only (no right border)                                                                            |
-| Panel padding    | `var(--spacing-md) var(--spacing-xs)` (16/8)                                                                                                             |
-| Heading          | Inter SemiBold 12/16, color `--color-accent-blue-400` (`#4B61DD`), letter-spacing **2.88px**, uppercase. Padding: `var(--spacing-2xs) var(--spacing-sm)` |
-| Submenu item     | Inter Regular 14/20, color `--color-text-default`. Padding `var(--spacing-xs) var(--spacing-sm)`. Radius `--border-radius-md`                            |
-| Item hover       | Background `--color-gray-50`                                                                                                                             |
-| Item active      | Background `--color-gray-50`, font-weight SemiBold                                                                                                       |
-| Submenu footer   | 68px tall, right-aligned chevron-left button to close the submenu                                                                                        |
+| Element          | Value                                                                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Panel width      | `var(--layout-submenu-width)` (208px); collapses to `4` (1rem)                                                                                |
+| Panel background | `gray.25` — **not white**                                                                                                                     |
+| Panel border     | `borderLeftWidth: "sm"` + `borderColor: "gray.100"`                                                                                           |
+| Item list        | `pt: 4; px: 2`, height `calc(100vh - var(--pixel-navbar-height) - 4rem)`, scrolls                                                             |
+| Section heading  | `MpText size="label-small" color="blue.400"`, `letterSpacing: "widest"`, `textTransform: "uppercase"`, `p: 2`                                 |
+| Item             | `minHeight: var(--layout-sidebar-item-height)` (36px), `px: 2; py: "1.5"`, `borderRadius: "md"`, `color: "dark"`, `fontWeight: "regular"`     |
+| Item hover       | `color: "blue.500"` (no background fill)                                                                                                      |
+| Item active      | `background: "blue.50"`, `color: "blue.500"`                                                                                                  |
+| Collapse control | Bottom-right, `MpIcon name="chevrons-previous" size="sm"`, tooltip `View less (shift + C)`                                                    |
+| Expand pill      | Visible only when collapsed: 24×40 white pill, `borderRightRadius: var(--border-radius-full)`, `shadow: "md"`, `MpIcon name="chevrons-right"` |
 
 **Rules**
 
-- Only one submenu is open at a time. Clicking the parent item again toggles closed.
-- When a submenu is open, the rail's user-collapse toggle becomes a "close submenu" affordance (clicking it returns to the previous rail state).
-- The submenu state is component-local. If we need cross-route persistence (e.g. remember which submenu was last open), promote it to a `useState` composable later.
-- The rail's right border is suppressed when a submenu is open — the submenu panel's `border-left` carries the seam.
-
-Example data (Reports):
-
-```ts
-{
-  label: 'Reports',
-  icon: 'reports',
-  to: '/reports',
-  submenu: {
-    heading: 'REPORTS',
-    items: [
-      { label: 'Business overview', to: '/reports/business-overview' },
-      { label: 'Sales', to: '/reports/sales' },
-      // ...
-    ]
-  }
-}
-```
+- Only one submenu is open at a time — it's driven by the active route's menu
+  item, not by local component state.
+- The rail's right border is suppressed while the panel is open; the panel's
+  `borderLeftWidth` carries the seam.
+- Panel state lives in `usePixelLayout()` (`useSidebarChild`), so it survives
+  route changes within the section.
 
 ---
 
-## 4. PageTitle
+## 5. Page title band + stage — `template/DefaultPageContent.vue`
 
-- Height: 72px fixed (`--layout-page-title-height`).
-- Padding: `var(--spacing-md) var(--spacing-lg)` (16px × 24px).
-- Heading: H1 = 24/32 SemiBold, letter-spacing **-0.48px** (from Figma, do not round to -0.5).
-- Optional `subtitle` slot renders below heading as `--font-size-body-sm` / `--color-text-subtle`.
-- Optional `#actions` named slot, right-aligned, `--spacing-xs` gap between actions.
+One component owns both. It also sets the page column's top offset
+(`paddingTop: var(--pixel-navbar-height)`).
 
-### Master-template action row (Figma node `1:16062`)
+**Title band** (`<header>`)
 
-The master-template page header carries a **3-button row**:
+- `minHeight: var(--layout-page-title-height)` (72px) — `minHeight`, not
+  `height`: a details page's optional breadcrumb line makes the column taller,
+  and it must grow rather than clip.
+- Padding `px: 6` (24px) / `py: 4` (16px), `gap: 4`, `flexShrink: 0`.
+- Heading: `MpText as="h1" size="h1" weight="semiBold" color="dark"`. Falls
+  back to `activePageTitle` from the menu, so stub pages stay one-liners.
+- Optional `subtitle`: `MpText size="body-small" color="gray.600"`.
+- Optional `breadcrumb` / `breadcrumbTo`: an `MpTextlink variant="primary"`
+  above the title, for a details page one level under its list page.
+- Optional `#actions` slot, right-aligned, `gap: 2`.
+- Optional `#tabs` slot renders a page-level tab band between the title and
+  the stage, aligned to the same `px: 6`.
 
-1. **"More" dropdown** — `MpButton variant="secondary"`, trailing `chevron-down` icon at 16px, `aria-haspopup="menu"`. Opens a popover (not yet implemented).
-2. **Secondary action** — `MpButton variant="secondary"`. Use a verb label (e.g. `Export`).
-3. **Primary action** — `MpButton variant="primary"`. Use a verb label (e.g. `Create new`).
+**Stage** (`<section>`)
 
-Button color tokens (Pixel 3 v2.1):
-
-| Variant   | Background fill                                                                                                                  | Border                                                            | Text                              |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------- |
-| Primary   | `--color-primary` (`#1C44D5`, Blue/$blue-500) — **not** `--color-brand-university` which is the lighter Mekari University accent | same as fill                                                      | `--color-text-inverse` (white)    |
-| Secondary | `--color-white`                                                                                                                  | `--color-border-default` (gray-100) → `--color-gray-300` on hover | `--color-text-default` (gray-900) |
-
-Pixel md-button geometry:
-
-- Height: `36px`.
-- Horizontal padding: **`var(--spacing-md)` (16px)** — `--spacing-sm` (12px) is the small-size padding.
-- Gap between icon and label: `var(--spacing-xs)` (8px).
-- Icon size inside the button: 20px (sm: 16px).
-- Font: `--font-size-label` SemiBold.
-- Border radius: `--border-radius-md` (6px).
-- Focus ring: `0 0 0 3px var(--color-blue-100)` — same Blue/$blue-100 token the active-nav fill uses, so focus and selection stay visually coherent.
-
-Figma labels the 2nd and 3rd buttons "Label" as placeholders — substitute meaningful copy in your page. Buttons do **not** carry leading icons in this row (the 3-button pattern intentionally reads as label-only). Gap between buttons in the row: `--spacing-xs` (8px).
-
----
-
-## 5. PageStage
-
-The white card content sits on. Visual rules:
-
-- Background: `--color-bg-surface`.
-- `border-top` + `border-left`: `1px solid var(--color-border-default)`.
-- `border-top-left-radius: --border-radius-md` (6px). No other rounded corners.
+- `bg: "white"`, `borderTopWidth`/`borderLeftWidth: "sm"`,
+  `borderColor: "gray.100"`, `roundedTopLeft: "md"`.
+- Padding is a fixed `p: 6` (24px). **There is no `padding` prop** — an earlier
+  revision of this doc specified `none | sm | md | lg | xl`; it doesn't exist.
+  A page that genuinely needs different padding should extend the component,
+  not override it with a style.
 - No bottom or right border — the card runs to the viewport edge.
-- Padding is selected via the `padding` prop (`none | sm | md | lg | xl`). Default is `lg` (24px). **Do not use `:style="padding: …"`** — choose a token-keyed preset or extend the prop.
+
+### Title-band action row (Figma node `1:16062`)
+
+Up to three buttons, labels only (no leading icons), `gap: 2`:
+
+1. **"More" dropdown** — `MpButton variant="secondary"` + trailing
+   `chevron-down`, `aria-haspopup="menu"`.
+2. **Secondary action** — `MpButton variant="secondary"`, verb label (`Export`).
+3. **Primary action** — `MpButton variant="primary"`, verb label (`Create new`).
+
+Button colours, sizing and focus rings come from Pixel's own recipes — don't
+restyle them. Verify variants via the Pixel MCP before adding one.
 
 ---
 
 ## 6. Iconography
 
-- Icon set: Pixel 3 icon library, accessed via `<MpIcon name="…" :size="24" />`.
-- Sidebar icons: 24px. Header action icons: 24px. Inline-with-text icons (e.g. inside buttons): 20px.
-- Always verify icon name with `get-icon-name` from the Pixel MCP before using a new icon. Don't guess names.
+- `<MpIcon name="…" size="…" :variant="…" />`. Sizes are Pixel's scale:
+  `size="md"` (24px) for sidebar and navbar icons, `size="sm"` (16px) for
+  chevrons and inline marks.
+- `variant="fill" | "outline"` drives the active-state swap. Don't ship
+  `-fill.svg` assets.
+- Always verify a new name with `get-icon-name` from the Pixel MCP.
 - Icon-only buttons must carry an `aria-label`.
 
-| Concept           | Icon name                             |
-| ----------------- | ------------------------------------- |
-| Quick access      | `add`                                 |
-| Live chat         | `live-chat`                           |
-| Referral          | `gift`                                |
-| Help              | `help`                                |
-| Activity log      | `time`                                |
-| Notification      | `notification`                        |
-| App switcher      | `shortcut`                            |
-| Home              | `home`                                |
-| Reports           | `reports`                             |
-| Budget / Finance  | `finance`                             |
-| Bank              | `bank`                                |
-| Sales             | `sales`                               |
-| Purchase          | `cart`                                |
-| Expense           | `expense`                             |
-| Job order / Tax   | `task-check`                          |
-| Mekari Pay        | `mekari-pay`                          |
-| Contacts          | `contact`                             |
-| Product           | `product`                             |
-| Production        | `fulfillment`                         |
-| Fulfillment       | `truck`                               |
-| Assets            | `assets`                              |
-| Chart of accounts | `chart-of-account`                    |
-| Marketplace       | `application`                         |
-| Other lists       | `doc`                                 |
-| Integrations      | `add-ons`                             |
-| Settings          | `settings`                            |
-| Chevron right     | `chevron-right`                       |
-| Chevron down/up   | `chevron-down` / `chevron-up`         |
-| Sidebar collapse  | `sidebar-collapse` / `sidebar-expand` |
-| External link     | `external-link`                       |
-| Check (selected)  | `check`                               |
+Names in use (from [`app/data/menu.ts`](../app/data/menu.ts) and the navbar):
+
+| Concept                    | Icon name                       |
+| -------------------------- | ------------------------------- |
+| Quick access               | `add`                           |
+| Live chat                  | `headphone`                     |
+| Referral                   | `gift`                          |
+| Help                       | `help`                          |
+| Activity log               | `time`                          |
+| Notification               | `notification`                  |
+| App switcher               | `shortcuts`                     |
+| Home                       | `home`                          |
+| Dashboard                  | `dashboard`                     |
+| Reports                    | `reports`                       |
+| Budget / Finance           | `finance`                       |
+| Cash & bank                | `bank`                          |
+| Sales                      | `sales`                         |
+| Purchases                  | `cart`                          |
+| Expenses                   | `expenses`                      |
+| Job order                  | `table-view-list`               |
+| Mekari Pay                 | `mekari_pay`                    |
+| Contacts                   | `contact`                       |
+| Products                   | `products`                      |
+| Production                 | `fulfillment`                   |
+| Fulfillment                | `truck`                         |
+| Assets                     | `assets`                        |
+| Chart of accounts          | `chart-of-account`              |
+| Applications               | `application`                   |
+| Other lists                | `doc`                           |
+| Integrations               | `add-ons`                       |
+| Settings                   | `settings`                      |
+| Outward link / expand pill | `chevrons-right`                |
+| Submenu collapse           | `chevrons-previous`             |
+| Rail toggle                | `sidebar-show` / `sidebar-hide` |
 
 ---
 
 ## 7. Component-import discipline
 
-- **All Pixel primitives come from `@mekari/pixel3`.** Never `@mekari/pixel-vue` or `@mekari/pixel` directly.
-- Pixel components are registered globally via the `plugins/pixel.ts` plugin, but for SFC clarity we still `import` them explicitly at the top of each `<script setup>` block.
-- For new components, validate props with the Pixel MCP `get-component` tool before adding. Update this doc when a non-obvious prop combination is required.
+- **All Pixel primitives come from `@mekari/pixel3`.** Never `@mekari/pixel-vue`
+  or `@mekari/pixel`. (Enforced — see `scripts/pixel-police.sh`.)
+- `css` is imported from `@mekari/pixel3` alongside the components.
+- Components are registered globally by `@mekari/pixel3-nuxt`, but for SFC
+  clarity we still `import` them explicitly in each `<script setup>`.
+- Validate props with the Pixel MCP `get-component` before adding a component.
+  Update this doc when a non-obvious prop combination is required.
 
 ### Form fields
 
-- All validated form fields **must** be wrapped in `<MpFormControl>`. The form control owns the label, helper text, and error state — fields do not manage those themselves.
-- For Mp inputs without a wrapping form control (e.g. the header search), an explicit `aria-label` is required.
+- All validated form fields **must** be wrapped in `<MpFormControl>`. The form
+  control owns the label, helper text and error state.
+- An `MpInput` with no wrapping form control needs an explicit `aria-label`.
 
 ---
 
 ## 8. Styling rules
 
-1. **No inline CSS, anywhere.** No `style="…"` attribute, no `:style="…"` binding. If a value needs to be computed, use a `class` toggle and a token-keyed CSS rule in `<style scoped>`.
-2. Prefer CSS Props on `MpFlex`, `MpScrollbar`, `MpSkeleton` (e.g. `gap`, `padding`, `align`) — see [Pixel styling notes](https://docs.pixel.mekari.com/styling). Use `css()` only when CSS Props are unavailable.
-3. Every length value in `<style>` should resolve to a token (`var(--…)`). Raw `px` is permitted **only** for hairlines (`1px`, `2px`) and Figma-spec'd values that don't yet have a token (call those out with a comment).
-4. Colors must resolve to a `--color-*` token. Direct hex literals are a code-review block.
+1. **Styling is Panda `css()`.** No `style=""` attribute, no `:style=""`
+   binding, no `<style>` block. The one sanctioned inline style is a `<col>`
+   width inside a `<colgroup>`, where `table-layout: fixed` needs authoritative
+   per-column widths ([`patterns/TablePage.md`](./patterns/TablePage.md)).
+2. Prefer Pixel component CSS Props (`gap`, `padding`, `align` on `MpFlex`,
+   `MpScrollbar`, `MpSkeleton`) over custom margins.
+3. Prefer a Panda token shorthand (`bg: "gray.25"`, `gap: 4`, `rounded: "md"`,
+   `borderWidth: "sm"`) over a raw `var()`. Reach for `var(--mp-*)` only where
+   no shorthand expresses it.
+4. **Colours resolve to a token.** A hex, `rgb()`, `rgba()` or `hsl()` literal
+   is a code-review block. (Enforced.)
+5. Spacing and type resolve to a token: `padding`, `margin`, `gap`,
+   `font-size`, `line-height`, `border-radius` never take a raw px value.
+   (Enforced.)
+6. Raw px **is** permitted for layout sizes taken straight from Figma that have
+   no token (`width: "776px"`, `height: "180px"`) and for hairlines. Note the
+   source in a comment next to the value.
+7. Escape-hatch values Panda can't type go in square brackets:
+   `left: "[calc(-1rem - 1px)]"`, `marginRight: "[1px]"`.
 
 ---
 
 ## 9. Behavior notes (update as discovered)
 
-- **Search input keyboard.** `⌘K` (macOS) / `Ctrl+K` (other) should focus the header search. Not yet wired up.
-- **User pulldown popover** (Figma node `25:134179`) is implemented in `components/AppUserPopover.vue`, anchored to the user chip in `AppHeader`. Spec:
-  - Width 320px, `--border-radius-md` (6px, not lg), `1px solid --color-border-default`, `z-index: --z-popover`. Shadow per Figma: `0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -2px rgba(0,0,0,0.05)`.
-  - Header band: **`--color-gray-25` (`#F8F9FB`)** — centred **48px** avatar + SemiBold name + subtle company line. Bottom border `--color-border-default`.
-  - Sections separated by `--color-gray-50` hairlines (lighter than the popover border): (1) Personal info / Support center (external-link icon) / **Companies on Jurnal** (expandable, chevron-up/down) / API credentials; (2) Language (with right-aligned current locale) / Sign out; (3) footer.
-  - Row spec: 36px min-height, `var(--spacing-xs) var(--spacing-sm)` (8/12) padding, hover bg gray-50.
-  - **Companies sub-list** is an inset card: `var(--spacing-sm)` (12px) margin on each side, **`--color-gray-25` fill**, 1px `--color-gray-50` border, `--border-radius-md`. Contains a scrollable list (`max-height: 180px`) plus a trailing **"View all companies"** link in `--color-accent-blue-400`.
-  - Each company row: name (14/20) + ID (12/20 subtle) stacked with `var(--spacing-3xs)` gap. Current company is SemiBold with a trailing **gray-900** `check` icon (NOT the bright nav-active blue).
-  - Footer: Overline 10/12 type, `--color-text-subtle`. Two stacked lines: legal links separated by `·` middots, then copyright.
-  - Toggle: click the chip → open. Outside-click or `Escape` → close. Both are bound globally in `AppHeader` via `pointerdown` / `keydown`. Enter animation: `--motion-duration-fast` ease-out, 4px translateY + fade.
-- **Quick Access popover** (`Popover / Quick Access` in Figma) is 240×268. Not yet implemented.
-- **Submenu auto-close on route change** — currently the submenu stays open across route changes. Decide whether to auto-close on `to` route activation (probably yes, with an exception when the route is inside the submenu). Not yet wired up.
+- **Quick Access popover** — `navbar/QuickAction.vue`,
+  `MpPopover placement="bottom-start"`. Dark panel (`bg: "dark"`,
+  `rounded: "md"`, `shadow: "lg"`) with an `MpText size="overline"` heading and
+  rows that hover to `gray.600`.
+- **Account popover** — `navbar/SwitchAccount.vue` +
+  `SwitchAccountContent.vue`, `MpPopover placement="bottom-end"`. 320px card,
+  `bg: "white"`, `rounded: "md"`, `shadow: "sm"` (the shadow alone defines the
+  edge — no border). Header band `bg: "gray.25"` with a 48px avatar; rows are
+  36px, `_hover: { backgroundColor: "gray.50" }`; the companies sub-list is an
+  inset `gray.25` card. Includes a language sub-view (in-place, via a back
+  button) and Sign out.
+- **Notification** — `navbar/Notification.vue`, badge on the bell icon.
+- **Submenu persistence** — the panel's collapse state lives in
+  `usePixelLayout()`, so it persists across route changes; the rail's collapse
+  is one-way (a submenu forces it closed, leaving the section doesn't reopen it).
 
 ---
 
 ## 10. Accessibility baseline
 
-- All icon-only buttons → `aria-label`.
-- Sidebar `<aside>` → `aria-label="Navigasi utama"`.
-- Active sidebar route → relies on `NuxtLink active-class` for semantic active state; don't add `aria-current` manually until pages reflect actual routes.
-- Focus styles on the user button and sidebar items are inherited from Pixel's focus ring (`:focus-visible`). Don't override with `outline: none` without providing a replacement.
+- All icon-only buttons → `aria-label` (plus an `MpTooltip label` for sighted
+  users).
+- Active sidebar route comes from `isRouteActive()` in `useAppMenu`; don't add
+  `aria-current` manually until pages reflect real routes.
+- Focus styles are inherited from Pixel's `:focus-visible`. Don't override with
+  `outline: none` without providing a replacement.
+- **Known gap:** the sidebar `<aside>` carries no `aria-label`. Add one
+  (`aria-label="Main navigation"` — app copy is English) next time the sidebar
+  is touched.
 
 ---
 
 ## Changelog
 
+- **v0.15.0** — **Reconciled this document with the code.** Every token
+  reference now names something that exists. The `--color-*` / `--spacing-*` /
+  `--font-*` / `--z-*` namespace this doc had used throughout was never defined
+  in `app/` — it belonged to the static HTML preview that predated the Nuxt
+  build — so §1–§10 are restated in the real two-layer model (Pixel `--mp-*`
+  via Panda `css()`, plus the 10 project-local `--layout-*` / `--motion-*` /
+  `--border-radius-full` variables), documented in the new §0. Component names
+  corrected to the ones that exist: `TheNavbar`, `TheSidebar`, `SidebarChild`,
+  and `DefaultPageContent` (which owns both the title band and the stage —
+  there are no separate `PageTitle` / `PageStage` components). Specs corrected
+  against the source: the sidebar rail is `gray.25` in **both** states (not
+  `#F1F5F9` / `#E7EDF5`), the active row is `blue.50` + `blue.500` (not
+  `--color-blue-100` / `#1C44D5`), submenu items hover to blue text with no
+  fill (not a `gray.50` background), icon names match `app/data/menu.ts`
+  (`expenses`, `products`, `mekari_pay`, `table-view-list`, `chevrons-right`,
+  `chevrons-previous`, `sidebar-show` / `sidebar-hide`, `headphone`,
+  `shortcuts`), and the popovers are real `MpPopover`s rather than hand-rolled
+  dismissal logic. Removed two specs for things that don't exist: the 480px
+  header search input with its `⌘K` chip, and the stage's `padding` prop.
+  §8 restated as the `css()`-first rules the repo actually follows and that
+  `scripts/pixel-police.sh` enforces. Earlier changelog entries below describe
+  the static preview's history and are kept as provenance — they do **not**
+  describe the current code.
 - **v0.14.0** — Refactored the preview's `iconSlot(name, variant, cls)` helper to mirror Pixel's `<MpIcon :name :variant>` API: callers now pass `variant: 'fill' | 'outline'` and the helper resolves to `<name>-fill.svg` / `<name>.svg`. The Nuxt sidebar continues to call the real `<MpIcon>` from `@mekari/pixel3` with the same variant prop — so preview and prod share one mental model. Bulletproofed the user-popover company-list alignment: explicit `padding-inline-start: 0` on the `<ul>` (Safari/older WebKit otherwise applies `padding-inline-start: 40px` to lists), explicit `text-align: left` + `padding/margin: 0` on the name/ID `<p>` elements and the View-all `<a>`, so company names and the View-all link now share the exact same left X regardless of browser defaults.
 - **v0.13.0** — Restored **`var(--spacing-sm)` (12px)** horizontal padding on `.app-user-popover__company` and `.app-user-popover__view-all` so every row inside the gray-25 card aligns at the same left X with the comfortable indent shown in the live UI screenshot (the previous 0px push was too tight). Redrew 4 filled sidebar icons to match Pixel reference screenshots: `application-fill` (clean isometric box silhouette), `assets-fill` (warehouse with peaked roof + windows + door cutout), `bank-fill` (classical pediment + 4 columns + base slab), `cart-fill` (slanted handle + basket + 2 wheels).
 - **v0.12.0** — Hand-crafted **filled SVG variants** for all 20 sidebar icons (`home-fill`, `dashboard-fill`, … `settings-fill`). The previous `sed`-generated approach produced visually broken icons because it just swapped `stroke` → `fill` on outline geometry; the new files are proper solid silhouettes that read as the Pixel filled variant. The preview renderer now loads `icons/<name>-fill.svg` for active rows. Sidebar **icon drift on collapse is fixed** — item padding is now a constant `16px` horizontal in both expanded and collapsed states, so the icon sits at x=16 throughout the width transition (no padding animation needed, no horizontal shift). Company-list rows now have **zero horizontal padding** — text and check icon sit flush within the gray-25 card edge, with all rows aligned at the same left X.

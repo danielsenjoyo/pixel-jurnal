@@ -102,8 +102,16 @@ that and the child route silently renders the parent's own template instead
 - **Unsaved-changes guarding:** not applicable — edit is a separate route
   (see the Rules section above), not in-place state on this page.
 - **"Last updated by …" reads as a link**, not plain text (`MpTextlink`, not
-  `MpText`) — confirmed from two separate screenshots (Invoice, Order). Not
-  wired to anything real here (would open an audit-log modal).
+  `MpText`) — confirmed from two separate screenshots (Invoice, Order). It was
+  wired to nothing on the Purchase and Sales pages; **Fulfillment now opens a
+  real audit-log modal** behind it
+  ([`FulfillmentAuditModal.vue`](../../app/components/fulfillment/FulfillmentAuditModal.vue)):
+  a Date / Action / User / Details table, newest first, with a "Time is shown
+  in GMT +7." footnote. The entries are written by the module's own lifecycle
+  helpers as the record moves, so the trail cannot disagree with the record —
+  which is the part worth copying if the money types grow one. The source app
+  binds its Details cell with `v-html` against a server-rendered diff string;
+  don't. It is an XSS surface and nothing here needs markup.
 
 ## Resolved — Order (the second reference impl)
 
@@ -258,15 +266,17 @@ and it must get the **same treatment as the list page's search-empty state** —
 illustration, title, one line of recovery copy, and an action back to the list:
 
 ```vue
-<div v-if="!record" :class="notFoundClass">
-  <img src="/illustrations/search-not-found.png" alt="" :class="notFoundIllustrationClass" />
-  <MpText weight="semiBold" color="dark" :class="notFoundTitleClass">Invoice not found</MpText>
-  <MpText size="body-small" color="gray.600" :class="notFoundDescClass">
-    This invoice may have been deleted, or the link you followed may be out of date.
-  </MpText>
+<BlankSlate
+  v-if="!record"
+  title="Invoice not found"
+  description="This invoice may have been deleted, or the link you followed may be out of date."
+>
   <MpButton variant="secondary" @click="navigateTo('/purchase')">Back to Purchases</MpButton>
-</div>
+</BlankSlate>
 ```
+
+`variant` defaults to `not-found`, which is right here — the record was asked
+for and isn't there. See [`BlankSlate`](./BlankSlate.md).
 
 Two rules the Purchase audit had to correct here:
 

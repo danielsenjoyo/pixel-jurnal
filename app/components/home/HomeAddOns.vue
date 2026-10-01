@@ -46,13 +46,15 @@ function openMarketplace() {
 }
 
 // Blue gradient card — production paints the same angle over a decorative
-// PNG; the gradient alone carries it here.
+// PNG; the gradient alone carries it here. Literal colour, not a --mp-*
+// token: this is a marketing sky-blue distinct from the Pixel `blue` scale,
+// documented in docs/tokens.md § Documented literal-colour exceptions.
 const cardClass = css({
   width: "full",
   maxWidth: "776px",
   rounded: "md",
   overflow: "hidden",
-  backgroundImage: "linear-gradient(340deg, #66CFFF 9.7%, #00A8FD 47.12%, #0087D9 84.53%)"
+  backgroundImage: "linear-gradient(340deg, #66CFFF 9.7%, #00A8FD 47.12%, #0087D9 84.53%)" // pixel-police-allow
 });
 
 /** Keep the heading off the button so the two never collide mid-width. */

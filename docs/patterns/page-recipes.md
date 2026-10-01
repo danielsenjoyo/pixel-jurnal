@@ -18,6 +18,21 @@ only differ in what fills the stage.
 `Tabs` (content, opt) → `FilterBar` + `Drawer` → `TablePage` (+ `BulkActionBar`,
 `StatusBadge`) **or** `BlankSlate` → `Pagination`.
 
+## Recipe: Board page
+
+> One collection, shown as the stages of a process. Full recipe:
+> [`KanbanBoard`](./KanbanBoard.md).
+
+`page-title-bar` → **stage:** `FilterBar` (quick filters + Reload + search) →
+a row of status columns, each a header with a [`StatusBadge`](./StatusBadge.md)
+count over a stack of link cards **or** one [`BlankSlate`](./BlankSlate.md) when
+every column is empty.
+
+**The one thing to get right:** don't reach for it. A board buys one glance at
+the pipeline and pays for it with sorting, bulk actions and pagination — worth
+it only when the status column is the user's actual question (Fulfillment), not
+whenever records happen to have a status.
+
 ## Recipe: Details / single-record page
 
 > View or edit one record. Full recipe: [`details-page-format`](./details-page-format.md).
@@ -40,6 +55,33 @@ via a [`Modal`](./Modal.md).
 
 **The one thing to get right:** commit buttons live at the bottom of the form
 body, not in the title band — the opposite of the details page.
+
+## Recipe: Report page
+
+> Compose a query, run it, read a table with totals. Full recipe:
+> [`reports-page-format`](./reports-page-format.md).
+
+`page-title-bar` (breadcrumb → /reports; `#actions` holds a column-layout
+picker and Export) → **stage:** date range + period + `[Filter]` +
+`[More filter]` → meta strip → [`TablePage`](./TablePage.md) + a TOTAL row
+**or** [`BlankSlate`](./BlankSlate.md) → [`Pagination`](./Pagination.md).
+
+**The one thing to get right:** the filter is **not** live. Two objects — the
+one being edited and the one the table reads — and a Filter button that copies
+one into the other. Wire it live and both the button and the "Report will
+appear here" blank state stop meaning anything.
+
+## Recipe: Catalog page
+
+> A curated set of destinations, not records — nothing to filter, sort or
+> paginate. Full recipe: [`reports-index-format`](./reports-index-format.md).
+
+`page-title-bar` → `Tabs` (page-level, one per category) → **stage:** a
+two-column grid of chrome-less entry cards (title + `MpBadge` → one-line
+description → `MpButton variant="secondary"` CTA).
+
+**The one thing to get right:** don't reach for the index-page machinery. No
+`FilterBar`, no `TablePage`, no `Pagination`.
 
 ## Recipe: Settings page
 
@@ -73,6 +115,15 @@ groups thousands, `,` separates two decimals, no space after `Rp`), and dates
 already says "Total" shares the same formatter, so grouping and decimals can't
 drift between the two.
 
+**Conversion drifts the same way display does — and more quietly.** The same
+audit found `dmyToIso` copy-pasted into seven files in two versions: one padded
+and validated, one did neither. So `1/7/2026` became `2026-7-1` in a form and
+`""` in a filter, and `2026-7-1` sorts _after_ `2026-12-01` as a string. Nothing
+looked wrong on screen. Date conversion now lives in one module,
+[`app/utils/dates.ts`](../../app/utils/dates.ts) — `toDmy`, `dmyToIso`,
+`isoToDmy`, `toLocalIsoDate`, `parseLocalIsoDate` and `DATE_INPUT_FORMAT`.
+Import from there; never re-declare one locally, however small it looks.
+
 **An editable money field is not a display.** It needs a matching `parseAmount`,
 because `.` and `,` carry meaning — `210.000,50` is 210000.5, not 21000050. And
 it must **not** reformat while the user types: at two decimals, live formatting
@@ -83,22 +134,24 @@ wrapping element.
 
 ## Pattern index
 
-| Pattern                                           | One-liner                                        |
-| ------------------------------------------------- | ------------------------------------------------ |
-| [`page-title-bar`](./page-title-bar.md)           | Title + action row at the top of every page.     |
-| [`Tabs`](./Tabs.md)                               | Page-level (flush to stage) vs. content tabs.    |
-| [`SummaryBox`](./SummaryBox.md)                   | KPI strip of two-tone summary cards.             |
-| [`FilterBar`](./FilterBar.md)                     | Quick filters + search + Filter button.          |
-| [`Drawer`](./Drawer.md)                           | Right-side panel for the full filter set / form. |
-| [`TablePage`](./TablePage.md)                     | Fixed-layout table, sticky header + Actions.     |
-| [`BulkActionBar`](./BulkActionBar.md)             | Header swap while rows are selected.             |
-| [`Pagination`](./Pagination.md)                   | Rows-per-page + page-jump footer.                |
-| [`StatusBadge`](./StatusBadge.md)                 | Domain status → `MpBadge type`.                  |
-| [`BlankSlate`](./BlankSlate.md)                   | Adaptive search-not-found empty state.           |
-| [`Form`](./Form.md)                               | `MpFormControl`-wrapped fields.                  |
-| [`Modal`](./Modal.md)                             | Centred confirm / focused dialog.                |
-| [`index-page-format`](./index-page-format.md)     | Index-page zone composition.                     |
-| [`details-page-format`](./details-page-format.md) | Details-page zone composition.                   |
-| [`form-page-format`](./form-page-format.md)       | Create/edit form-page zone composition.          |
-| [`Toast`](./Toast.md)                             | One-line transient confirmation via `toast()`.   |
-| [`MoneyField`](./MoneyField.md)                   | Currency-aware display/input — never converts.   |
+| Pattern                                           | One-liner                                                  |
+| ------------------------------------------------- | ---------------------------------------------------------- |
+| [`page-title-bar`](./page-title-bar.md)           | Title + action row at the top of every page.               |
+| [`Tabs`](./Tabs.md)                               | Page-level (flush to stage) vs. content tabs.              |
+| [`SummaryBox`](./SummaryBox.md)                   | KPI strip of two-tone summary cards.                       |
+| [`FilterBar`](./FilterBar.md)                     | Quick filters + search + Filter button.                    |
+| [`Drawer`](./Drawer.md)                           | Right-side panel for the full filter set / form.           |
+| [`TablePage`](./TablePage.md)                     | Fixed-layout table, sticky header + Actions.               |
+| [`NestedTable`](./NestedTable.md)                 | Two-level table — group header/footer + detail rows.       |
+| [`BulkActionBar`](./BulkActionBar.md)             | Header swap while rows are selected.                       |
+| [`Pagination`](./Pagination.md)                   | Rows-per-page + page-jump footer.                          |
+| [`StatusBadge`](./StatusBadge.md)                 | Domain status → `MpBadge type`.                            |
+| [`BlankSlate`](./BlankSlate.md)                   | Empty state: empty table, empty section, record not found. |
+| [`Form`](./Form.md)                               | `MpFormControl`-wrapped fields.                            |
+| [`Modal`](./Modal.md)                             | Centred confirm / focused dialog.                          |
+| [`KanbanBoard`](./KanbanBoard.md)                 | A collection as stages of one process.                     |
+| [`index-page-format`](./index-page-format.md)     | Index-page zone composition.                               |
+| [`details-page-format`](./details-page-format.md) | Details-page zone composition.                             |
+| [`form-page-format`](./form-page-format.md)       | Create/edit form-page zone composition.                    |
+| [`Toast`](./Toast.md)                             | One-line transient confirmation via `toast()`.             |
+| [`MoneyField`](./MoneyField.md)                   | Currency-aware display/input — never converts.             |

@@ -1,16 +1,12 @@
 <template>
   <DefaultPageContent :title="pageTitle" breadcrumb="Purchases" breadcrumb-to="/purchase">
-    <div v-if="!purchase" :class="notFoundClass">
-      <img src="/illustrations/search-not-found.png" alt="" :class="notFoundIllustrationClass" />
-      <MpText weight="semiBold" color="dark" :class="notFoundTitleClass"
-        >No purchase selected</MpText
-      >
-      <MpText size="body-small" color="gray.600" :class="notFoundDescClass">
-        A landed cost is always calculated against a purchase. Open one and choose Landed cost from
-        its Actions menu.
-      </MpText>
+    <BlankSlate
+      v-if="!purchase"
+      title="No purchase selected"
+      description="A landed cost is always calculated against a purchase. Open one and choose Landed cost from its Actions menu."
+    >
       <MpButton variant="secondary" @click="navigateTo('/purchase')">Back to Purchases</MpButton>
-    </div>
+    </BlankSlate>
 
     <template v-else>
       <!-- Zone A — the purchase being costed, and the running total. -->
@@ -133,7 +129,9 @@
               <MpTableCell as="td" :class="lineCellClass">
                 <div @focusout="onMoneyBlur(expense, 'amount')">
                   <MpInputGroup>
-                    <MpInputLeftAddon>Rp</MpInputLeftAddon>
+                    <MpInputLeftAddon>
+                      <MpText weight="semiBold" :class="addonTextClass">Rp</MpText>
+                    </MpInputLeftAddon>
                     <MpInput
                       v-model="expense.amountText"
                       type="text"
@@ -146,7 +144,9 @@
               <MpTableCell as="td" :class="lineCellClass">
                 <div @focusout="onMoneyBlur(expense, 'amountUsed')">
                   <MpInputGroup>
-                    <MpInputLeftAddon>Rp</MpInputLeftAddon>
+                    <MpInputLeftAddon>
+                      <MpText weight="semiBold" :class="addonTextClass">Rp</MpText>
+                    </MpInputLeftAddon>
                     <MpInput
                       v-model="expense.amountUsedText"
                       type="text"
@@ -223,7 +223,9 @@
               <MpTableCell as="td" :class="lineCellClass">
                 <div @focusout="onMoneyBlur(alloc, 'allocated')">
                   <MpInputGroup>
-                    <MpInputLeftAddon>Rp</MpInputLeftAddon>
+                    <MpInputLeftAddon>
+                      <MpText weight="semiBold" :class="addonTextClass">Rp</MpText>
+                    </MpInputLeftAddon>
                     <MpInput
                       v-model="alloc.allocatedText"
                       type="text"
@@ -342,7 +344,6 @@ import {
   type LandedCostExpense
 } from "~/data/purchase-landed-cost";
 import {
-  DATE_INPUT_FORMAT,
   TAG_OPTIONS,
   formatAmount,
   formatCurrency,
@@ -350,6 +351,7 @@ import {
   getPurchaseTransactionById,
   parseAmount
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit a landed cost. Ported from jurnal-frontend-app
@@ -391,18 +393,6 @@ const submitted = ref(false);
 const purchase = computed(() =>
   form.purchaseId != null ? getPurchaseTransactionById(form.purchaseId) : undefined
 );
-
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
-}
 
 let expenseKeySeq = 0;
 function blankExpense(name = ""): ExpenseRow {
@@ -584,6 +574,10 @@ function onCancel() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
+// The addon supplies no padding of its own: Pixel's "input with prefix and
+// suffix" pattern (docs.mekari.design/patterns/input.html) pads the addon's
+// content by 12px, without which the prefix sits flush against both edges.
+const addonTextClass = css({ px: 3 });
 const topRowClass = css({
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
@@ -647,16 +641,4 @@ const actionBarClass = css({
   gap: 2,
   mt: 8
 });
-
-const notFoundClass = css({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 3,
-  py: 16,
-  textAlign: "center"
-});
-const notFoundTitleClass = css({ fontSize: "lg" });
-const notFoundIllustrationClass = css({ width: "180px", height: "auto", mb: 1 });
-const notFoundDescClass = css({ maxWidth: "360px" });
 </script>

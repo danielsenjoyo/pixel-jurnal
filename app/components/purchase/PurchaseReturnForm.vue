@@ -259,7 +259,9 @@
             <MpText>Discount</MpText>
             <div :class="discountInputClass">
               <MpInputGroup>
-                <MpInputLeftAddon>%</MpInputLeftAddon>
+                <MpInputLeftAddon>
+                  <MpText weight="semiBold" :class="addonTextClass">%</MpText>
+                </MpInputLeftAddon>
                 <MpInput v-model.number="discountValue" type="number" :class="numInputClass" />
               </MpInputGroup>
             </div>
@@ -364,7 +366,6 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import {
-  DATE_INPUT_FORMAT,
   TAG_OPTIONS,
   TRANSACTION_TYPE_LABEL,
   WAREHOUSE_OPTIONS,
@@ -381,6 +382,7 @@ import {
   type PurchaseTransaction,
   type PurchaseTransactionInput
 } from "~/data/purchase-transactions";
+import { DATE_INPUT_FORMAT, toDmy, dmyToIso, isoToDmy } from "~/utils/dates";
 
 // ---------------------------------------------------------------------------
 // Create/edit for a Purchase Return. Ported from jurnal-frontend-app
@@ -443,17 +445,6 @@ function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
-}
-function toDmy(date: Date): string {
-  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
-}
-function dmyToIso(dmy: string): string {
-  const [d, m, y] = dmy.split("/");
-  return d && m && y ? `${y}-${m}-${d}` : "";
-}
-function isoToDmy(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-");
-  return d && m && y ? `${d}/${m}/${y}` : "";
 }
 
 // Only invoices that still have something left to send back.
@@ -690,6 +681,10 @@ function onCancel() {
 }
 
 // All css() below uses Pixel 3 token shortcuts only (token mode 2.1).
+// The addon supplies no padding of its own: Pixel's "input with prefix and
+// suffix" pattern (docs.mekari.design/patterns/input.html) pads the addon's
+// content by 12px, without which the prefix sits flush against both edges.
+const addonTextClass = css({ px: 3 });
 const topGridClass = css({
   display: "grid",
   gridTemplateColumns: "repeat(4, 1fr)",

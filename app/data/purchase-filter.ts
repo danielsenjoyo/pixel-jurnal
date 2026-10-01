@@ -11,6 +11,8 @@
 // committed one. A predicate duplicated across the two would drift the first
 // time a field was added.
 
+import { dmyToIso } from "~/utils/dates";
+
 /** Which single column a keyword is matched against. "" means every column. */
 export type SearchColumn =
   | ""
@@ -119,17 +121,6 @@ export interface FilterableRow {
   balanceDue: number;
   totalAmount: number;
   tags: string[];
-}
-
-/** DD/MM/YYYY → YYYY-MM-DD, so a typed date compares against the `*Sort`
- *  fields as a plain string. Returns "" for anything unparseable, which the
- *  callers treat as "no bound". */
-function dmyToIso(dmy: string): string {
-  const parts = String(dmy ?? "").split("/");
-  if (parts.length !== 3) return "";
-  const [d, m, y] = parts;
-  if (!d || !m || !y || y.length !== 4) return "";
-  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
 }
 
 function withinDateRange(value: string, from: string, to: string): boolean {

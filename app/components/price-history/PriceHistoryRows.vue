@@ -99,22 +99,17 @@
       <MpTableBody v-else>
         <MpTableRow>
           <MpTableCell as="td" :colspan="colCount">
-            <!-- Illustration + title + body, per docs/patterns/BlankSlate.md.
-                 Deliberately NOT an MpIcon: `name="empty"` type-checks but is
-                 not actually wired, and renders as a 626px unstyled SVG (the
-                 same trap details-page-format.md records for "pdf-document").
-                 Scaled down from the page-level 180px — this sits in a drawer. -->
-            <div :class="emptyClass">
-              <img
-                src="/illustrations/search-not-found.png"
-                alt=""
-                :class="emptyIllustrationClass"
-              />
-              <MpText weight="semiBold" color="dark">No purchases found</MpText>
-              <MpText size="body-small" color="gray.600">
-                No purchases have been recorded for this product yet.
-              </MpText>
-            </div>
+            <!-- The in-table case of docs/patterns/BlankSlate.md. `no-data`, not
+                 the magnifier: nothing was searched for, the product simply
+                 has no purchases yet. Deliberately NOT an MpIcon: `name="empty"`
+                 type-checks but is not actually wired, and renders as a 626px
+                 unstyled SVG (the same trap details-page-format.md records for
+                 "pdf-document"). -->
+            <BlankSlate
+              variant="no-data"
+              title="No purchases found"
+              description="No purchases have been recorded for this product yet."
+            />
           </MpTableCell>
         </MpTableRow>
       </MpTableBody>
@@ -182,13 +177,4 @@ const stackClass = css({
 // ("BILL/2026/07/050" / "3") is worse than letting the column carry them.
 const nowrapClass = css({ whiteSpace: "nowrap!" });
 const skeletonBarClass = css({ display: "block", height: "4", rounded: "sm" });
-const emptyClass = css({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 2,
-  py: 8,
-  textAlign: "center"
-});
-const emptyIllustrationClass = css({ width: "120px", height: "auto", mb: 1 });
 </script>
