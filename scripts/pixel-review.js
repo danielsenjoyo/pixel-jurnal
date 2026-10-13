@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 // Playwright automation for /pixel-review slash command.
-// Usage: node scripts/pixel-review.js --url <url> --out-dir <path> [--flow-config <path>] [--routes r1,r2] [--max-routes 20] [--no-profile]
+// Usage: node scripts/pixel-review.js --url <url> --out-dir <path> [--flow-config <path>] [--routes r1,r2] [--max-routes 20] [--no-profile] [--chrome-profile] [--local-storage k=v,k2=v2]
+//        node scripts/pixel-review.js --login --url <url>     (one-time sign-in, opens a visible window)
+//
+// Session: by default the run reuses a dedicated Playwright profile (~/.cache/pixel-review/profile),
+// outside the repo, that you sign in to once with --login. It never reads your Chrome profile, so it
+// works in sandboxed shells where that folder is blocked, and never touches your other sites' cookies.
+//   --login           open the dedicated profile in a visible window so you can sign in, then close it
+//   --no-profile      fresh, signed-out profile (for prototypes without auth)
+//   --chrome-profile  legacy: copy/use your real Chrome profile (needs read access to it)
 
 import { chromium } from "@playwright/test";
 import fs from "fs";
@@ -27,13 +35,20 @@ for (let i = 2; i < process.argv.length; i++) {
 const prototypeUrl = args.url;
 const outDir = args["out-dir"];
 const maxRoutes = parseInt(args["max-routes"] ?? "20", 10);
-const useProfile = !args["no-profile"];
+const loginMode = !!args.login;
+const profileMode = args["no-profile"] ? "fresh" : args["chrome-profile"] ? "chrome" : "dedicated";
+const useProfile = profileMode === "chrome";
+const dedicatedProfile = path.join(os.homedir(), ".cache/pixel-review/profile");
 // --flow-config: path to JSON flow config (highest priority, PRD-driven state map)
 const flowConfigPath = args["flow-config"] ?? null;
 const flowConfig =
   flowConfigPath && fs.existsSync(flowConfigPath)
     ? JSON.parse(fs.readFileSync(flowConfigPath, "utf8"))
     : null;
+// --local-storage: "key=value" pairs, comma-separated. Seeded via addInitScript so they are
+// present BEFORE the app boots on every navigation — a prototype that reads a flag at startup
+// (Qontak's demo mode, feature toggles) cannot be reached by setting storage after load, and a
+// post-navigation trigger step would need a reload dance on every route.
 // --routes: comma-separated paths (fallback targeted mode, no PRD)
 const targetRoutes = args.routes
   ? args.routes
@@ -41,13 +56,26 @@ const targetRoutes = args.routes
       .map((r) => r.trim())
       .filter(Boolean)
   : null;
+const localStorageSeed = args["local-storage"]
+  ? Object.fromEntries(
+      args["local-storage"]
+        .split(",")
+        .map((pair) => pair.trim())
+        .filter(Boolean)
+        .map((pair) => {
+          const at = pair.indexOf("=");
+          return at === -1 ? [pair, "true"] : [pair.slice(0, at), pair.slice(at + 1)];
+        })
+    )
+  : null;
 
-if (!prototypeUrl || !outDir) {
+if (!prototypeUrl || (!outDir && !loginMode)) {
   console.error("Usage: node scripts/pixel-review.js --url <url> --out-dir <path>");
+  console.error("       node scripts/pixel-review.js --login --url <url>");
   process.exit(1);
 }
 
-fs.mkdirSync(outDir, { recursive: true });
+if (outDir) fs.mkdirSync(outDir, { recursive: true });
 
 // ── Chrome profile setup ────────────────────────────────────────────────────
 
@@ -221,16 +249,33 @@ async function collectElements(page) {
 
 async function executeFlowStep(page, trigger) {
   if (!trigger) return;
-  // Steps are comma-separated, so a selector or label containing a comma gets
-  // shredded into nonsense steps that then silently no-op. Keep selectors
-  // comma-free — e.g. prefer [placeholder^='Cari No. CM'] over matching the
-  // full "Cari No. CM, dokumen, atau No. transaksi" placeholder.
   const steps = trigger
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
   for (const step of steps) {
-    if (step.startsWith("click:")) {
+    if (step.startsWith("click-nth:")) {
+      // click-nth:<selector>|<index> — clicks the index-th (0-based) match.
+      // Needed for forms with several identical custom controls, e.g. a page with
+      // multiple [role=combobox] selects where only the first is reachable by
+      // `click:` and none carry a unique id of their own.
+      // Uses Playwright's real (trusted) click, not element.click() — Pixel's
+      // popovers ignore synthetic clicks, so an evaluate-based click silently
+      // fails to open them.
+      const rest = step.slice(10);
+      const sepIdx = rest.lastIndexOf("|");
+      const sel = sepIdx === -1 ? rest : rest.slice(0, sepIdx);
+      const idx = sepIdx === -1 ? 0 : Number(rest.slice(sepIdx + 1)) || 0;
+      await page.click(`${sel} >> nth=${idx}`, { timeout: 5000 }).catch(() => {});
+    } else if (step.startsWith("click-force:")) {
+      // click-force:<selector> — a real mouse click that skips Playwright's
+      // actionability checks. `click:` waits for the target to be "enabled", and
+      // Playwright counts anything under [aria-disabled=true] as disabled, so a
+      // click on an inert card (e.g. to test that it dismisses an open popover)
+      // times out silently and the screenshot shows nothing happened.
+      const sel = step.slice(12);
+      await page.click(sel, { timeout: 5000, force: true }).catch(() => {});
+    } else if (step.startsWith("click:")) {
       const sel = step.slice(6);
       await page.click(sel, { timeout: 5000 }).catch(() => {});
     } else if (step.startsWith("click-text:")) {
@@ -241,29 +286,6 @@ async function executeFlowStep(page, trigger) {
             (e) => e.textContent?.trim() === t
           );
           if (el) el.click();
-        }, text)
-        .catch(() => {});
-    } else if (step.startsWith("select-text:")) {
-      // Broader than click-text: matches dropdown/autocomplete option rows that
-      // aren't <button>/<a> (e.g. MpPopoverList items, custom <li>/<div> options).
-      // Picks the innermost element whose exact trimmed text matches, so a
-      // wrapping row doesn't get clicked instead of its inner label.
-      // Beware: this matches the WHOLE page, so a label that also exists behind
-      // an open drawer/popover can win. Scope with click: and a container
-      // selector (e.g. .mp-popover-list-item:has-text("...")) when that happens.
-      const text = step.slice(12);
-      await page
-        .evaluate((t) => {
-          const candidates = [
-            ...document.querySelectorAll(
-              "button, a, [role=button], [role=option], [role=menuitem], li, .mp-button, [class*='popover'], [class*='option'], [class*='item']"
-            )
-          ];
-          const matches = candidates.filter((e) => e.textContent?.trim() === t);
-          const el = matches.find(
-            (e) => !matches.some((other) => other !== e && e.contains(other))
-          );
-          (el || matches[0])?.click();
         }, text)
         .catch(() => {});
     } else if (step.startsWith("click-text-last:")) {
@@ -280,6 +302,63 @@ async function executeFlowStep(page, trigger) {
             )
           ].filter((e) => e.textContent?.trim() === t);
           matches[matches.length - 1]?.click();
+        }, text)
+        .catch(() => {});
+    } else if (step.startsWith("click-contains:")) {
+      // Broadest match, for rows that are neither buttons nor option items — a
+      // chat-list row, a table row, a card. click-text only searches
+      // button/a/[role=button]/.mp-button, so a list row whose only text is a
+      // customer name is invisible to it.
+      //
+      // Also scrolls the match into view first: a row below the fold is in the
+      // DOM and clickable via .click(), but the screenshot afterwards would show
+      // an un-scrolled list, which reads as "the click did nothing".
+      const text = step.slice(15);
+      await page
+        .evaluate((t) => {
+          const all = [...document.querySelectorAll("div, li, tr, a, button, [role=row]")];
+          const matches = all.filter((e) => (e.textContent ?? "").includes(t));
+          // Innermost match that still has a real box — avoids clicking a
+          // wrapper that spans the whole list.
+          const sized = matches.filter((e) => e.getBoundingClientRect().height > 0);
+          const el = sized.reverse().find((e) => e.getBoundingClientRect().height < 200);
+          if (!el) return;
+          el.scrollIntoView({ block: "center" });
+          el.click();
+        }, text)
+        .catch(() => {});
+    } else if (step.startsWith("select-text:")) {
+      // Broader than click-text: matches dropdown/autocomplete option rows that
+      // aren't <button>/<a> (e.g. MpPopoverList items, custom <li>/<div> options).
+      // Picks the innermost element whose exact trimmed text matches, so a
+      // wrapping row doesn't get clicked instead of its inner label.
+      const text = step.slice(12);
+      await page
+        .evaluate((t) => {
+          const candidates = [
+            ...document.querySelectorAll(
+              "button, a, [role=button], [role=option], [role=menuitem], li, .mp-button, [class*='popover'], [class*='option'], [class*='item']"
+            )
+          ];
+          const matches = candidates.filter((e) => e.textContent?.trim() === t);
+          const el = matches.find(
+            (e) => !matches.some((other) => other !== e && e.contains(other))
+          );
+          if (el || matches[0]) {
+            (el || matches[0]).click();
+            return;
+          }
+          // Fallback for multi-line option rows (e.g. MpAutocomplete renders the
+          // label on line 1 and a phone number on line 2, so the row's textContent
+          // is "LabelPhone" and never equals the label exactly). Match rows that
+          // START with the label, take the innermost, and click the row itself —
+          // an inner <p> often carries no handler.
+          const near = candidates.filter((e) => {
+            const txt = e.textContent?.trim() ?? "";
+            return txt.startsWith(t) && txt.length <= t.length + 40;
+          });
+          const inner = near.find((e) => !near.some((o) => o !== e && e.contains(o)));
+          (inner || near[0])?.click();
         }, text)
         .catch(() => {});
     } else if (step.startsWith("select-option:")) {
@@ -324,6 +403,23 @@ async function executeFlowStep(page, trigger) {
       } catch {
         // ignore — target may not exist or may not be focusable
       }
+    } else if (step.startsWith("upload:")) {
+      // upload:<input-selector>|<path>[;<path>...] — attach local file(s) to an
+      // <input type=file> via Playwright's setInputFiles. File inputs are usually
+      // hidden (display:none) behind a styled "attach" button that opens the OS
+      // picker, which a headless run can never drive, so a chip/preview state that
+      // only exists after a file is picked is otherwise unreachable. Paths are
+      // separated by ";" because "," already separates trigger steps; relative
+      // paths resolve against the current working directory.
+      const rest = step.slice(7);
+      const sepIdx = rest.indexOf("|");
+      const sel = rest.slice(0, sepIdx);
+      const files = rest
+        .slice(sepIdx + 1)
+        .split(";")
+        .map((f) => path.resolve(f.trim()))
+        .filter(Boolean);
+      await page.setInputFiles(sel, files, { timeout: 5000 }).catch(() => {});
     } else if (step.startsWith("wait:")) {
       await page.waitForTimeout(parseInt(step.slice(5), 10));
     } else if (step === "scroll") {
@@ -368,6 +464,33 @@ async function executeFlowStep(page, trigger) {
       });
     } else if (step.startsWith("key:")) {
       await page.keyboard.press(step.slice(4)).catch(() => {});
+    } else if (step.startsWith("hover-text:")) {
+      // hover-text:<label> — hover a row by its exact visible text rather than a CSS
+      // selector. Needed for cascading menus that open a submenu on mouseenter and give
+      // the row no stable selector (e.g. RecipientSelector's "Recipient lists" category).
+      // Uses Playwright's real mouse movement, not a synthetic MouseEvent: Vue's
+      // @mouseenter does not bubble, so a dispatched event on an inner text node never
+      // reaches a handler bound to the row wrapper.
+      const text = step.slice(11);
+      await page
+        .getByText(text, { exact: true })
+        .first()
+        .hover({ timeout: 5000 })
+        .catch(() => {});
+    } else if (step.startsWith("click-in:")) {
+      // click-in:<container-selector>|<label> — click by exact text, scoped to a
+      // container. Pixel keeps every popover's content mounted whether it is open or
+      // not, so an unscoped text match can hit a row inside a closed popover.
+      const rest = step.slice(9);
+      const sepIdx = rest.indexOf("|");
+      const sel = rest.slice(0, sepIdx);
+      const label = rest.slice(sepIdx + 1);
+      await page
+        .locator(sel)
+        .getByText(label, { exact: true })
+        .first()
+        .click({ timeout: 5000 })
+        .catch(() => {});
     } else if (step.startsWith("hover:")) {
       await page.hover(step.slice(6), { timeout: 5000 }).catch(() => {});
     } else if (step.startsWith("navigate:")) {
@@ -560,9 +683,30 @@ async function exploreRoute(page, url) {
   const chromeProfile = path.join(os.homedir(), "Library/Application Support/Google/Chrome");
   const tempProfile = path.join(os.tmpdir(), "pw-pixel-review-profile");
 
+  if (loginMode) {
+    fs.mkdirSync(dedicatedProfile, { recursive: true });
+    const loginContext = await chromium.launchPersistentContext(dedicatedProfile, {
+      headless: false,
+      viewport: null,
+      ignoreHTTPSErrors: true
+    });
+    const loginPage = await loginContext.newPage();
+    await loginPage.goto(prototypeUrl).catch(() => {});
+    console.log(
+      "\n🔐 Sign in in the window that just opened, then CLOSE the window to save the session."
+    );
+    console.log(`   Profile: ${dedicatedProfile}\n`);
+    await new Promise((resolve) => loginContext.on("close", resolve));
+    console.log("✅ Session saved. Run the review again without --login.");
+    process.exit(0);
+  }
+
   let userDataDir;
-  if (!useProfile) {
+  if (profileMode === "fresh") {
     userDataDir = path.join(os.tmpdir(), "pw-pixel-review-fresh");
+  } else if (profileMode === "dedicated") {
+    fs.mkdirSync(dedicatedProfile, { recursive: true });
+    userDataDir = dedicatedProfile;
   } else if (isChromeRunning()) {
     console.log("  ℹ️  Chrome is running — copying profile to temp dir...");
     copyProfileToTemp(chromeProfile, tempProfile);
@@ -571,9 +715,15 @@ async function exploreRoute(page, url) {
     userDataDir = chromeProfile;
   }
 
+  const profileLabel = {
+    fresh: "Fresh (no session)",
+    dedicated: "Dedicated Playwright profile (sign in once with --login)",
+    chrome: "Chrome (existing session)"
+  }[profileMode];
+
   console.log(`\n🎭 Pixel Review — Playwright Explorer`);
   console.log(`   URL: ${prototypeUrl}`);
-  console.log(`   Profile: ${useProfile ? "Chrome (existing session)" : "Fresh (no session)"}\n`);
+  console.log(`   Profile: ${profileLabel}\n`);
 
   const context = await chromium.launchPersistentContext(userDataDir, {
     channel: useProfile ? "chrome" : undefined,
@@ -583,6 +733,38 @@ async function exploreRoute(page, url) {
   });
 
   const page = await context.newPage();
+
+  // The dedicated profile starts signed out. Fail fast with the fix instead of screenshotting a login
+  // page for every state (the prototype redirects to /login, or to the auth provider, when signed out).
+  if (profileMode === "dedicated") {
+    try {
+      await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 15_000 });
+      await page.waitForTimeout(2500);
+      const landed = new URL(page.url());
+      if (landed.origin !== origin || landed.pathname.startsWith("/login")) {
+        console.error(
+          "\n🔒 Not signed in — the prototype redirected to " + landed.origin + landed.pathname
+        );
+        console.error(`   Run once (opens a window, sign in, then close it):`);
+        console.error(`   node scripts/pixel-review.js --login --url ${prototypeUrl}\n`);
+        await context.close();
+        process.exit(2);
+      }
+    } catch {
+      /* server unreachable or slow — let the normal run report the real error */
+    }
+  }
+
+  if (localStorageSeed) {
+    await page.addInitScript((seed) => {
+      try {
+        for (const [k, v] of Object.entries(seed)) window.localStorage.setItem(k, v);
+      } catch {
+        /* private mode or blocked storage — the run continues without the seed */
+      }
+    }, localStorageSeed);
+    console.log(`  🔑 localStorage seeded: ${Object.keys(localStorageSeed).join(", ")}\n`);
+  }
 
   const screens = [];
   const errors = [];
