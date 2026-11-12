@@ -241,15 +241,17 @@
         <!-- Discount went 8% → 11% (taken from Description 12% → 10% and
              Amount 19% → 18%) so the Purchase Price Rule note under it fits
              "Edited manually" / "Reset to rule" on one line each. Amount stays
-             above the ~15% money-column floor. -->
+             above the ~15% money-column floor. Tax went 12% → 13% (from Unit
+             price 17% → 16%, still above the floor) so "Non-taxable", which a
+             Non-PKP vendor sets on PPN lines, isn't clipped. -->
         <colgroup>
           <col :style="{ width: '17%' }" />
           <col :style="{ width: '10%' }" />
           <col :style="{ width: '6%' }" />
           <col :style="{ width: '9%' }" />
-          <col :style="{ width: '17%' }" />
+          <col :style="{ width: '16%' }" />
           <col :style="{ width: '11%' }" />
-          <col :style="{ width: '12%' }" />
+          <col :style="{ width: '13%' }" />
           <col :style="{ width: '18%' }" />
           <col :style="{ width: '40px' }" />
         </colgroup>
