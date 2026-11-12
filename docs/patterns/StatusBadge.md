@@ -64,3 +64,9 @@ const STATUS_TYPE: Record<Status, BadgeType> = {
   already counts the rows, adds a line without adding a fact — the same reason
   `details-page-format.md` records for dropping the drawer's "draft, read only"
   tag.
+- **A party's own status counts as a status.** The vendor's PKP registration
+  under the vendor field on `PurchaseTransactionForm.vue` is an `MpBadge
+for="tableStatus"` through a `VENDOR_PKP_TYPE` / `VENDOR_PKP_LABEL` pair —
+  `Non-PKP` is `warning` (it removes PPN from the lines), `PKP` is
+  `announcement` (tax behaves as before). Nothing renders when the status is
+  unknown.

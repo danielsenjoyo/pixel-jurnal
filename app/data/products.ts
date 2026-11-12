@@ -239,6 +239,34 @@ export const PRICE_RULE_TYPE_LABEL: Record<PriceRuleType, string> = {
 
 export const PRICE_RULE_TYPE_OPTIONS = Object.keys(PRICE_RULE_TYPE_LABEL) as PriceRuleType[];
 
+/**
+ * Which side of the business a price rule prices — Purchase Price Rule
+ * (one-pager PD 51412239134). Every rule that existed before is "sales"; a
+ * "purchase" rule is set up the same way, with `contacts` holding vendors
+ * instead of customers, plus the vendor's PKP status (`vendorPkp`).
+ */
+export type PriceRuleTransactionType = "sales" | "purchase";
+
+export const PRICE_RULE_TRANSACTION_TYPE_LABEL: Record<PriceRuleTransactionType, string> = {
+  sales: "Sales",
+  purchase: "Purchase"
+};
+
+export const PRICE_RULE_TRANSACTION_TYPE_OPTIONS = Object.keys(
+  PRICE_RULE_TRANSACTION_TYPE_LABEL
+) as PriceRuleTransactionType[];
+
+/** Purchase rules only offer the two discount shapes the one-pager scopes in
+ *  (percentage and amount per unit). Tiers, end discount and markups stay
+ *  sales-only. */
+export const PURCHASE_PRICE_RULE_TYPE_OPTIONS: PriceRuleType[] = ["percent", "value"];
+
+/** How a purchase rule's `vendorPkp` reads on screen — one spelling for the
+ *  rule form's conflict message and the list's vendor summary. */
+export function vendorPkpLabel(pkp: boolean): string {
+  return pkp ? "PKP" : "Non-PKP";
+}
+
 // ---------------------------------------------------------------------------
 // Entities
 // ---------------------------------------------------------------------------
@@ -717,6 +745,13 @@ export const CONTACT_GROUP_OPTIONS: { name: string; members: string[] }[] = [
 export interface PriceRule {
   id: number;
   name: string;
+  /** "sales" for every pre-existing rule. On "purchase", `contacts` = vendors. */
+  transactionType: PriceRuleTransactionType;
+  /** Purchase rules with at least one vendor only: true = PKP (the product's
+   *  PPN applies), false = Non-PKP (PPN is not applied; PPh is untouched).
+   *  null on sales rules and on all-vendor purchase rules. One vendor must
+   *  carry the same value on every rule — see `purchasePkpConflict`. */
+  vendorPkp: boolean | null;
   ruleType: PriceRuleType;
   /** `YYYY-MM-DD`; both "" means the rule has no period and always applies. */
   startDate: string;
@@ -735,8 +770,12 @@ export interface PriceRule {
 
 /** "18 products" / "All products" — the left half of the list's
  *  "Product & contact" column. Derived rather than stored, so the summary can't
- *  disagree with the list the form actually edits. */
-export function priceRuleScopeSummary(items: string[], noun: "product" | "contact"): string {
+ *  disagree with the list the form actually edits. A purchase rule's `contacts`
+ *  are vendors, so it summarises them as "vendor" ("All vendors"). */
+export function priceRuleScopeSummary(
+  items: string[],
+  noun: "product" | "contact" | "vendor"
+): string {
   if (items.length === 0) return `All ${noun}s`;
   return `${items.length} ${noun}${items.length === 1 ? "" : "s"}`;
 }
@@ -1936,7 +1975,7 @@ const WAREHOUSE_APPROVAL_SEEDS: WarehouseTransferSeed[] = [
 
 const WAREHOUSE_APPROVALS: WarehouseTransfer[] = WAREHOUSE_APPROVAL_SEEDS.map(seedTransfer);
 
-const PRICE_RULES: PriceRule[] = [
+const SALES_PRICE_RULE_SEEDS: Omit<PriceRule, "transactionType" | "vendorPkp">[] = [
   {
     id: 701,
     name: "Diskon reseller 10%",
@@ -2050,6 +2089,81 @@ const PRICE_RULES: PriceRule[] = [
     contacts: [],
     isActive: false
   }
+];
+
+/**
+ * Purchase rules seeded against the buy-side vocabulary in
+ * `purchase-transactions.ts` (VENDOR_OPTIONS / PRODUCT_OPTIONS), so the
+ * Purchases forms resolve them without a name mapping. Together they cover the
+ * three priority tiers: vendor + products, vendor + all products, all vendors +
+ * products — and one PKP and one Non-PKP vendor.
+ */
+const PURCHASE_PRICE_RULE_SEEDS: PriceRule[] = [
+  {
+    id: 711,
+    name: "Maju Bersama · alat tulis kantor",
+    transactionType: "purchase",
+    vendorPkp: true,
+    ruleType: "percent",
+    startDate: "",
+    endDate: "",
+    amount: 10,
+    tiers: [],
+    products: ["Printer Paper A4 (Ream)", "Whiteboard Marker Set"],
+    contacts: ["PT Maju Bersama"],
+    isActive: true
+  },
+  {
+    id: 712,
+    name: "Maju Bersama · semua produk",
+    transactionType: "purchase",
+    vendorPkp: true,
+    ruleType: "percent",
+    startDate: "",
+    endDate: "",
+    amount: 5,
+    tiers: [],
+    products: [],
+    contacts: ["PT Maju Bersama"],
+    isActive: true
+  },
+  {
+    id: 713,
+    name: "Sumber Rejeki · aksesori komputer",
+    transactionType: "purchase",
+    vendorPkp: false,
+    ruleType: "percent",
+    startDate: "",
+    endDate: "",
+    amount: 7,
+    tiers: [],
+    products: ["Wireless Mouse", "Laptop Stand"],
+    contacts: ["CV Sumber Rejeki"],
+    isActive: true
+  },
+  {
+    id: 714,
+    name: "Potongan kabel · semua vendor",
+    transactionType: "purchase",
+    vendorPkp: null,
+    ruleType: "value",
+    startDate: "",
+    endDate: "",
+    amount: 5000,
+    tiers: [],
+    products: ["Ethernet Cable 10m"],
+    contacts: [],
+    isActive: true
+  }
+];
+
+const PRICE_RULES: PriceRule[] = [
+  ...PURCHASE_PRICE_RULE_SEEDS,
+  ...SALES_PRICE_RULE_SEEDS.map((rule) => ({
+    ...rule,
+    transactionType: "sales" as const,
+    vendorPkp: null
+  }))
 ];
 
 // ---------------------------------------------------------------------------
@@ -2730,6 +2844,8 @@ export function updateProductMaster(
 
 export interface PriceRuleInput {
   name: string;
+  transactionType: PriceRuleTransactionType;
+  vendorPkp: boolean | null;
   ruleType: PriceRuleType;
   startDate: string;
   endDate: string;
@@ -2745,6 +2861,8 @@ let nextPriceRuleId = 800;
 export function emptyPriceRuleInput(): PriceRuleInput {
   return {
     name: "",
+    transactionType: "sales",
+    vendorPkp: null,
     ruleType: "percent",
     startDate: "",
     endDate: "",
@@ -2759,6 +2877,8 @@ export function emptyPriceRuleInput(): PriceRuleInput {
 export function priceRuleToInput(rule: PriceRule): PriceRuleInput {
   return {
     name: rule.name,
+    transactionType: rule.transactionType,
+    vendorPkp: rule.vendorPkp,
     ruleType: rule.ruleType,
     startDate: rule.startDate,
     endDate: rule.endDate,
@@ -2780,6 +2900,12 @@ function normalisePriceRule(input: PriceRuleInput): Omit<PriceRule, "id"> {
   const shape = PRICE_RULE_SHAPE[input.ruleType];
   return {
     name: input.name.trim(),
+    transactionType: input.transactionType,
+    // PKP only means something on a purchase rule that names its vendors.
+    vendorPkp:
+      input.transactionType === "purchase" && input.contacts.length > 0
+        ? (input.vendorPkp ?? true)
+        : null,
     ruleType: input.ruleType,
     startDate: input.startDate,
     endDate: input.endDate,

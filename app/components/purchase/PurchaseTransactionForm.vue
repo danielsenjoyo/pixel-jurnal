@@ -31,7 +31,16 @@
           placeholder="Select vendor"
           is-searchable
           is-full-width
+          @change="onVendorChange"
         />
+        <!-- Vendor PKP status, as recorded on the vendor's purchase price
+             rules. Nothing renders while it's unknown: tax then follows the
+             product exactly as before, so there is nothing to point out. -->
+        <div v-if="vendorPkpKey" :class="vendorPkpClass">
+          <MpBadge for="tableStatus" :type="VENDOR_PKP_TYPE[vendorPkpKey]">
+            {{ VENDOR_PKP_LABEL[vendorPkpKey] }}
+          </MpBadge>
+        </div>
         <MpFormErrorMessage>Vendor is required.</MpFormErrorMessage>
       </MpFormControl>
 
@@ -229,15 +238,19 @@
              than ~15% clips "Rp 8.400.000" mid-number, and Product below ~16%
              truncates names like "Whiteboard Marker Set" to the point two
              products can't be told apart. Verify at your largest amount. -->
+        <!-- Discount went 8% → 11% (taken from Description 12% → 10% and
+             Amount 19% → 18%) so the Purchase Price Rule note under it fits
+             "Edited manually" / "Reset to rule" on one line each. Amount stays
+             above the ~15% money-column floor. -->
         <colgroup>
           <col :style="{ width: '17%' }" />
-          <col :style="{ width: '12%' }" />
+          <col :style="{ width: '10%' }" />
           <col :style="{ width: '6%' }" />
           <col :style="{ width: '9%' }" />
           <col :style="{ width: '17%' }" />
-          <col :style="{ width: '8%' }" />
+          <col :style="{ width: '11%' }" />
           <col :style="{ width: '12%' }" />
-          <col :style="{ width: '19%' }" />
+          <col :style="{ width: '18%' }" />
           <col :style="{ width: '40px' }" />
         </colgroup>
         <MpTableHead :class="itemsHeadClass">
@@ -342,16 +355,33 @@
                   v-model.number="line.discountPercent"
                   type="number"
                   :class="numInputClass"
+                  @update:model-value="onDiscountInput(line, $event)"
                 />
               </MpInputGroup>
+              <PurchaseLineRuleNote
+                v-if="line.rule || line.discountManual"
+                :match="line.rule"
+                :is-edited="line.discountManual"
+                @reset="resetLineToRule(line)"
+              />
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
-              <MpSelect v-model="line.tax" is-full-width>
+              <MpSelect v-model="line.tax" is-full-width @update:model-value="onTaxInput(line)">
                 <option value="">Select tax</option>
                 <option v-for="t in TAX_OPTIONS" :key="t.label" :value="t.label">
                   {{ t.label }}
                 </option>
               </MpSelect>
+              <!-- Only on lines this form switched to Non-taxable itself; a tax
+                   the user picks by hand never carries the note. -->
+              <MpText
+                v-if="line.taxClearedFrom"
+                size="label-small"
+                color="gray.600"
+                :class="lineNoteClass"
+              >
+                PPN not applied: Non-PKP vendor
+              </MpText>
             </MpTableCell>
             <MpTableCell as="td" :class="lineCellClass">
               <!-- Amount is computed, but still rendered as a (read-only)
@@ -642,6 +672,7 @@ import { computed, reactive, ref, watch } from "vue";
 import {
   css,
   MpAutocomplete,
+  MpBadge,
   MpBanner,
   MpBannerDescription,
   MpBannerIcon,
@@ -680,9 +711,15 @@ import {
 } from "@mekari/pixel3";
 import DefaultPageContent from "~/components/template/DefaultPageContent.vue";
 import PriceHistoryDrawer from "~/components/price-history/PriceHistoryDrawer.vue";
+import PurchaseLineRuleNote from "~/components/purchase/PurchaseLineRuleNote.vue";
 import { textlinkAlignClass } from "~/utils/textlink-align";
 import { hasPriceHistory } from "~/data/price-history";
 import type { PriceHistoryEntry } from "~/types/price-history";
+import {
+  resolvePurchaseRule,
+  vendorPkpStatus,
+  type PurchaseRuleMatch
+} from "~/composables/usePurchasePriceRule";
 import {
   CURRENCY_OPTIONS,
   PRODUCT_OPTIONS,
@@ -823,6 +860,18 @@ interface LineForm {
   unitPriceText: string;
   discountPercent: number;
   tax: string;
+  /** Purchase Price Rule resolved for this line on the last user change
+   *  (product pick / vendor change). Always null on a line loaded from a saved
+   *  record until the user changes one of those — rules never re-apply on
+   *  load, the saved prices stand. UI state only; never persisted. */
+  rule: PurchaseRuleMatch | null;
+  /** The user typed a discount that differs from the rule's. A manual
+   *  discount is never overwritten by a rule — only "Reset to rule" undoes it. */
+  discountManual: boolean;
+  /** The PPN label this form swapped for Non-taxable because the vendor is
+   *  Non-PKP ("" when it didn't). Switching to a PKP / unknown vendor puts it
+   *  back; the user picking a tax by hand clears it. */
+  taxClearedFrom: string;
 }
 
 let lineKeySeq = 0;
@@ -837,7 +886,10 @@ function blankLine(): LineForm {
     unitPrice: 0,
     unitPriceText: "",
     discountPercent: 0,
-    tax: ""
+    tax: "",
+    rule: null,
+    discountManual: false,
+    taxClearedFrom: ""
   };
 }
 
@@ -897,7 +949,10 @@ function loadFromExisting() {
     unitPrice: l.unitPrice,
     unitPriceText: formatAmount(l.unitPrice),
     discountPercent: l.discountPercent,
-    tax: l.tax
+    tax: l.tax,
+    rule: null,
+    discountManual: false,
+    taxClearedFrom: ""
   }));
   emailText.value = inv.email.join(", ");
 
@@ -968,6 +1023,13 @@ function applyProduct(index: number) {
   line.unitPriceText = formatAmount(product.price);
   line.unit = product.unit;
   if (!line.description) line.description = product.name;
+  // PROTOTYPE ASSUMPTION: PRODUCT_OPTIONS carries no purchase tax, so a picked
+  // product defaults to PPN 11% (the line's own tax, if already set, stands).
+  // Without a default the vendor-PKP effect below would have nothing to act on.
+  // A real product master supplies its own purchase tax here.
+  if (!line.tax) line.tax = DEFAULT_PURCHASE_TAX;
+  applyRule(line);
+  applyVendorPkp(line);
 }
 // The unit-price cell edits `unitPriceText` and mirrors it into the numeric
 // `unitPrice` the totals engine and persistence use. While focused the text is
@@ -979,6 +1041,104 @@ function onPriceInput(line: LineForm) {
 function onPriceBlur(line: LineForm) {
   line.unitPrice = parseAmount(line.unitPriceText);
   line.unitPriceText = line.unitPrice ? formatAmount(line.unitPrice) : "";
+  // A Rp-per-unit rule is held as a % of the unit price, so a new price needs
+  // a fresh conversion to keep the discount at the rule's Rp amount.
+  if (line.rule?.rule.ruleType === "value") applyRule(line);
+}
+
+// --- Purchase Price Rule + vendor PKP --------------------------------------
+// One-pager PD 51412239134. Rules are a DEFAULT, applied only on user changes
+// — a product pick (applyProduct) or a vendor pick (onVendorChange). Nothing
+// here runs on load, so an edited record or a document created from another
+// keeps the prices it was saved with. Resolution lives in
+// `usePurchasePriceRule`; this section only decides what a match does to the
+// line. Withholding (PPh) is a transaction-level field and is never touched.
+
+const DEFAULT_PURCHASE_TAX = "PPN 11%";
+const NON_TAXABLE_TAX = TAX_OPTIONS.find((t) => t.rate === 0)?.label ?? "";
+const isPpn = (tax: string) => tax.startsWith("PPN");
+
+type VendorPkpKey = "pkp" | "nonPkp";
+// A vendor's tax registration is a status of that vendor, so it takes the
+// StatusBadge shape. Non-PKP is "warning" because it changes the lines (PPN
+// drops off); PKP is the neutral default — tax behaves exactly as before.
+const VENDOR_PKP_TYPE: Record<
+  VendorPkpKey,
+  "announcement" | "information" | "warning" | "completed" | "critical"
+> = {
+  pkp: "announcement",
+  nonPkp: "warning"
+};
+const VENDOR_PKP_LABEL: Record<VendorPkpKey, string> = {
+  pkp: "PKP",
+  nonPkp: "Non-PKP"
+};
+
+const vendorPkp = computed(() => vendorPkpStatus(form.vendorName));
+const vendorPkpKey = computed<VendorPkpKey | null>(() =>
+  vendorPkp.value === null ? null : vendorPkp.value ? "pkp" : "nonPkp"
+);
+
+/** Re-resolves the line's rule and, unless the user owns the discount, writes
+ *  the rule's discount to it. A line that had a rule and no longer matches
+ *  falls back to 0; a line that never had one (e.g. loaded from a saved
+ *  record) keeps its own discount. */
+function applyRule(line: LineForm) {
+  const hadRule = line.rule !== null;
+  line.rule = resolvePurchaseRule(
+    form.vendorName,
+    line.product,
+    line.unitPrice,
+    dmyToIso(form.transactionDateIso) || undefined
+  );
+  if (line.discountManual) {
+    // The user's number happens to be the new rule's — nothing to flag.
+    if (line.rule && line.discountPercent === line.rule.discountPercent) {
+      line.discountManual = false;
+    }
+    return;
+  }
+  if (line.rule) line.discountPercent = line.rule.discountPercent;
+  else if (hadRule) line.discountPercent = 0;
+}
+
+/** Non-PKP vendor → the line's PPN is not applied; PKP or not set → a PPN this
+ *  form removed earlier comes back. A tax the user picked is left alone. */
+function applyVendorPkp(line: LineForm) {
+  if (vendorPkp.value === false) {
+    if (isPpn(line.tax)) {
+      line.taxClearedFrom = line.tax;
+      line.tax = NON_TAXABLE_TAX;
+    }
+  } else if (line.taxClearedFrom) {
+    line.tax = line.taxClearedFrom;
+    line.taxClearedFrom = "";
+  }
+}
+
+// Bound to MpAutocomplete's `change`, which fires on a user pick only (not when
+// loadFromExisting sets the model) — that is what keeps rules off on load.
+function onVendorChange() {
+  for (const line of form.lines) {
+    applyRule(line);
+    applyVendorPkp(line);
+  }
+}
+
+function onDiscountInput(line: LineForm, value: unknown) {
+  const typed = Number(value) || 0;
+  line.discountManual = typed !== (line.rule?.discountPercent ?? 0);
+}
+function resetLineToRule(line: LineForm) {
+  if (!line.rule) return;
+  line.discountPercent = line.rule.discountPercent;
+  line.discountManual = false;
+}
+
+// MpSelect emits only on a real user pick, so any call here means the user now
+// owns this line's tax — it is no longer one the vendor's PKP status moves.
+function onTaxInput(line: LineForm) {
+  line.taxClearedFrom = "";
 }
 
 // Purchase Price History — apply mode, Invoice only for now (see the
@@ -1011,13 +1171,19 @@ function onApplyPrice(entry: PriceHistoryEntry) {
 
   // Rule: Use never touches currency — only vendor and unit, and it always
   // overwrites an already-selected vendor (not just when empty).
-  if (entry.vendorName !== form.vendorName) {
+  const vendorChanged = entry.vendorName !== form.vendorName;
+  if (vendorChanged) {
     const hadVendor = !!form.vendorName;
     form.vendorName = entry.vendorName;
     changes.push(
       hadVendor ? `vendor changed to ${entry.vendorName}` : `vendor set to ${entry.vendorName}`
     );
   }
+
+  // Applying a past price is a user change: a new vendor re-resolves every
+  // line's rule and PKP effect; a new price re-converts a Rp-per-unit rule.
+  if (vendorChanged) onVendorChange();
+  else if (line.rule) applyRule(line);
 
   activeLineKey.value = null;
   toast.notify({
@@ -1262,6 +1428,17 @@ const priceNoteClass = css({
   maxWidth: "full"
 });
 const numInputClass = css({ textAlign: "right" });
+// Purchase Price Rule notes under a line's Tax input — wraps inside the
+// column (cells inherit white-space:nowrap), same as priceNoteClass.
+const lineNoteClass = css({
+  display: "block",
+  mt: 1,
+  whiteSpace: "normal!",
+  wordBreak: "break-word",
+  maxWidth: "full"
+});
+// Vendor PKP badge sits under the vendor field, clear of the input's edge.
+const vendorPkpClass = css({ mt: 2 });
 const lineErrorClass = css({ mt: 2 });
 
 const bottomRowClass = css({

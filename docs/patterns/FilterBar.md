@@ -63,7 +63,7 @@ const TOOLBAR_BY_TAB: Record<TabKey, ToolbarSpec> = {
   },
   masters: { hasColumnPicker: true },
   warehouses: { hasInactiveToggle: true, importKind: "warehouse-create" },
-  price_rules: { isWideSearch: true }
+  price_rules: { hasTransactionTypeFilter: true, isWideSearch: true }
   // …
 };
 ```
@@ -87,7 +87,10 @@ would have taken (`isWideSearch`).
 carry them; the Products index does not — the source gives that page a filter
 drawer and no selects, and with a column picker, a Manage button, Import, Export
 and Filter already on the row there is no space left for them. Where they are
-dropped, the drawer must carry every field they held.
+dropped, the drawer must carry every field they held. The one exception there is
+the Price rules tab, which has no drawer and no file actions: its All / Sales /
+Purchase select (`hasTransactionTypeFilter`) sits on the left and writes the
+same filter object's `transactionType` field through a writable computed.
 
 - **Column picker** — an `MpPopover` of `MpCheckbox`es, one per column of the
   active tab's set, triggered by an **icon-only** `MpButton`:

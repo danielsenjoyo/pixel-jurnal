@@ -37,9 +37,10 @@ export interface ProductsFilter {
   /** ProductType key, as a string so the filter object stays tab-agnostic. */
   productType: string;
   warehouse: string;
-  /** AdjustmentType / ApprovalType key — the "Adjustment type" and
-   *  "Transaction type" selects are the same field on different tabs, because
-   *  no tab shows both. */
+  /** AdjustmentType / ApprovalType / PriceRuleTransactionType key — the
+   *  "Adjustment type" and "Transaction type" selects (and the Price rules
+   *  quick select) are the same field on different tabs, because no tab shows
+   *  two of them. */
   transactionType: string;
   /** The adjustment's accounting category ("Stock opname", "Damaged goods"). */
   adjustmentCategory: string;

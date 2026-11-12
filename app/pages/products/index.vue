@@ -207,6 +207,29 @@
         >
           Manage product category
         </MpButton>
+
+        <!-- Price rules' one quick filter: Sales and Purchase rules share the
+             list, and which side a rule prices is the first thing a user
+             narrows by. A shortcut into the same filter object as the search,
+             not a second filter (docs/patterns/FilterBar.md). -->
+        <div v-if="toolbar.hasTransactionTypeFilter" :class="quickFilterClass">
+          <MpSelect
+            v-model="quickTransactionType"
+            placeholder="All types"
+            aria-label="Filter by transaction type"
+            is-full-width
+            is-clearable
+          >
+            <option value="">All types</option>
+            <option
+              v-for="option in PRICE_RULE_TRANSACTION_TYPE_OPTIONS"
+              :key="option"
+              :value="option"
+            >
+              {{ PRICE_RULE_TRANSACTION_TYPE_LABEL[option] }}
+            </option>
+          </MpSelect>
+        </div>
       </div>
 
       <div :class="filterRightClass">
@@ -547,6 +570,22 @@
                       {{ ACTIVE_STATUS_LABEL[row.status as ActiveStatus] }}
                     </MpBadge>
                   </template>
+                  <template v-else-if="col.key === 'ruleTransactionType'">
+                    <MpBadge
+                      for="tableStatus"
+                      :type="
+                        PRICE_RULE_TRANSACTION_TYPE_BADGE[
+                          row.transactionType as PriceRuleTransactionType
+                        ]
+                      "
+                    >
+                      {{
+                        PRICE_RULE_TRANSACTION_TYPE_LABEL[
+                          row.transactionType as PriceRuleTransactionType
+                        ]
+                      }}
+                    </MpBadge>
+                  </template>
                   <template v-else-if="col.key === 'tags'">
                     <MpText v-if="row.tags.length" size="body-small" :class="wrapCellClass">
                       {{ row.tags.join(", ") }}
@@ -751,6 +790,7 @@ import {
   MpPopoverList,
   MpPopoverListItem,
   MpPopoverTrigger,
+  MpSelect,
   MpSkeleton,
   MpTab,
   MpTabList,
@@ -790,6 +830,8 @@ import {
 import {
   ADJUSTMENT_TYPE_LABEL,
   APPROVAL_TYPE_LABEL,
+  PRICE_RULE_TRANSACTION_TYPE_LABEL,
+  PRICE_RULE_TRANSACTION_TYPE_OPTIONS,
   PRICE_RULE_TYPE_LABEL,
   approveProductTransactions,
   approveWarehouseTransfers,
@@ -812,7 +854,9 @@ import {
   ACTIVE_STATUS_LABEL,
   ACTIVE_STATUS_TYPE,
   priceRuleScopeSummary,
-  type ActiveStatus
+  vendorPkpLabel,
+  type ActiveStatus,
+  type PriceRuleTransactionType
 } from "~/data/products";
 
 useHead({ title: "Products — Mekari Jurnal" });
@@ -935,6 +979,7 @@ type ColumnKey =
   | "toWarehouse"
   | "memo"
   | "ruleName"
+  | "ruleTransactionType"
   | "ruleType"
   | "productContact";
 
@@ -1026,6 +1071,7 @@ const COLUMNS_BY_TAB: Record<ProductsTabKey, ColumnDef[]> = {
   ],
   price_rules: [
     { key: "ruleName", label: "Price rule name", link: true },
+    { key: "ruleTransactionType", label: "Transaction type" },
     { key: "ruleType", label: "Rule type" },
     { key: "productContact", label: "Product & contact" },
     { key: "status", label: "Status" }
@@ -1045,6 +1091,21 @@ const BADGE_TYPE: Record<RowBadge, "announcement" | "information"> = {
   variant: "information",
   bundle: "information",
   archived: "announcement"
+};
+
+/**
+ * The price-rule list's Transaction type column (docs/patterns/StatusBadge.md
+ * — one key → type record, never a ternary at the call site). Sales is every
+ * rule that existed before Purchase did, so it takes the neutral type; the
+ * newer Purchase rules take the informational one, which makes the two easy
+ * to tell apart when scanning a mixed list.
+ */
+const PRICE_RULE_TRANSACTION_TYPE_BADGE: Record<
+  PriceRuleTransactionType,
+  "announcement" | "information"
+> = {
+  sales: "announcement",
+  purchase: "information"
 };
 
 /**
@@ -1242,22 +1303,32 @@ function rowsForTab(tab: ProductsTabKey): Row[] {
       return getPriceRules().map((r) => {
         // Derived from the rule's own product/contact lists rather than stored
         // beside them — an empty list means "All products", which is a scope,
-        // not an absence. See priceRuleScopeSummary.
+        // not an absence. See priceRuleScopeSummary. A purchase rule's
+        // contacts are vendors, and its named vendors carry a PKP status,
+        // which rides along so the list shows it without opening the rule.
+        const isPurchaseRule = r.transactionType === "purchase";
         const products = priceRuleScopeSummary(r.products, "product");
-        const contacts = priceRuleScopeSummary(r.contacts, "contact");
+        const contacts = priceRuleScopeSummary(r.contacts, isPurchaseRule ? "vendor" : "contact");
+        const pkp = r.vendorPkp === null ? "" : vendorPkpLabel(r.vendorPkp);
+        const transactionTypeLabel = PRICE_RULE_TRANSACTION_TYPE_LABEL[r.transactionType];
         return {
           ...emptyRow(r.id),
           title: r.name,
-          productContact: `${products} · ${contacts}`,
+          productContact: [products, contacts, pkp].filter(Boolean).join(" · "),
           typeLabel: PRICE_RULE_TYPE_LABEL[r.ruleType],
           searchText: [
             r.name,
             PRICE_RULE_TYPE_LABEL[r.ruleType],
+            transactionTypeLabel,
             products,
             contacts,
+            pkp,
             ...r.products,
             ...r.contacts
           ],
+          // Read by the Transaction type quick filter through the shared
+          // `transactionType` filter field (see products-filter.ts).
+          transactionType: r.transactionType,
           ruleType: r.ruleType,
           status: r.isActive ? "active" : "inactive"
         };
@@ -1282,7 +1353,9 @@ interface ToolbarSpec {
   hasExport?: boolean;
   hasInactiveToggle?: boolean;
   hasFilter?: boolean;
-  /** Price rules has no other control, so its search takes the room. */
+  /** Price rules' All / Sales / Purchase quick select. */
+  hasTransactionTypeFilter?: boolean;
+  /** Price rules has no file actions or Filter, so its search takes the room. */
   isWideSearch?: boolean;
 }
 
@@ -1300,7 +1373,7 @@ const TOOLBAR_BY_TAB: Record<ProductsTabKey, ToolbarSpec> = {
   warehouses: { hasInactiveToggle: true, importKind: "warehouse-create" },
   warehouse_transfers: { importKind: "transfer-create" },
   warehouse_transfers_approval: { importKind: "transfer-create" },
-  price_rules: { isWideSearch: true }
+  price_rules: { hasTransactionTypeFilter: true, isWideSearch: true }
 };
 
 // ---- Page state ---------------------------------------------------------
@@ -1540,6 +1613,18 @@ const search = computed({
 });
 const hasActiveFilter = computed(() => isFilterActive(filter.value));
 const searchTerm = computed(() => (search.value ?? "").trim());
+// The price-rule quick select is the same kind of shortcut as the search: it
+// writes the filter's `transactionType` field. `?? ""` because the select's
+// clear (×) emits undefined. A narrower list can strand the user past its
+// last page, so it goes back to page 1 like every other narrowing control.
+const quickTransactionType = computed({
+  get: () => filter.value.transactionType,
+  set: (value: string | number | undefined) => {
+    filter.value.transactionType = String(value ?? "");
+    page.value = 1;
+    selected.value = [];
+  }
+});
 
 const page = ref(1);
 const perPage = ref(10);
@@ -1566,8 +1651,8 @@ const searchPlaceholder = computed(() => {
     case "warehouses":
       return "Search warehouse";
     case "price_rules":
-      // The source's own placeholder. This tab has no other control, so the
-      // field is wide and unlabelled by anything around it.
+      // The source's own placeholder. This tab has no file actions or Filter,
+      // so the field is wide.
       return "Search...";
     default:
       return "Search transaction";
@@ -1632,6 +1717,8 @@ function sortValue(row: Row, key: ColumnKey): string | number {
     case "transactionType":
     case "ruleType":
       return row.typeLabel;
+    case "ruleTransactionType":
+      return transactionTypeLabelOf(row);
     case "date":
       return row.dateSort;
     case "warehouse":
@@ -1647,6 +1734,11 @@ function sortValue(row: Row, key: ColumnKey): string | number {
     default:
       return (row as unknown as Record<string, string | number>)[key] ?? "";
   }
+}
+
+/** A price rule's side, as the badge spells it — for sorting and export. */
+function transactionTypeLabelOf(row: Row): string {
+  return PRICE_RULE_TRANSACTION_TYPE_LABEL[row.transactionType as PriceRuleTransactionType] ?? "";
 }
 
 /** A stock figure that isn't tracked reads "—", never "0" — a zero here would
@@ -1687,6 +1779,8 @@ function cellText(row: Row, key: ColumnKey): string {
     case "transactionType":
     case "ruleType":
       return row.typeLabel;
+    case "ruleTransactionType":
+      return transactionTypeLabelOf(row);
     case "adjustmentCategory":
       return row.adjustmentCategory;
     case "account":
@@ -1999,6 +2093,8 @@ const COLUMN_WIDTH: Record<ColumnKey, number> = {
   toWarehouse: 180,
   memo: 260,
   ruleName: 260,
+  // Fits the badge, plus the header's sort icon.
+  ruleTransactionType: 170,
   ruleType: 210,
   productContact: 230
 };
@@ -2099,9 +2195,11 @@ const searchClearClass = css({
   cursor: "pointer",
   lineHeight: "0"
 });
-// Price rules carries nothing but a search box, so the field takes the room
-// the other tabs give to their file actions and Filter.
+// Price rules carries no file actions or Filter, so the field takes the room
+// the other tabs give to them.
 const wideSearchClass = css({ width: "360px!" });
+// A quick select's fixed box (docs/patterns/FilterBar.md → quickFilterClass).
+const quickFilterClass = css({ width: "180px" });
 // The column picker's body. Padded like MpPopoverList (which this isn't — its
 // rows are checkboxes, not menu items that dismiss on click).
 const columnMenuClass = css({
