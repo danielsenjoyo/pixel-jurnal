@@ -83,8 +83,7 @@ export function resolvePurchaseRule(
         (c.rule.products.length === 0 || c.rule.products.includes(product))
     )
     .sort(
-      (a, b) =>
-        Number(b.outlet) - Number(a.outlet) || a.tier - b.tier || b.rule.id - a.rule.id
+      (a, b) => Number(b.outlet) - Number(a.outlet) || a.tier - b.tier || b.rule.id - a.rule.id
     );
   const best = candidates[0];
   if (!best) return null;
