@@ -4,6 +4,7 @@
        link under Unit price and no more:
          rule applied   → "Rule: <name>" (truncated, full name + tier in the
                           tooltip) / the tier label
+                          ("Outlet · …" for an outlet-specific rule)
          edited by user → "Edited manually" / "Reset to rule" (the link only
                           while a rule still matches — e.g. after a vendor
                           switch the manual value stays, with nothing to
@@ -39,10 +40,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { css, MpText, MpTextlink, MpTooltip } from "@mekari/pixel3";
-import {
-  PURCHASE_RULE_TIER_LABEL,
-  type PurchaseRuleMatch
-} from "~/composables/usePurchasePriceRule";
+import { purchaseRuleTierText, type PurchaseRuleMatch } from "~/composables/usePurchasePriceRule";
 import { textlinkCellClass } from "~/utils/textlink-align";
 
 const props = defineProps<{
@@ -57,7 +55,8 @@ const emit = defineEmits<{
   reset: [];
 }>();
 
-const tierLabel = computed(() => (props.match ? PURCHASE_RULE_TIER_LABEL[props.match.tier] : ""));
+// "Outlet · Vendor + product" when the rule names the transaction's warehouse.
+const tierLabel = computed(() => (props.match ? purchaseRuleTierText(props.match) : ""));
 const tooltipLabel = computed(() =>
   props.match ? `${props.match.rule.name} · ${tierLabel.value}` : ""
 );

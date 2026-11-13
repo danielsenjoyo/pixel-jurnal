@@ -7,6 +7,9 @@
  * read one source.
  *
  * Priority (no stacking — the single best match wins):
+ *   first   outlet: a rule naming the transaction's warehouse (outlet) beats
+ *           an all-outlet rule (DECIDED 12 Nov); rules naming OTHER outlets
+ *           never apply. Then, inside each group:
  *   tier 1  vendor + specific products
  *   tier 2  vendor + all products
  *   tier 3  all vendors + specific products
@@ -27,6 +30,8 @@ export const PURCHASE_RULE_TIER_LABEL: Record<PurchaseRuleTier, string> = {
 export interface PurchaseRuleMatch {
   rule: PriceRule;
   tier: PurchaseRuleTier;
+  /** The rule names the transaction's outlet (warehouse). */
+  outletSpecific: boolean;
   /** The rule expressed as a line discount %, which is the only discount
    *  field a Purchases line has. A "value" rule (Rp per unit) converts against
    *  the line's unit price, rounded to 2 decimals. */
@@ -62,18 +67,25 @@ export function resolvePurchaseRule(
   vendor: string,
   product: string,
   unitPrice: number,
-  isoDate?: string
+  isoDate?: string,
+  /** The transaction's warehouse = outlet. "" = none picked: only all-outlet
+   *  rules apply. */
+  warehouse = ""
 ): PurchaseRuleMatch | null {
   if (!vendor || !product) return null;
   const candidates = activePurchaseRules(isoDate)
-    .map((rule) => ({ rule, tier: tierOf(rule) }))
+    .map((rule) => ({ rule, tier: tierOf(rule), outlet: rule.warehouses.length > 0 }))
     .filter(
-      (c): c is { rule: PriceRule; tier: PurchaseRuleTier } =>
+      (c): c is { rule: PriceRule; tier: PurchaseRuleTier; outlet: boolean } =>
         c.tier !== null &&
+        (!c.outlet || (warehouse !== "" && c.rule.warehouses.includes(warehouse))) &&
         (c.rule.contacts.length === 0 || c.rule.contacts.includes(vendor)) &&
         (c.rule.products.length === 0 || c.rule.products.includes(product))
     )
-    .sort((a, b) => a.tier - b.tier || b.rule.id - a.rule.id);
+    .sort(
+      (a, b) =>
+        Number(b.outlet) - Number(a.outlet) || a.tier - b.tier || b.rule.id - a.rule.id
+    );
   const best = candidates[0];
   if (!best) return null;
   const { rule } = best;
@@ -83,7 +95,12 @@ export function resolvePurchaseRule(
         ? Math.round((rule.amount / unitPrice) * 10000) / 100
         : 0
       : rule.amount;
-  return { rule, tier: best.tier, discountPercent: Math.min(discountPercent, 100) };
+  return {
+    rule,
+    tier: best.tier,
+    outletSpecific: best.outlet,
+    discountPercent: Math.min(discountPercent, 100)
+  };
 }
 
 /** true = PKP, false = Non-PKP, null = not set on any rule (tax follows the
@@ -111,4 +128,10 @@ export function purchasePkpConflict(
     if (vendor) return { rule, vendor };
   }
   return null;
+}
+
+/** "Outlet · Vendor + product" when the rule is outlet-specific. */
+export function purchaseRuleTierText(match: PurchaseRuleMatch): string {
+  const tier = PURCHASE_RULE_TIER_LABEL[match.tier];
+  return match.outletSpecific ? `Outlet · ${tier}` : tier;
 }

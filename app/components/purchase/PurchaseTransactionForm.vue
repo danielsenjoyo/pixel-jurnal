@@ -172,7 +172,14 @@
         </MpFormControl>
         <MpFormControl v-if="cap.warehouse">
           <MpFormLabel>Warehouse</MpFormLabel>
-          <MpSelect v-model="form.warehouse" is-full-width is-clearable>
+          <!-- The warehouse is the outlet purchase price rules scope to, so a
+               user pick re-applies rules like a vendor pick does. -->
+          <MpSelect
+            v-model="form.warehouse"
+            is-full-width
+            is-clearable
+            @update:model-value="onWarehouseChange"
+          >
             <option value="">Select warehouse</option>
             <option v-for="wh in WAREHOUSE_OPTIONS" :key="wh" :value="wh">{{ wh }}</option>
           </MpSelect>
@@ -1091,7 +1098,8 @@ function applyRule(line: LineForm) {
     form.vendorName,
     line.product,
     line.unitPrice,
-    dmyToIso(form.transactionDateIso) || undefined
+    dmyToIso(form.transactionDateIso) || undefined,
+    form.warehouse
   );
   if (line.discountManual) {
     // The user's number happens to be the new rule's — nothing to flag.
@@ -1125,6 +1133,13 @@ function onVendorChange() {
     applyRule(line);
     applyVendorPkp(line);
   }
+}
+
+// The warehouse is the outlet (DECIDED 12 Nov): an outlet-specific rule beats
+// an all-outlet one, so a user pick re-resolves every line like a vendor pick.
+// MpSelect emits only on a user pick, never when loadFromExisting sets it.
+function onWarehouseChange() {
+  for (const line of form.lines) applyRule(line);
 }
 
 function onDiscountInput(line: LineForm, value: unknown) {

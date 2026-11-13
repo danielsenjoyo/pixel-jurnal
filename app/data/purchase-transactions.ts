@@ -239,7 +239,14 @@ export const TRANSACTION_TYPE_FORM_OPTIONS = [
   "Purchase Delivery"
 ];
 export const TAG_OPTIONS = ["Q3 Restock", "Priority", "Recurring", "Import", "Consignment"];
-export const WAREHOUSE_OPTIONS = ["Main Warehouse", "Secondary Warehouse"];
+// "Outlet …" warehouses: one per outlet of a multi-outlet company, so outlet
+// purchase price rules (products.ts, rule 715) have something to target.
+export const WAREHOUSE_OPTIONS = [
+  "Main Warehouse",
+  "Secondary Warehouse",
+  "Outlet Kemang",
+  "Outlet Cilandak"
+];
 
 export const STAFF = ["Dewi Lestari", "Budi Santoso", "Rina Wulandari", "Agus Prasetyo"];
 export const REQUESTORS = ["Imam Prasojo", "Sari Handayani", "Fajar Nugroho", "Lestari Wibowo"];

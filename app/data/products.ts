@@ -752,6 +752,11 @@ export interface PriceRule {
    *  null on sales rules and on all-vendor purchase rules. One vendor must
    *  carry the same value on every rule — see `purchasePkpConflict`. */
   vendorPkp: boolean | null;
+  /** Purchase rules only: the outlets (warehouses) the rule applies to. Empty
+   *  = all outlets. Several outlets in one company can buy at different
+   *  prices; an outlet-specific rule beats an all-outlet one (DECIDED 12 Nov).
+   *  Always [] on sales rules. */
+  warehouses: string[];
   ruleType: PriceRuleType;
   /** `YYYY-MM-DD`; both "" means the rule has no period and always applies. */
   startDate: string;
@@ -1975,7 +1980,7 @@ const WAREHOUSE_APPROVAL_SEEDS: WarehouseTransferSeed[] = [
 
 const WAREHOUSE_APPROVALS: WarehouseTransfer[] = WAREHOUSE_APPROVAL_SEEDS.map(seedTransfer);
 
-const SALES_PRICE_RULE_SEEDS: Omit<PriceRule, "transactionType" | "vendorPkp">[] = [
+const SALES_PRICE_RULE_SEEDS: Omit<PriceRule, "transactionType" | "vendorPkp" | "warehouses">[] = [
   {
     id: 701,
     name: "Diskon reseller 10%",
@@ -2104,6 +2109,7 @@ const PURCHASE_PRICE_RULE_SEEDS: PriceRule[] = [
     name: "Maju Bersama · alat tulis kantor",
     transactionType: "purchase",
     vendorPkp: true,
+    warehouses: [],
     ruleType: "percent",
     startDate: "",
     endDate: "",
@@ -2118,6 +2124,7 @@ const PURCHASE_PRICE_RULE_SEEDS: PriceRule[] = [
     name: "Maju Bersama · semua produk",
     transactionType: "purchase",
     vendorPkp: true,
+    warehouses: [],
     ruleType: "percent",
     startDate: "",
     endDate: "",
@@ -2132,6 +2139,7 @@ const PURCHASE_PRICE_RULE_SEEDS: PriceRule[] = [
     name: "Sumber Rejeki · aksesori komputer",
     transactionType: "purchase",
     vendorPkp: false,
+    warehouses: [],
     ruleType: "percent",
     startDate: "",
     endDate: "",
@@ -2146,6 +2154,7 @@ const PURCHASE_PRICE_RULE_SEEDS: PriceRule[] = [
     name: "Potongan kabel · semua vendor",
     transactionType: "purchase",
     vendorPkp: null,
+    warehouses: [],
     ruleType: "value",
     startDate: "",
     endDate: "",
@@ -2157,12 +2166,31 @@ const PURCHASE_PRICE_RULE_SEEDS: PriceRule[] = [
   }
 ];
 
+/** Outlet-specific rule: Outlet Kemang buys office stationery from PT Maju
+ *  Bersama at 12% (vs 10% for every other outlet). */
+PURCHASE_PRICE_RULE_SEEDS.push({
+  id: 715,
+  name: "Maju Bersama · alat tulis · Outlet Kemang",
+  transactionType: "purchase",
+  vendorPkp: true,
+  warehouses: ["Outlet Kemang"],
+  ruleType: "percent",
+  startDate: "",
+  endDate: "",
+  amount: 12,
+  tiers: [],
+  products: ["Printer Paper A4 (Ream)", "Whiteboard Marker Set"],
+  contacts: ["PT Maju Bersama"],
+  isActive: true
+});
+
 const PRICE_RULES: PriceRule[] = [
   ...PURCHASE_PRICE_RULE_SEEDS,
   ...SALES_PRICE_RULE_SEEDS.map((rule) => ({
     ...rule,
     transactionType: "sales" as const,
-    vendorPkp: null
+    vendorPkp: null,
+    warehouses: []
   }))
 ];
 
@@ -2846,6 +2874,11 @@ export interface PriceRuleInput {
   name: string;
   transactionType: PriceRuleTransactionType;
   vendorPkp: boolean | null;
+  /** Purchase rules only: the outlets (warehouses) the rule applies to. Empty
+   *  = all outlets. Several outlets in one company can buy at different
+   *  prices; an outlet-specific rule beats an all-outlet one (DECIDED 12 Nov).
+   *  Always [] on sales rules. */
+  warehouses: string[];
   ruleType: PriceRuleType;
   startDate: string;
   endDate: string;
@@ -2863,6 +2896,7 @@ export function emptyPriceRuleInput(): PriceRuleInput {
     name: "",
     transactionType: "sales",
     vendorPkp: null,
+    warehouses: [],
     ruleType: "percent",
     startDate: "",
     endDate: "",
@@ -2879,6 +2913,7 @@ export function priceRuleToInput(rule: PriceRule): PriceRuleInput {
     name: rule.name,
     transactionType: rule.transactionType,
     vendorPkp: rule.vendorPkp,
+    warehouses: [...rule.warehouses],
     ruleType: rule.ruleType,
     startDate: rule.startDate,
     endDate: rule.endDate,
@@ -2906,6 +2941,7 @@ function normalisePriceRule(input: PriceRuleInput): Omit<PriceRule, "id"> {
       input.transactionType === "purchase" && input.contacts.length > 0
         ? (input.vendorPkp ?? true)
         : null,
+    warehouses: input.transactionType === "purchase" ? [...input.warehouses] : [],
     ruleType: input.ruleType,
     startDate: input.startDate,
     endDate: input.endDate,

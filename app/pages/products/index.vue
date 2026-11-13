@@ -1310,11 +1310,20 @@ function rowsForTab(tab: ProductsTabKey): Row[] {
         const products = priceRuleScopeSummary(r.products, "product");
         const contacts = priceRuleScopeSummary(r.contacts, isPurchaseRule ? "vendor" : "contact");
         const pkp = r.vendorPkp === null ? "" : vendorPkpLabel(r.vendorPkp);
+        // Purchase rules can be scoped to outlets (= the transaction's
+        // warehouse); an empty list is every outlet. Sales rules have none.
+        const outlets = !isPurchaseRule
+          ? ""
+          : r.warehouses.length === 0
+            ? "All outlets"
+            : r.warehouses.length === 1
+              ? r.warehouses[0]!
+              : `${r.warehouses.length} outlets`;
         const transactionTypeLabel = PRICE_RULE_TRANSACTION_TYPE_LABEL[r.transactionType];
         return {
           ...emptyRow(r.id),
           title: r.name,
-          productContact: [products, contacts, pkp].filter(Boolean).join(" · "),
+          productContact: [products, contacts, pkp, outlets].filter(Boolean).join(" · "),
           typeLabel: PRICE_RULE_TYPE_LABEL[r.ruleType],
           searchText: [
             r.name,
@@ -1323,8 +1332,10 @@ function rowsForTab(tab: ProductsTabKey): Row[] {
             products,
             contacts,
             pkp,
+            outlets,
             ...r.products,
-            ...r.contacts
+            ...r.contacts,
+            ...r.warehouses
           ],
           // Read by the Transaction type quick filter through the shared
           // `transactionType` filter field (see products-filter.ts).

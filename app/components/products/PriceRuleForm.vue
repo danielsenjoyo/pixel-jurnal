@@ -338,6 +338,33 @@
             </MpCheckbox>
             <MpFormErrorMessage>{{ pkpConflictMessage }}</MpFormErrorMessage>
           </MpFormControl>
+
+          <!-- Outlets = the Purchases transaction's Warehouse (DECIDED 12 Nov):
+               one company can run outlets that buy at different prices. Sits
+               with the vendor list because it narrows who the rule is for.
+               A short fixed list, so a checkbox per outlet rather than a
+               picker drawer; none ticked = every outlet. -->
+          <MpFormControl v-if="isPurchase" :class="outletsClass">
+            <div :class="labelRowClass">
+              <MpFormLabel>Outlets (warehouses)</MpFormLabel>
+              <MpText size="body-small" color="gray.600">{{ outletScopeText }}</MpText>
+            </div>
+            <div :class="outletListClass">
+              <MpCheckbox
+                v-for="(outlet, index) in WAREHOUSE_OPTIONS"
+                :id="`price-rule-outlet-${index}`"
+                :key="outlet"
+                :is-checked="form.warehouses.includes(outlet)"
+                @change="toggleOutlet(outlet)"
+              >
+                {{ outlet }}
+              </MpCheckbox>
+            </div>
+            <MpFormHelpText>
+              Leave empty to apply to every outlet. A rule for a specific outlet takes priority over
+              an all-outlet rule.
+            </MpFormHelpText>
+          </MpFormControl>
         </div>
       </div>
 
@@ -571,7 +598,8 @@ import {
 // the Purchases forms, which pick from these lists, not from the catalogue.
 import {
   PRODUCT_OPTIONS as PURCHASE_PRODUCT_OPTIONS,
-  VENDOR_OPTIONS
+  VENDOR_OPTIONS,
+  WAREHOUSE_OPTIONS
 } from "~/data/purchase-transactions";
 import { purchasePkpConflict, vendorPkpStatus } from "~/composables/usePurchasePriceRule";
 import { DATE_INPUT_FORMAT, dmyToIso, isoToDmy } from "~/utils/dates";
@@ -778,6 +806,7 @@ function onTransactionTypeChange(value: unknown) {
   form.contacts = [];
   form.products = [];
   form.vendorPkp = null;
+  form.warehouses = [];
   isAllContacts.value = false;
   isAllProducts.value = false;
   contactSearch.value = "";
@@ -792,6 +821,23 @@ function onTransactionTypeChange(value: unknown) {
       title: `Selected ${cleared} and products cleared`
     });
   }
+}
+
+// ---- Outlets (warehouses) -------------------------------------------------
+
+/** Purchase rules only. Empty = every outlet, which is what the stored empty
+ *  list means (see `PriceRule.warehouses`). */
+const outletScopeText = computed(() => {
+  const count = form.warehouses.length;
+  if (count === 0) return "All outlets";
+  return count === 1 ? form.warehouses[0]! : `${count} outlets`;
+});
+
+function toggleOutlet(outlet: string) {
+  form.warehouses = form.warehouses.includes(outlet)
+    ? form.warehouses.filter((name) => name !== outlet)
+    : // Keep the list's own order so the summary reads the same every time.
+      WAREHOUSE_OPTIONS.filter((name) => name === outlet || form.warehouses.includes(name));
 }
 
 // ---- Vendor PKP -----------------------------------------------------------
@@ -1055,7 +1101,9 @@ function onSubmit() {
     // that can never match.
     tiers: form.tiers.filter((tier) => tier.threshold > 0 && tier.discount > 0),
     products: [...form.products],
-    contacts: [...form.contacts]
+    contacts: [...form.contacts],
+    // Outlets only scope purchase rules; a sales rule always stores [].
+    warehouses: isPurchase.value ? [...form.warehouses] : []
   };
 
   if (isEdit.value && props.recordId != null) {
@@ -1170,6 +1218,8 @@ const wrapCellClass = css({ whiteSpace: "normal!", wordBreak: "break-word" });
 const tierWrapClass = css({ mt: 5 });
 const statusColClass = css({ display: "flex", alignItems: "flex-start", pt: 6 });
 const pkpClass = css({ mt: 4 });
+const outletsClass = css({ mt: 4 });
+const outletListClass = css({ display: "flex", flexWrap: "wrap", gap: "4", mt: 1, mb: 1 });
 
 const tableHeadClass = css({ boxShadow: "0 1px 0 0 var(--mp-colors-gray-100)!" });
 const tierTableClass = css({ tableLayout: "fixed", width: "full", minWidth: "560px" });
